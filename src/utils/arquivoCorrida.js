@@ -264,6 +264,7 @@ export async function lerArquivoCorrida(textoArquivo) {
   // resto da classificação continua valendo e essas colunas ficam "-".
   let avisoCalculo = null;
   const skillsPorNumero = new Map();
+  const modosPorNumero = new Map();
   try {
     const { calcularColunasPesadas } = await import("./hakuraku/colunasPesadas");
     const pesadas = await calcularColunasPesadas(json);
@@ -272,6 +273,7 @@ export async function lerArquivoCorrida(textoArquivo) {
       if (!extra) return;
       Object.assign(linha, extra.colunas);
       skillsPorNumero.set(linha.numero, extra.skills);
+      modosPorNumero.set(linha.numero, extra.modos);
     });
   } catch (erro) {
     console.error("Erro ao calcular as colunas pesadas:", erro);
@@ -343,6 +345,8 @@ export async function lerArquivoCorrida(textoArquivo) {
       cardId: c.responseHorseData?.card_id || null,
       estilo: ESTILOS[c.responseHorseData?.running_style] ?? null,
       posicao: posicaoPorIndice.get(c.horseIndex) ?? null,
+      // Trechos de pace up / pace down / downhill, em metros.
+      modos: modosPorNumero.get(c.horseIndex + 1) ?? [],
     })),
   };
 

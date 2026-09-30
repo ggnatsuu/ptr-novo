@@ -63,6 +63,18 @@ const CORES_ROTULO = {
 
 const CORES_ESTILO = { FRONT: "#3498db", PACE: "#2ecc71", LATE: "#f39c12", END: "#e74c3c" };
 
+// Plaquinhas de pace up / pace down / downhill (trechos calculados no upload).
+const MODOS = {
+  paceUp: { cor: "#5dade2", simbolo: "↑", texto: "Pace Up" },
+  paceDown: { cor: "#b388eb", simbolo: "↓", texto: "Pace Down" },
+  downhill: { cor: "#4aa3a9", simbolo: "⬇", texto: "Downhill" },
+};
+
+// Modos em que o cavalo está naquela distância (sem repetir o tipo).
+function modosAtivos(cavalo, distancia) {
+  return [...new Set(cavalo.modos.filter((m) => distancia >= m.inicio && distancia <= m.fim).map((m) => m.tipo))];
+}
+
 function formatarTempo(segundos) {
   const m = Math.floor(segundos / 60);
   return `${m}:${(segundos % 60).toFixed(1).padStart(4, "0")}`;
@@ -116,6 +128,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
   const [mostrarNpcs, setMostrarNpcs] = useState(true);
   const [mostrarSkills, setMostrarSkills] = useState(true);
   const [mostrarEventos, setMostrarEventos] = useState(true);
+  const [mostrarModos, setMostrarModos] = useState(true);
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
   const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
   const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
@@ -345,6 +358,30 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               );
             })}
 
+            {/* plaquinhas de pace up / pace down / downhill, embaixo de cada cavalo */}
+            {mostrarModos && ordemDesenho.map((c) => {
+              const ativos = modosAtivos(c, estado[c.indice].distancia);
+              if (!ativos.length) return null;
+              const larguras = ativos.map((tipo) => (MODOS[tipo].simbolo.length + MODOS[tipo].texto.length + 1) * 7.4 + 14);
+              const total = larguras.reduce((a, b) => a + b, 0) + (ativos.length - 1) * 4;
+              let x = xDe(estado[c.indice].distancia) - total / 2;
+              const y = yDe(estado[c.indice].raia) + RAIO + 3;
+              return (
+                <g key={`modo-${c.indice}`} opacity={c.npc ? 0.5 : 0.95} style={{ pointerEvents: "none" }}>
+                  {ativos.map((tipo, i) => {
+                    const caixaX = x;
+                    x += larguras[i] + 4;
+                    return (
+                      <g key={tipo}>
+                        <rect x={caixaX} y={y} width={larguras[i]} height="19" rx="9.5" fill="#0b1320" stroke={MODOS[tipo].cor} strokeWidth="1.5" />
+                        <text x={caixaX + larguras[i] / 2} y={y + 14} textAnchor="middle" fill={MODOS[tipo].cor} fontSize="12.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{`${MODOS[tipo].simbolo} ${MODOS[tipo].texto}`}</text>
+                      </g>
+                    );
+                  })}
+                </g>
+              );
+            })}
+
             {/* rótulos (por cima de todos os cavalos) */}
             {rotulosNaTela.map((r) => {
               const cores = CORES_ROTULO[r.tipo];
@@ -407,6 +444,9 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "10px", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", color: "#a4b3c6" }}>
             <Opcao ativo={mostrarSkills} aoTrocar={setMostrarSkills}>Skill labels</Opcao>
             <Opcao ativo={mostrarEventos} aoTrocar={setMostrarEventos}>Duels / Rushed / Last spurt</Opcao>
+            {corrida.cavalos.some((c) => c.modos.length > 0) && (
+              <Opcao ativo={mostrarModos} aoTrocar={setMostrarModos}>Pace up / Pace down / Downhill</Opcao>
+            )}
             <Opcao ativo={mostrarNpcs} aoTrocar={(v) => { setMostrarNpcs(v); if (!v && seguindo !== null && corrida.cavalos[seguindo].npc) setSeguindo(null); }}>Show NPCs</Opcao>
             {seguindo !== null && (
               <button type="button" onClick={() => setSeguindo(null)} style={{ ...estiloBotao(false), padding: "2px 10px", fontSize: "8.5pt" }}>
@@ -454,7 +494,12 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
                   ? <IconeRedondo src={c.icone} tamanho={34} />
                   : <span style={{ width: "34px", height: "34px", flexShrink: 0, borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "8pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: "#f1ead4", fontSize: "9pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.personagem}</div>
+                  <div style={{ color: "#f1ead4", fontSize: "9pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {c.personagem}
+                    {mostrarModos && !c.chegou && modosAtivos(c, c.e.distancia).map((tipo) => (
+                      <span key={tipo} title={MODOS[tipo].texto} style={{ color: MODOS[tipo].cor, marginLeft: "6px", fontWeight: 800 }}>{MODOS[tipo].simbolo}</span>
+                    ))}
+                  </div>
                   <div style={{ color: "#5f758e", fontSize: "7.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.treinador ?? "NPC"}</div>
                   <div style={{ height: "3px", background: "rgba(164, 179, 198, 0.15)", borderRadius: "2px", marginTop: "2px" }}>
                     <div style={{ width: `${hpPct}%`, height: "100%", borderRadius: "2px", background: hpPct > 30 ? "#1bd39e" : hpPct > 10 ? "#c5a059" : "#e04b37" }} />

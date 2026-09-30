@@ -36,7 +36,31 @@ export type StatusSkill = "activated" | "failed-wit" | "failed-condition" | "not
 
 export type SkillCorrida = { id: number; status: StatusSkill; vezes: number };
 
-export type DetalhesCavalo = { colunas: ColunasPesadas; skills: SkillCorrida[] };
+// Trechos (em metros) em que o cavalo esteve em pace up, pace down ou
+// downhill — usados pelo replay pra mostrar a plaquinha na hora certa.
+export type ModoCorrida = { tipo: "paceUp" | "paceDown" | "downhill"; inicio: number; fim: number };
+
+export type DetalhesCavalo = { colunas: ColunasPesadas; skills: SkillCorrida[]; modos: ModoCorrida[] };
+
+const TIPO_DO_MODO: Record<string, ModoCorrida["tipo"]> = {
+    "Pace Up Mode": "paceUp",
+    "Pace Down Mode": "paceDown",
+    "Downhill Mode": "downhill",
+};
+
+function modosDaCorrida(row: any): ModoCorrida[] {
+    const modos: ModoCorrida[] = [];
+    (row.skillEvents ?? []).forEach((evento: any) => {
+        const tipo = evento.isMode ? TIPO_DO_MODO[evento.name] : undefined;
+        if (!tipo) return;
+        (evento.segments ?? []).forEach((trecho: any) => {
+            const inicio = Math.round(trecho.startDistance * 10) / 10;
+            const fim = Math.round(trecho.endDistance * 10) / 10;
+            if (fim > inicio) modos.push({ tipo, inicio, fim });
+        });
+    });
+    return modos.sort((a, b) => a.inicio - b.inicio);
+}
 
 // ---- Status de cada skill aprendida (igual ao CharaCard.tsx do Hakuraku) ----
 
@@ -226,7 +250,7 @@ export async function calcularColunasPesadas(json: any): Promise<Map<number, Det
     tabela.forEach((row: any) => {
         const indice = row.frameOrder - 1;
         const perda = wt ? perdaWtNaChegada(raceData, indice, row.horseResultData.finishTimeRaw, wt.cumulativeLossByFrame) : undefined;
-        resultado.set(row.frameOrder, { colunas: formatarLinha(row, perda), skills: skillsDaCorrida(row) });
+        resultado.set(row.frameOrder, { colunas: formatarLinha(row, perda), skills: skillsDaCorrida(row), modos: modosDaCorrida(row) });
     });
     return resultado;
 }

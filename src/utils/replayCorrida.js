@@ -53,6 +53,7 @@ export function prepararCorrida(raceData, replay) {
       npc: !info.treinador,
       icone: iconeDaRoupa(info.cardId),
       estilo: info.estilo ?? null,
+      modos: info.modos ?? [], // só existe em replays enviados depois da 2ª etapa
     };
   });
 
