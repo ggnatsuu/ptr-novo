@@ -120,7 +120,9 @@ function posicionarRotulos(itens) {
 
 // Sem "aoFechar", o replay é desenhado embutido na página (Resultados) em
 // vez de numa janela por cima de tudo (prévia do RankAdmin).
-function ReplayCorrida({ replay, titulo, aoFechar }) {
+// "pedidoSeguir" ({ numero }) vem do botão "Follow in replay" do painel do
+// treinador: um objeto novo a cada clique faz a câmera seguir aquele cavalo.
+function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const [corrida, setCorrida] = useState(null);
   const [erro, setErro] = useState(null);
   const [tempo, setTempo] = useState(0);
@@ -133,6 +135,16 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
   const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
   const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
+
+  // Pedido novo de "seguir": câmera no cavalo e play (do início, se já acabou).
+  const [pedidoAtendido, setPedidoAtendido] = useState(null);
+  if (pedidoSeguir && pedidoSeguir !== pedidoAtendido) {
+    setPedidoAtendido(pedidoSeguir);
+    setSeguindo(pedidoSeguir.numero - 1);
+    setMostrarNpcs(true);
+    if (corrida && tempo >= corrida.tempoFinal) setTempo(0);
+    setTocando(true);
+  }
 
   // Decodifica a simulação (o decodificador só é baixado aqui).
   useEffect(() => {

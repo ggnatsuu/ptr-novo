@@ -88,6 +88,14 @@ function Resultados() {
   const [indiceSelecionado, setIndiceSelecionado] = useState(null);
   // 🎯 Linha da tabela com o painel de detalhes aberto ("idDaCorrida-numero").
   const [linhaAberta, setLinhaAberta] = useState(null);
+  // 🎯 Botão "Follow in replay" do painel: objeto novo a cada clique, pro
+  // replay embaixo da tabela seguir aquele cavalo.
+  const [pedidoSeguir, setPedidoSeguir] = useState(null);
+
+  function seguirNoReplay(numero) {
+    setPedidoSeguir({ numero, corridaId: corridaSelecionada.id });
+    document.getElementById("replay-da-corrida")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
 
   const carrosselRef = useRef(null);
@@ -545,7 +553,7 @@ function Resultados() {
                           {aberta && (
                             <tr>
                               <td colSpan={12} style={{ padding: 0 }}>
-                                <PainelDetalheTreinador dados={dadosTreinador}>
+                                <PainelDetalheTreinador dados={dadosTreinador} aoSeguirNoReplay={corridaSelecionada.origem === "arquivo" ? () => seguirNoReplay(linha.numero) : undefined}>
                                   {corridaSelecionada.origem === "arquivo" && <SecaoGraficoDesempenho corridaId={corridaSelecionada.id} numero={linha.numero} />}
                                 </PainelDetalheTreinador>
                               </td>
@@ -560,8 +568,8 @@ function Resultados() {
 
               {/* 🎯 Replay (só corridas enviadas pelo arquivo do jogo) */}
               {corridaSelecionada.origem === "arquivo" && (
-                <div style={{ marginTop: "30px" }}>
-                  <SecaoReplayResultado corrida={corridaSelecionada} />
+                <div id="replay-da-corrida" style={{ marginTop: "30px", scrollMarginTop: "90px" }}>
+                  <SecaoReplayResultado corrida={corridaSelecionada} pedidoSeguir={pedidoSeguir?.corridaId === corridaSelecionada.id ? pedidoSeguir : null} />
                 </div>
               )}
             </div>

@@ -104,7 +104,9 @@ function SeloStatus({ skill }) {
 }
 
 // "children" (opcional) é o gráfico de desempenho, desenhado embaixo de tudo.
-function PainelDetalheTreinador({ dados, children }) {
+// "aoSeguirNoReplay" (opcional) mostra o botão que leva ao replay seguindo
+// este treinador.
+function PainelDetalheTreinador({ dados, children, aoSeguirNoReplay }) {
   const skills = dados.skillsCorrida ?? [];
   const aptidoes = dados.aptidoesCorrida ?? {};
   const deck = dados.deck ?? [];
@@ -143,6 +145,16 @@ function PainelDetalheTreinador({ dados, children }) {
       </div>
 
       <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "24px" }}>
+        {aoSeguirNoReplay && (
+          <button
+            type="button"
+            onClick={aoSeguirNoReplay}
+            style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(197, 160, 89, 0.15)", border: "1px solid #c5a059", color: "#c5a059", borderRadius: "50px", padding: "7px 18px", fontSize: "9pt", fontWeight: 700, fontFamily: "'Montserrat', sans-serif", cursor: "pointer" }}
+          >
+            <i className="fa-solid fa-film"></i> Follow in replay
+          </button>
+        )}
+
         {/* STATS E HUMOR */}
         {dados.stats && (
           <div>

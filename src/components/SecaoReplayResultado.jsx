@@ -75,7 +75,7 @@ export function ReplayBloqueado({
   );
 }
 
-function SecaoReplayResultado({ corrida }) {
+function SecaoReplayResultado({ corrida, pedidoSeguir }) {
   // undefined = ainda verificando o login; null = visitante.
   const usuario = useUsuario();
   // Resultado da busca, guardado junto com o id da corrida — ao trocar de
@@ -109,7 +109,7 @@ function SecaoReplayResultado({ corrida }) {
 
   return (
     <Suspense fallback={<Aviso>Carregando replay...</Aviso>}>
-      <ReplayCorrida key={corrida.id} replay={atual.dados} />
+      <ReplayCorrida key={corrida.id} replay={atual.dados} pedidoSeguir={pedidoSeguir} />
     </Suspense>
   );
 }
