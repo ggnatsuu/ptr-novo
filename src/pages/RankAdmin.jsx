@@ -5,6 +5,7 @@ import { doc, getDoc, getDocs, setDoc, collection, onSnapshot, serverTimestamp }
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
+import { iconeDaRoupa } from "../utils/iconeRoupa";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
 
 // 🎯 Nome da corrida → ID do percurso no jogo. Usado pra conferir o arquivo
@@ -673,7 +674,19 @@ function RankAdmin() {
                                       style={{ borderTop: "1px solid rgba(164, 179, 198, 0.1)", cursor: dadosTreinador ? "pointer" : "default", background: aberta ? "rgba(197, 160, 89, 0.08)" : "transparent" }}
                                     >
                                       <td style={{ padding: "4px 6px", color: "#c5a059", fontWeight: 700 }}>{linha.posicao}º</td>
-                                      <td style={{ padding: "4px 6px", color: "#f1ead4" }}>{linha.personagem}</td>
+                                      <td style={{ padding: "4px 6px", color: "#f1ead4" }}>
+                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                                          {iconeDaRoupa(dadosTreinador?.cardId) && (
+                                            <img
+                                              src={iconeDaRoupa(dadosTreinador?.cardId)}
+                                              alt=""
+                                              style={{ width: "26px", height: "26px", borderRadius: "50%", objectFit: "cover" }}
+                                              onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                            />
+                                          )}
+                                          {linha.personagem}
+                                        </span>
+                                      </td>
                                       <td style={{ padding: "4px 6px" }}>[{linha.treinador}]</td>
                                       <td style={{ padding: "4px 6px", textAlign: "right" }}>{linha.tempo}</td>
                                     </tr>

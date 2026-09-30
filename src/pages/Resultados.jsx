@@ -3,6 +3,7 @@ import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
+import { iconeDaRoupa } from "../utils/iconeRoupa";
 
 // 🎯 PARTE 1/3: busca as corridas com resultado já lançado pra edição
 // ativa, e monta o carrossel de cards clicáveis (nome, distância,
@@ -479,11 +480,15 @@ function Resultados() {
                             <td style={{ ...estiloCelulaBase, color: "#a4b3c6", fontSize: "10.5pt" }}>{linha.numero}</td>
                             <td style={{ ...estiloCelulaBase, textAlign: "left" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                {obterUrlImagemPersonagem(linha.personagem) && (
+                                {(iconeDaRoupa(dadosTreinador?.cardId) || obterUrlImagemPersonagem(linha.personagem)) && (
                                   <img
-                                    src={obterUrlImagemPersonagem(linha.personagem)}
+                                    src={iconeDaRoupa(dadosTreinador?.cardId) || obterUrlImagemPersonagem(linha.personagem)}
                                     alt={linha.personagem}
-                                    style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(197, 160, 89, 0.4)", flexShrink: 0 }}
+                                    style={{
+                                      width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flexShrink: 0,
+                                      // O ícone da roupa já vem com a moldura dourada do jogo.
+                                      border: iconeDaRoupa(dadosTreinador?.cardId) ? "none" : "1px solid rgba(197, 160, 89, 0.4)",
+                                    }}
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                   />
                                 )}
