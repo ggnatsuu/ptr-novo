@@ -4,6 +4,7 @@ import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
+import SecaoAnaliseTreinador from "../components/SecaoAnaliseTreinador";
 import CondicoesCorrida from "../components/CondicoesCorrida";
 import DestaquesCorrida from "../components/DestaquesCorrida";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
@@ -556,7 +557,19 @@ function Resultados() {
                           {aberta && (
                             <tr>
                               <td colSpan={12} style={{ padding: 0 }}>
-                                <PainelDetalheTreinador dados={dadosTreinador} aoSeguirNoReplay={corridaSelecionada.origem === "arquivo" ? () => seguirNoReplay(linha.numero) : undefined}>
+                                <PainelDetalheTreinador
+                                  dados={dadosTreinador}
+                                  aoSeguirNoReplay={corridaSelecionada.origem === "arquivo" ? () => seguirNoReplay(linha.numero) : undefined}
+                                  lateral={
+                                    <SecaoAnaliseTreinador
+                                      dados={dadosTreinador}
+                                      linha={linha}
+                                      corrida={corridaSelecionada}
+                                      todasCorridas={todasCorridas}
+                                      corridaId={corridaSelecionada.origem === "arquivo" ? corridaSelecionada.id : undefined}
+                                    />
+                                  }
+                                >
                                   {corridaSelecionada.origem === "arquivo" && <SecaoGraficoDesempenho corridaId={corridaSelecionada.id} numero={linha.numero} />}
                                 </PainelDetalheTreinador>
                               </td>

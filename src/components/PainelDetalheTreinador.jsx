@@ -106,7 +106,8 @@ function SeloStatus({ skill }) {
 // "children" (opcional) é o gráfico de desempenho, desenhado embaixo de tudo.
 // "aoSeguirNoReplay" (opcional) mostra o botão que leva ao replay seguindo
 // este treinador.
-function PainelDetalheTreinador({ dados, children, aoSeguirNoReplay }) {
+// "lateral" (opcional) é a coluna de análise (resumo, diagnóstico, histórico).
+function PainelDetalheTreinador({ dados, children, aoSeguirNoReplay, lateral }) {
   const skills = dados.skillsCorrida ?? [];
   const aptidoes = dados.aptidoesCorrida ?? {};
   const deck = dados.deck ?? [];
@@ -224,6 +225,9 @@ function PainelDetalheTreinador({ dados, children, aoSeguirNoReplay }) {
           </div>
         )}
       </div>
+
+      {/* ANÁLISE (resumo, diagnóstico, histórico) */}
+      {lateral && <div style={{ flex: "1 1 360px", minWidth: 0 }}>{lateral}</div>}
 
       {/* GRÁFICO DE DESEMPENHO */}
       {children && (
