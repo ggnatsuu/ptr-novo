@@ -1,0 +1,461 @@
+// 🎯 src/components/ReplayCorrida.jsx
+// Replay da corrida a partir do arquivo do jogo (o mesmo enviado ao
+// Hakuraku). Recebe o objeto "replay" montado em utils/arquivoCorrida.js —
+// vindo do Firestore (replays_partidas) na página de Resultados, ou direto
+// da prévia no RankAdmin — e desenha a pista "esticada" (distância × raia)
+// com os cavalos andando, rótulos de skills/eventos e o placar ao vivo.
+//
+// A simulação só tem ~1 quadro por segundo no meio da corrida, então a
+// posição entre quadros é suavizada com a velocidade de cada cavalo
+// (interpolação de Hermite), pra ninguém "pular" na tela.
+
+import { useEffect, useMemo, useState } from "react";
+import courseData from "../uma-skill-tools/data/course_data.json";
+import { prepararCorrida, estadoNoTempo } from "../utils/replayCorrida";
+
+// ---------------------------------------------------------------------
+// CONSTANTES DE DESENHO
+// ---------------------------------------------------------------------
+
+const LARGURA = 1000;
+const ALTURA = 340;
+const TOPO_PISTA = 58; // espaço acima pros rótulos
+const BASE_PISTA = ALTURA - 44; // espaço abaixo pras faixas de curva/reta
+const RAIO = 13;
+const RAIA_MIN_ESCALA = 3000; // lanePosition: 0 = cerca interna; ~10000 = portão mais aberto
+const ALTURA_ROTULO = 16;
+const JANELA_MIN_M = 70;
+const JANELA_MAX_M = 260;
+
+const VELOCIDADES = [0.5, 1, 2, 4];
+
+const CORES_ROTULO = {
+  skill: { fundo: "#c5a059", texto: "#0b1320" },
+  duelo: { fundo: "#e67e22", texto: "#0b1320" },
+  ponta: { fundo: "#3498db", texto: "#0b1320" },
+  kakari: { fundo: "#e04b37", texto: "#fff" },
+  spurt: { fundo: "#1bd39e", texto: "#0b1320" },
+};
+
+const CORES_ESTILO = { FRONT: "#3498db", PACE: "#2ecc71", LATE: "#f39c12", END: "#e74c3c" };
+
+function formatarTempo(segundos) {
+  const m = Math.floor(segundos / 60);
+  return `${m}:${(segundos % 60).toFixed(1).padStart(4, "0")}`;
+}
+
+// Trecho da pista que a câmera mostra: o pelotão inteiro (até um limite)
+// ou, se alguém estiver sendo seguido, uma janela fechada nele. Devolve os
+// limites relativos a uma referência (líder ou cavalo seguido), além da
+// raia mais aberta, que define a escala vertical.
+function enquadramento(estado, indicesVisiveis, seguindo) {
+  const raiaMax = Math.max(...indicesVisiveis.map((i) => estado[i].raia));
+  if (seguindo !== null) {
+    return { ref: estado[seguindo].distancia, inicio: -JANELA_MIN_M * 0.6, fim: JANELA_MIN_M * 0.4, raiaMax };
+  }
+  const distancias = indicesVisiveis.map((i) => estado[i].distancia);
+  const lider = Math.max(...distancias);
+  const fim = 22;
+  let inicio = Math.max(Math.min(...distancias) - lider - 12, fim - JANELA_MAX_M);
+  if (fim - inicio < JANELA_MIN_M) inicio = fim - JANELA_MIN_M;
+  return { ref: lider, inicio, fim, raiaMax };
+}
+
+// Coloca cada rótulo no primeiro "andar" livre acima do cavalo (ou logo
+// abaixo, se não couber em cima); rótulo que não acha lugar fica de fora.
+function posicionarRotulos(itens) {
+  const colocados = [];
+  const bate = (a, b) => a.x < b.x + b.largura && b.x < a.x + a.largura && a.y < b.y + ALTURA_ROTULO && b.y < a.y + ALTURA_ROTULO;
+  itens.forEach((item) => {
+    const largura = item.texto.length * 6 + 12;
+    const x = Math.min(Math.max(item.xCavalo - largura / 2, 2), LARGURA - largura - 2);
+    const andares = [0, 1, 2, 3, 4].map((k) => item.yCavalo - RAIO - 4 - ALTURA_ROTULO - k * (ALTURA_ROTULO + 2));
+    andares.push(item.yCavalo + RAIO + 4);
+    const y = andares.find((yy) => yy >= 2 && yy + ALTURA_ROTULO <= ALTURA - 2 && !colocados.some((c) => bate({ x, y: yy, largura }, c)));
+    if (y !== undefined) colocados.push({ ...item, x, y, largura });
+  });
+  return colocados;
+}
+
+// ---------------------------------------------------------------------
+// COMPONENTE
+// ---------------------------------------------------------------------
+
+function ReplayCorrida({ replay, titulo, aoFechar }) {
+  const [corrida, setCorrida] = useState(null);
+  const [erro, setErro] = useState(null);
+  const [tempo, setTempo] = useState(0);
+  const [tocando, setTocando] = useState(false);
+  const [velocidade, setVelocidade] = useState(1);
+  const [mostrarNpcs, setMostrarNpcs] = useState(true);
+  const [mostrarSkills, setMostrarSkills] = useState(true);
+  const [mostrarEventos, setMostrarEventos] = useState(true);
+  const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
+
+  // Decodifica a simulação (o decodificador só é baixado aqui).
+  useEffect(() => {
+    let cancelado = false;
+    import("../utils/hakuraku/RaceDataParser")
+      .then(({ deserializeFromBase64 }) => deserializeFromBase64(replay.simDataBase64))
+      .then((raceData) => {
+        if (!cancelado) setCorrida(prepararCorrida(raceData, replay));
+      })
+      .catch((e) => {
+        console.error("Erro ao montar o replay:", e);
+        if (!cancelado) setErro("Não foi possível carregar o replay desta corrida.");
+      });
+    return () => { cancelado = true; };
+  }, [replay]);
+
+  // Loop de animação.
+  useEffect(() => {
+    if (!tocando || !corrida) return undefined;
+    let quadro;
+    let anterior = performance.now();
+    const passo = (agora) => {
+      const dtReal = (agora - anterior) / 1000;
+      anterior = agora;
+      setTempo((t) => {
+        const novo = t + dtReal * velocidade;
+        if (novo >= corrida.tempoFinal) {
+          setTocando(false);
+          return corrida.tempoFinal;
+        }
+        return novo;
+      });
+      quadro = requestAnimationFrame(passo);
+    };
+    quadro = requestAnimationFrame(passo);
+    return () => cancelAnimationFrame(quadro);
+  }, [tocando, velocidade, corrida]);
+
+  // Esc fecha; espaço dá play/pause.
+  useEffect(() => {
+    const tecla = (e) => {
+      if (e.key === "Escape") aoFechar();
+      if (e.key === " " && e.target === document.body) {
+        e.preventDefault();
+        setTocando((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", tecla);
+    return () => window.removeEventListener("keydown", tecla);
+  }, [aoFechar]);
+
+  const estado = useMemo(() => (corrida ? estadoNoTempo(corrida, tempo) : null), [corrida, tempo]);
+
+  const trechos = useMemo(() => {
+    const curso = courseData[replay.courseId];
+    if (!curso) return { curvas: [], subidas: [], sentido: 1 };
+    return {
+      curvas: (curso.corners ?? []).map((c, i) => ({ inicio: c.start, fim: c.start + c.length, nome: `Corner ${i + 1}` })),
+      subidas: (curso.slopes ?? []).map((s) => ({ inicio: s.start, fim: s.start + s.length, subida: s.slope > 0 })),
+      // Pista no sentido horário: a cerca interna fica à direita de quem corre → embaixo na tela.
+      sentido: curso.turn === 2 ? -1 : 1,
+    };
+  }, [replay.courseId]);
+
+  if (erro) {
+    return <Moldura titulo={titulo} aoFechar={aoFechar}><p style={{ color: "#e04b37", textAlign: "center", padding: "40px" }}>{erro}</p></Moldura>;
+  }
+  if (!corrida || !estado) {
+    return <Moldura titulo={titulo} aoFechar={aoFechar}><p style={{ color: "#a4b3c6", textAlign: "center", padding: "40px" }}>Carregando replay...</p></Moldura>;
+  }
+
+  const visiveis = corrida.cavalos.filter((c) => mostrarNpcs || !c.npc);
+
+  // ---- Câmera: acompanha o pelotão (ou o cavalo seguido). Pra não
+  // tremer, o tamanho da janela e a escala das raias são a média do último
+  // segundo — mas presos à posição ATUAL do líder, pra não ficar atrasada.
+  const indicesVisiveis = visiveis.map((c) => c.indice);
+  const amostras = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map((atraso) => {
+    const e = atraso === 0 ? estado : estadoNoTempo(corrida, Math.max(0, tempo - atraso));
+    return enquadramento(e, indicesVisiveis, seguindo);
+  });
+  const media = (campo) => amostras.reduce((soma, a) => soma + a[campo], 0) / amostras.length;
+  const camera = { inicio: amostras[0].ref + media("inicio"), fim: amostras[0].ref + media("fim") };
+  const escalaRaia = Math.max(RAIA_MIN_ESCALA, media("raiaMax")) * 1.1;
+  const escalaX = LARGURA / (camera.fim - camera.inicio);
+  const xDe = (d) => (d - camera.inicio) * escalaX;
+  const alturaPista = BASE_PISTA - TOPO_PISTA;
+  const yDe = (raia) => {
+    const fracao = Math.min(1, Math.max(0, raia / escalaRaia));
+    return trechos.sentido === 1 ? BASE_PISTA - RAIO - fracao * (alturaPista - 2 * RAIO) : TOPO_PISTA + RAIO + fracao * (alturaPista - 2 * RAIO);
+  };
+
+  // ---- Marcas da pista na janela visível ----
+  const passoMarca = camera.fim - camera.inicio > 150 ? 50 : 25;
+  const marcas = [];
+  for (let m = Math.ceil(camera.inicio / passoMarca) * passoMarca; m <= camera.fim; m += passoMarca) {
+    if (m >= 0 && m <= corrida.distancia) marcas.push(m);
+  }
+  const fases = [
+    { d: corrida.distancia / 6, nome: "Mid-race" },
+    { d: replay.inicioFaseFinal ?? (corrida.distancia * 2) / 3, nome: "Late-race" },
+    { d: (corrida.distancia * 5) / 6, nome: "Last spurt" },
+  ];
+
+  // ---- Rótulos ativos agora ----
+  const rotulosPorCavalo = new Map();
+  corrida.rotulos.forEach((r) => {
+    if (tempo < r.inicio || tempo > r.fim) return;
+    if (r.tipo === "skill" ? !mostrarSkills : !mostrarEventos) return;
+    if (!rotulosPorCavalo.has(r.indice)) rotulosPorCavalo.set(r.indice, []);
+    rotulosPorCavalo.get(r.indice).push(r);
+  });
+  if (mostrarEventos) {
+    estado.forEach((e, i) => {
+      if (!e.kakari) return;
+      if (!rotulosPorCavalo.has(i)) rotulosPorCavalo.set(i, []);
+      rotulosPorCavalo.get(i).push({ texto: "Kakari", tipo: "kakari" });
+    });
+  }
+
+  // ---- Placar: ordem atual por distância (quem já chegou fica pela posição final) ----
+  const placar = [...visiveis]
+    .map((c) => {
+      const r = corrida.resultados[c.indice];
+      const chegou = r.tempoChegada > 0 && tempo >= r.tempoChegada;
+      return { ...c, e: estado[c.indice], chegou, r };
+    })
+    .sort((a, b) => {
+      if (a.chegou && b.chegou) return a.r.posicaoFinal - b.r.posicaoFinal;
+      if (a.chegou !== b.chegou) return a.chegou ? -1 : 1;
+      return b.e.distancia - a.e.distancia;
+    });
+
+  const trocarSeguir = (indice) => setSeguindo((atual) => (atual === indice ? null : indice));
+
+  // Desenha quem está atrás primeiro, pra quem está na frente ficar por cima.
+  const ordemDesenho = [...visiveis].sort((a, b) => estado[a.indice].distancia - estado[b.indice].distancia);
+
+  // Rótulos: eventos (duelo, kakari...) têm prioridade; depois quem vai na frente.
+  const rotulosNaTela = posicionarRotulos(
+    [...rotulosPorCavalo.entries()]
+      .filter(([indice]) => visiveis.some((c) => c.indice === indice))
+      .flatMap(([indice, lista]) => lista.map((r) => ({ ...r, indice, xCavalo: xDe(estado[indice].distancia), yCavalo: yDe(estado[indice].raia) })))
+      .sort((a, b) => Number(a.tipo === "skill") - Number(b.tipo === "skill") || b.xCavalo - a.xCavalo),
+  );
+
+  return (
+    <Moldura titulo={titulo} aoFechar={aoFechar}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "flex-start" }}>
+        {/* PISTA */}
+        <div style={{ flex: "1 1 620px", minWidth: 0 }}>
+          <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} style={{ width: "100%", display: "block", background: "#0b1320", borderRadius: "8px", border: "1px solid rgba(197, 160, 89, 0.2)" }}>
+            <defs>
+              <clipPath id="replay-clip-icone">
+                <circle cx="0" cy="0" r={RAIO - 1} />
+              </clipPath>
+            </defs>
+
+            {/* grama / pista */}
+            <rect x="0" y={TOPO_PISTA} width={LARGURA} height={alturaPista} fill="#12301f" opacity="0.55" />
+            {/* cerca interna */}
+            <line x1="0" x2={LARGURA} y1={trechos.sentido === 1 ? BASE_PISTA : TOPO_PISTA} y2={trechos.sentido === 1 ? BASE_PISTA : TOPO_PISTA} stroke="#f1ead4" strokeWidth="2" opacity="0.6" />
+
+            {/* subidas e descidas (faixa de cima) */}
+            {trechos.subidas.map((s, i) => (
+              s.fim >= camera.inicio && s.inicio <= camera.fim && (
+                <g key={`sub-${i}`}>
+                  <rect x={xDe(s.inicio)} y={TOPO_PISTA - 6} width={Math.max(1, xDe(s.fim) - xDe(s.inicio))} height="5" rx="2" fill={s.subida ? "#c8e05a" : "#4aa3a9"} opacity="0.85" />
+                  <text x={Math.max(4, xDe(s.inicio) + 4)} y={TOPO_PISTA - 10} fill={s.subida ? "#c8e05a" : "#4aa3a9"} fontSize="9.5" fontFamily="Montserrat, sans-serif">{s.subida ? "Uphill" : "Downhill"}</text>
+                </g>
+              )
+            ))}
+
+            {/* curvas e retas (faixa de baixo) */}
+            <rect x="0" y={BASE_PISTA + 6} width={LARGURA} height="16" fill="rgba(164, 179, 198, 0.12)" />
+            {trechos.curvas.map((c, i) => (
+              c.fim >= camera.inicio && c.inicio <= camera.fim && (
+                <g key={`curva-${i}`}>
+                  <rect x={xDe(c.inicio)} y={BASE_PISTA + 6} width={Math.max(1, xDe(c.fim) - xDe(c.inicio))} height="16" fill="rgba(197, 160, 89, 0.35)" />
+                  <text x={Math.max(4, xDe(c.inicio) + 4)} y={BASE_PISTA + 18} fill="#f1ead4" fontSize="10" fontFamily="Montserrat, sans-serif">{c.nome}</text>
+                </g>
+              )
+            ))}
+
+            {/* marcas de distância */}
+            {marcas.map((m) => (
+              <g key={`m-${m}`}>
+                <line x1={xDe(m)} x2={xDe(m)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#f1ead4" strokeWidth="1" opacity="0.08" />
+                <text x={xDe(m)} y={ALTURA - 8} fill="#5f758e" fontSize="10" textAnchor="middle" fontFamily="Montserrat, sans-serif">{m}m</text>
+              </g>
+            ))}
+
+            {/* fases */}
+            {fases.map((f) => (
+              f.d >= camera.inicio && f.d <= camera.fim && (
+                <g key={f.nome}>
+                  <line x1={xDe(f.d)} x2={xDe(f.d)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#c5a059" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.7" />
+                  <text x={xDe(f.d) + 4} y={TOPO_PISTA + 12} fill="#c5a059" fontSize="10" fontFamily="Montserrat, sans-serif">{f.nome}</text>
+                </g>
+              )
+            ))}
+
+            {/* chegada */}
+            {corrida.distancia >= camera.inicio && corrida.distancia <= camera.fim && (
+              <line x1={xDe(corrida.distancia)} x2={xDe(corrida.distancia)} y1={TOPO_PISTA - 10} y2={BASE_PISTA + 22} stroke="#f1ead4" strokeWidth="3" strokeDasharray="4 4" />
+            )}
+
+            {/* cavalos */}
+            {ordemDesenho.map((c) => {
+              const e = estado[c.indice];
+              const x = xDe(e.distancia);
+              const y = yDe(e.raia);
+              const seguido = seguindo === c.indice;
+              return (
+                <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={c.npc ? 0.45 : 1} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)}>
+                  <title>{`${c.personagem}${c.treinador ? ` [${c.treinador}]` : " (NPC)"}`}</title>
+                  <circle r={RAIO} fill="#1b2a3f" stroke={e.kakari ? "#e04b37" : seguido ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.kakari ? 3 : 2} />
+                  {c.icone
+                    ? <image href={c.icone} x={-(RAIO - 1)} y={-(RAIO - 1)} width={(RAIO - 1) * 2} height={(RAIO - 1) * 2} clipPath="url(#replay-clip-icone)" />
+                    : <text y="4" textAnchor="middle" fill="#f1ead4" fontSize="11" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
+                </g>
+              );
+            })}
+
+            {/* rótulos (por cima de todos os cavalos) */}
+            {rotulosNaTela.map((r) => {
+              const cores = CORES_ROTULO[r.tipo];
+              const npc = corrida.cavalos[r.indice].npc;
+              return (
+                <g key={`${r.indice}-${r.tipo}-${r.texto}`} opacity={npc ? 0.55 : 1} style={{ pointerEvents: "none" }}>
+                  <line x1={r.xCavalo} y1={r.yCavalo} x2={Math.min(Math.max(r.xCavalo, r.x + 4), r.x + r.largura - 4)} y2={r.y > r.yCavalo ? r.y : r.y + ALTURA_ROTULO} stroke={cores.fundo} strokeWidth="1" opacity="0.6" />
+                  <rect x={r.x} y={r.y} width={r.largura} height={ALTURA_ROTULO} rx="4" fill={cores.fundo} opacity="0.95" />
+                  <text x={r.x + r.largura / 2} y={r.y + 12} textAnchor="middle" fill={cores.texto} fontSize="10.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* CONTROLES */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", marginTop: "12px" }}>
+            <button type="button" onClick={() => { if (tempo >= corrida.tempoFinal) setTempo(0); setTocando((v) => !v); }} style={estiloBotao(true)}>
+              <i className={`fa-solid ${tocando ? "fa-pause" : "fa-play"}`}></i> {tocando ? "Pause" : "Play"}
+            </button>
+            <button type="button" onClick={() => { setTempo(0); setTocando(false); }} style={estiloBotao(false)} title="Voltar ao início">
+              <i className="fa-solid fa-backward-step"></i>
+            </button>
+            {VELOCIDADES.map((v) => (
+              <button key={v} type="button" onClick={() => setVelocidade(v)} style={estiloBotao(velocidade === v)}>{v}×</button>
+            ))}
+            <input
+              type="range"
+              min="0"
+              max={corrida.tempoFinal}
+              step="0.05"
+              value={tempo}
+              onChange={(e) => setTempo(Number(e.target.value))}
+              style={{ flex: "1 1 200px", accentColor: "#c5a059" }}
+            />
+            <span style={{ color: "#f1ead4", fontFamily: "'Courier New', monospace", fontSize: "10pt", minWidth: "110px", textAlign: "right" }}>
+              {formatarTempo(tempo)} / {formatarTempo(corrida.tempoFinal)}
+            </span>
+          </div>
+
+          {/* OPÇÕES */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "10px", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", color: "#a4b3c6" }}>
+            <Opcao ativo={mostrarSkills} aoTrocar={setMostrarSkills}>Skill labels</Opcao>
+            <Opcao ativo={mostrarEventos} aoTrocar={setMostrarEventos}>Duels / Kakari / Last spurt</Opcao>
+            <Opcao ativo={mostrarNpcs} aoTrocar={(v) => { setMostrarNpcs(v); if (!v && seguindo !== null && corrida.cavalos[seguindo].npc) setSeguindo(null); }}>Show NPCs</Opcao>
+            {seguindo !== null && (
+              <button type="button" onClick={() => setSeguindo(null)} style={{ ...estiloBotao(false), padding: "2px 10px", fontSize: "8.5pt" }}>
+                Parar de seguir {corrida.cavalos[seguindo].personagem}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* PLACAR AO VIVO */}
+        <div style={{ flex: "0 1 330px", minWidth: "260px", background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "10px", maxHeight: "460px", overflowY: "auto" }}>
+          <p style={{ margin: "0 0 8px 0", fontFamily: "'Montserrat', sans-serif", fontSize: "8.5pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" }}>
+            Posições — clique para seguir
+          </p>
+          {placar.map((c, i) => {
+            const hpPct = Math.max(0, Math.min(100, (c.e.hp / corrida.hpInicial[c.indice]) * 100));
+            const seguido = seguindo === c.indice;
+            return (
+              <div
+                key={c.indice}
+                onClick={() => trocarSeguir(c.indice)}
+                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "6px", cursor: "pointer", opacity: c.npc ? 0.55 : 1, background: seguido ? "rgba(197, 160, 89, 0.15)" : "transparent", fontFamily: "'Montserrat', sans-serif" }}
+              >
+                <span style={{ width: "22px", textAlign: "right", color: "#c5a059", fontWeight: 800, fontSize: "9.5pt" }}>{c.chegou ? c.r.posicaoFinal : i + 1}</span>
+                {c.icone
+                  ? <img src={c.icone} alt="" style={{ width: "24px", height: "24px", borderRadius: "50%" }} />
+                  : <span style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "8pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: "#f1ead4", fontSize: "9pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.personagem}</div>
+                  <div style={{ color: "#5f758e", fontSize: "7.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.treinador ?? "NPC"}</div>
+                  <div style={{ height: "3px", background: "rgba(164, 179, 198, 0.15)", borderRadius: "2px", marginTop: "2px" }}>
+                    <div style={{ width: `${hpPct}%`, height: "100%", borderRadius: "2px", background: hpPct > 30 ? "#1bd39e" : hpPct > 10 ? "#c5a059" : "#e04b37" }} />
+                  </div>
+                </div>
+                <span style={{ color: "#a4b3c6", fontSize: "8pt", fontFamily: "'Courier New', monospace", minWidth: "52px", textAlign: "right" }}>
+                  {c.chegou ? formatarTempo(c.r.tempoChegada) : `${(c.e.velocidade * 3.6).toFixed(1)}km/h`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Moldura>
+  );
+}
+
+// ---------------------------------------------------------------------
+// PEÇAS DE INTERFACE
+// ---------------------------------------------------------------------
+
+function estiloBotao(ativo) {
+  return {
+    background: ativo ? "rgba(197, 160, 89, 0.2)" : "transparent",
+    border: `1px solid ${ativo ? "#c5a059" : "rgba(197, 160, 89, 0.35)"}`,
+    color: ativo ? "#c5a059" : "#a4b3c6",
+    borderRadius: "6px",
+    padding: "6px 12px",
+    fontFamily: "'Montserrat', sans-serif",
+    fontSize: "9pt",
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+  };
+}
+
+function Opcao({ ativo, aoTrocar, children }) {
+  return (
+    <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
+      <input type="checkbox" checked={ativo} onChange={(e) => aoTrocar(e.target.checked)} style={{ accentColor: "#c5a059" }} />
+      {children}
+    </label>
+  );
+}
+
+function Moldura({ titulo, aoFechar, children }) {
+  return (
+    <div
+      onClick={aoFechar}
+      style={{ position: "fixed", inset: 0, background: "rgba(5, 10, 18, 0.85)", zIndex: 2000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: "100%", maxWidth: "1400px", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "12px", padding: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+          <h3 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "14pt" }}>
+            <i className="fa-solid fa-film"></i> Replay{titulo ? ` — ${titulo}` : ""}
+          </h3>
+          <button type="button" onClick={aoFechar} style={{ background: "transparent", border: "none", color: "#a4b3c6", fontSize: "18pt", cursor: "pointer", lineHeight: 1 }} title="Fechar (Esc)">
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export default ReplayCorrida;

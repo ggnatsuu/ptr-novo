@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, Suspense, lazy, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, getDocs, setDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
@@ -7,6 +7,8 @@ import { lerArquivoCorrida } from "../utils/arquivoCorrida";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
+
+const ReplayCorrida = lazy(() => import("../components/ReplayCorrida"));
 
 // 🎯 Nome da corrida → ID do percurso no jogo. Usado pra conferir o arquivo
 // enviado quando a pista foi sorteada antes do campo course_id existir.
@@ -194,6 +196,8 @@ function RankAdmin() {
   // 🎯 Linha da prévia com o painel de detalhes aberto ("chaveDoCard-numero") —
   // o mesmo painel da página de Resultados, pra conferir antes de salvar.
   const [linhaPreviaAberta, setLinhaPreviaAberta] = useState(null);
+  // 🎯 Replay aberto a partir da prévia (testa o replay antes de gravar).
+  const [replayPrevia, setReplayPrevia] = useState(null);
 
   // 🎯 Nomes dos treinadores cadastrados (minúsculo), pra avisar na prévia
   // quando um nome do arquivo não bate com nenhum perfil do site.
@@ -644,6 +648,14 @@ function RankAdmin() {
                             <span style={{ color: "#1bd39e", fontWeight: 700 }}>
                               <i className="fa-solid fa-circle-check"></i> {nomeArquivo}
                             </span>
+                            <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                              type="button"
+                              onClick={() => setReplayPrevia({ dados: dados.replay, titulo: `${pista.nome} (prévia)` })}
+                              style={{ background: "rgba(197, 160, 89, 0.12)", border: "1px solid rgba(197, 160, 89, 0.5)", color: "#c5a059", borderRadius: "6px", padding: "4px 10px", cursor: "pointer", fontSize: "8.5pt" }}
+                            >
+                              <i className="fa-solid fa-play"></i> Replay
+                            </button>
                             <button
                               type="button"
                               onClick={() => removerArquivoCorrida(chave)}
@@ -651,6 +663,7 @@ function RankAdmin() {
                             >
                               Remover
                             </button>
+                            </div>
                           </div>
                           <div style={{ marginBottom: "10px" }}>
                             {dados.classificacao.length} treinadores • {dados.npcsIgnorados} NPCs ignorados • {dados.condicoes.distancia}m • {dados.condicoes.clima ?? "?"} / {dados.condicoes.terreno ?? "?"}
@@ -841,6 +854,12 @@ function RankAdmin() {
           </div>
         </div>
       </main>
+
+      {replayPrevia && (
+        <Suspense fallback={null}>
+          <ReplayCorrida replay={replayPrevia.dados} titulo={replayPrevia.titulo} aoFechar={() => setReplayPrevia(null)} />
+        </Suspense>
+      )}
 
       {/* Modal de notificação genérico */}
       {modalNotif.aberto && (

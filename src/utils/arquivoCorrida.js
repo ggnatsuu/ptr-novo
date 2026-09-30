@@ -329,13 +329,20 @@ export async function lerArquivoCorrida(textoArquivo) {
     estacao: (campo(json, "season") ?? "").toLowerCase() || null,
   };
 
+  // 🎯 Tudo que a tela de replay precisa (components/ReplayCorrida.jsx):
+  // a simulação compactada + quem é cada cavalo + as condições da corrida.
   const replay = {
     simDataBase64,
     courseId: condicoes.courseId,
+    condicoes,
+    inicioFaseFinal,
     cavalos: cavalos.map((c) => ({
       numero: c.horseIndex + 1,
       personagem: c.charaName ?? "?",
       treinador: c.trainerName ?? null,
+      cardId: c.responseHorseData?.card_id || null,
+      estilo: ESTILOS[c.responseHorseData?.running_style] ?? null,
+      posicao: posicaoPorIndice.get(c.horseIndex) ?? null,
     })),
   };
 
