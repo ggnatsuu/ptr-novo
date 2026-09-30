@@ -10,6 +10,7 @@ import { buscarReplay, useUsuario } from "../utils/replayCompartilhado";
 
 // O replay (e o decodificador da simulação) só é baixado pra quem está logado.
 const ReplayCorrida = lazy(() => import("./ReplayCorrida"));
+const GraficoPosicoes = lazy(() => import("./GraficoPosicoes"));
 
 const ESTILO_CAIXA = {
   width: "100%",
@@ -110,6 +111,9 @@ function SecaoReplayResultado({ corrida, pedidoSeguir }) {
   return (
     <Suspense fallback={<Aviso>Carregando replay...</Aviso>}>
       <ReplayCorrida key={corrida.id} replay={atual.dados} pedidoSeguir={pedidoSeguir} />
+      <div style={{ marginTop: "24px" }}>
+        <GraficoPosicoes key={`posicoes-${corrida.id}`} replay={atual.dados} />
+      </div>
     </Suspense>
   );
 }
