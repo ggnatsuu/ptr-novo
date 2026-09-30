@@ -348,8 +348,10 @@ function RankAdmin() {
     const id = idDoResultado(`edicao_${edicaoAtual}`, pista, grupo);
     try {
       await deleteDoc(doc(db, "resultados_partidas", id));
-      // Replay pode nem existir (resultado de CSV) — apagar algo que não existe não dá erro.
+      // Replay e detalhes podem nem existir (resultado de CSV) — apagar algo
+      // que não existe não dá erro.
       await deleteDoc(doc(db, "replays_partidas", id));
+      await deleteDoc(doc(db, "detalhes_partidas", id)).catch((erro) => console.error("Erro ao apagar detalhes dos treinadores:", erro));
       abrirModalNotificacao("Resultado Apagado", `🗑️ O resultado de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} foi removido do site, junto com o replay.`, "sucesso");
     } catch (erro) {
       console.error("Erro ao apagar resultado:", erro);
@@ -446,16 +448,34 @@ function RankAdmin() {
         linkReplay: (linksReplay[chave] || "").trim(),
         ...(grupo ? { grupo } : {}),
         // 🎯 Só existe quando o resultado veio do arquivo de corrida: as
-        // condições reais e os dados de cada treinador (deck, aptidões,
-        // stats, skills), guardados pras conquistas.
+        // condições reais da corrida. Os dados de cada treinador (deck,
+        // aptidões, stats, skills) vão pra detalhes_partidas, logo abaixo.
         ...(arquivo
           ? {
               origem: "arquivo",
               condicoesArquivo: arquivo.dados.condicoes,
-              dadosTreinadores: arquivo.dados.dadosTreinadores,
             }
           : {}),
       });
+
+      // 🎯 Dados de cada treinador (~16 KB) numa coleção separada: as páginas
+      // que baixam TODOS os resultados (rankings, jornal, cartão do treinador)
+      // não precisam deles; o Resultados busca só da corrida aberta.
+      let avisoDetalhes = "";
+      if (arquivo) {
+        try {
+          await setDoc(doc(db, "detalhes_partidas", chaveUnicaCorrida), {
+            dadosTreinadores: arquivo.dados.dadosTreinadores,
+            edicaoId,
+            pistaNome: pista.nome,
+            ...(grupo ? { grupo } : {}),
+            enviadoEm: serverTimestamp(),
+          });
+        } catch (erroDetalhes) {
+          console.error("Erro ao salvar detalhes dos treinadores:", erroDetalhes);
+          avisoDetalhes = " ⚠️ Os detalhes dos treinadores (painel de skills/deck) não puderam ser salvos (confira as regras do Firestore para a coleção detalhes_partidas).";
+        }
+      }
 
       // 🎯 Dados brutos da corrida pro replay futuro (~40 KB), numa coleção
       // separada pra não pesar a página de Resultados. Se falhar (ex: regra
@@ -476,7 +496,7 @@ function RankAdmin() {
         }
       }
 
-      abrirModalNotificacao("Placar Computado", `🛰️ Resultados de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} salvos com sucesso no banco de dados global!${avisoReplay}`, "sucesso");
+      abrirModalNotificacao("Placar Computado", `🛰️ Resultados de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} salvos com sucesso no banco de dados global!${avisoDetalhes}${avisoReplay}`, "sucesso");
       setTextareaValores((v) => ({ ...v, [chave]: "" }));
       setLinksReplay((v) => ({ ...v, [chave]: "" }));
       removerArquivoCorrida(chave);

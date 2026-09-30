@@ -10,6 +10,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 
 const documentos = new Map(); // id do resultado -> Promise<dados do replay | null>
+const detalhes = new Map(); // id do resultado -> Promise<dadosTreinadores | null>
 const decodificados = new WeakMap(); // objeto do replay -> Promise<raceData>
 
 // replays_partidas/{id}. Devolve null se a corrida não tiver replay.
@@ -24,6 +25,23 @@ export function buscarReplay(id) {
     documentos.set(id, busca);
   }
   return documentos.get(id);
+}
+
+// 🎯 detalhes_partidas/{id}: dados de cada treinador (skills, deck,
+// aptidões...) das corridas enviadas por arquivo. Ficam fora do resultado
+// principal pra não pesar as páginas que baixam todos os resultados.
+// Leitura pública (o painel aparece pra visitantes).
+export function buscarDetalhes(id) {
+  if (!detalhes.has(id)) {
+    const busca = getDoc(doc(db, "detalhes_partidas", id))
+      .then((snap) => (snap.exists() ? snap.data().dadosTreinadores ?? null : null))
+      .catch((erro) => {
+        detalhes.delete(id);
+        throw erro;
+      });
+    detalhes.set(id, busca);
+  }
+  return detalhes.get(id);
 }
 
 // Simulação decodificada pelo parser do Hakuraku (baixado só aqui).

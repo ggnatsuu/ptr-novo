@@ -10,6 +10,7 @@ import DestaquesCorrida from "../components/DestaquesCorrida";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import SecaoReplayResultado from "../components/SecaoReplayResultado";
 import { useTelaEstreita } from "../utils/useTelaEstreita";
+import { buscarDetalhes } from "../utils/replayCompartilhado";
 
 // 🎯 PARTE 1/3: busca as corridas com resultado já lançado pra edição
 // ativa, e monta o carrossel de cards clicáveis (nome, distância,
@@ -298,6 +299,23 @@ function Resultados() {
   const itemSelecionado = indiceSelecionado !== null ? listaCombinada[indiceSelecionado] : null;
   const corridaSelecionada = itemSelecionado ? itemSelecionado.resultado : null;
 
+  // 🎯 Detalhes de cada treinador (painel, ícone da roupa, destaque de
+  // skills). Corridas novas guardam em detalhes_partidas (buscado só quando
+  // a corrida é aberta); as mais antigas, dentro do próprio resultado.
+  const idCorrida = corridaSelecionada?.id ?? null;
+  const precisaDetalhes = corridaSelecionada?.origem === "arquivo" && !corridaSelecionada.dadosTreinadores;
+  const [detalhesCarregados, setDetalhesCarregados] = useState({ id: null, dados: null });
+  useEffect(() => {
+    if (!precisaDetalhes || !idCorrida) return undefined;
+    let cancelado = false;
+    buscarDetalhes(idCorrida)
+      .then((dados) => { if (!cancelado) setDetalhesCarregados({ id: idCorrida, dados }); })
+      .catch((erro) => console.error("Erro ao carregar detalhes dos treinadores:", erro));
+    return () => { cancelado = true; };
+  }, [precisaDetalhes, idCorrida]);
+  const dadosTreinadoresDaCorrida = corridaSelecionada?.dadosTreinadores
+    ?? (detalhesCarregados.id === idCorrida ? detalhesCarregados.dados : null);
+
   // 🎯 Celular: o painel do treinador fica dentro da tabela (que é larga e
   // rola pro lado); ele "gruda" na parte visível com a largura da caixa.
   const estreito = useTelaEstreita();
@@ -470,7 +488,7 @@ function Resultados() {
                 <CondicoesCorrida condicoes={corridaSelecionada.condicoesArquivo} superficie={corridaSelecionada.terreno} />
               )}
 
-              <DestaquesCorrida corrida={corridaSelecionada} />
+              <DestaquesCorrida corrida={{ ...corridaSelecionada, dadosTreinadores: dadosTreinadoresDaCorrida }} />
 
               {corridaSelecionada.linkReplay && (
                 <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -519,7 +537,7 @@ function Resultados() {
                         const corPosicao = linha.posicao === 1 ? "#c5a059" : linha.posicao === 2 ? "#a4b3c6" : linha.posicao === 3 ? "#cd7f32" : "#f1ead4";
                         const corStyle = CORES_STYLE[linha.style] || "#a4b3c6";
                         // 🎯 Só corridas enviadas pelo arquivo do jogo têm os dados do painel.
-                        const dadosTreinador = corridaSelecionada.dadosTreinadores?.find((d) => d.numero === linha.numero);
+                        const dadosTreinador = dadosTreinadoresDaCorrida?.find((d) => d.numero === linha.numero);
                         const chaveLinha = `${corridaSelecionada.id}-${linha.numero}`;
                         const aberta = dadosTreinador && linhaAberta === chaveLinha;
                         // Fundo sólido das colunas fixas (no celular), no mesmo tom da linha.
