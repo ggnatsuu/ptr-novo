@@ -1,7 +1,7 @@
 import { Fragment, Suspense, lazy, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, getDocs, setDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, getDocs, setDoc, deleteDoc, collection, onSnapshot, query, where, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
@@ -129,9 +129,11 @@ function RankAdmin() {
   }, []);
 
   // 🎯 Modal de notificação genérico (equivalente ao antigo exibirModalPTR)
-  const [modalNotif, setModalNotif] = useState({ aberto: false, titulo: "", mensagem: "", tipo: "sucesso" });
-  function abrirModalNotificacao(titulo, mensagem, tipo = "sucesso") {
-    setModalNotif({ aberto: true, titulo, mensagem, tipo });
+  // "aoConfirmar" (opcional) transforma o aviso numa pergunta com os botões
+  // Cancelar / confirmar (usado pra apagar resultado).
+  const [modalNotif, setModalNotif] = useState({ aberto: false, titulo: "", mensagem: "", tipo: "sucesso", aoConfirmar: null, textoConfirmar: "" });
+  function abrirModalNotificacao(titulo, mensagem, tipo = "sucesso", aoConfirmar = null, textoConfirmar = "") {
+    setModalNotif({ aberto: true, titulo, mensagem, tipo, aoConfirmar, textoConfirmar });
   }
 
   // 🎯 Anúncio manual de abertura do Check-in no Discord (Parte 3/4 do
@@ -181,6 +183,17 @@ function RankAdmin() {
   const [semRodada, setSemRodada] = useState(false);
   const [pistasAtivas, setPistasAtivas] = useState([]);
   const [edicaoAtual, setEdicaoAtual] = useState("01");
+  // 🎯 Ids dos resultados já salvos nesta edição (pra mostrar no card e
+  // liberar o botão de apagar).
+  const [resultadosSalvos, setResultadosSalvos] = useState(() => new Set());
+  useEffect(() => {
+    const consulta = query(collection(db, "resultados_partidas"), where("edicaoId", "==", `edicao_${edicaoAtual}`));
+    return onSnapshot(
+      consulta,
+      (snapshot) => setResultadosSalvos(new Set(snapshot.docs.map((d) => d.id))),
+      (erro) => console.error("Erro ao observar resultados salvos:", erro),
+    );
+  }, [edicaoAtual]);
   const [edicaoAtivaId, setEdicaoAtivaId] = useState(null);
   const [climaAtual, setClimaAtual] = useState("Aguardando...");
 
@@ -324,6 +337,35 @@ function RankAdmin() {
   // grupo) — "grupo" (null | "A" | "B") vai tanto pro doc salvo quanto pro
   // ID do documento, senão os 2 lançamentos da mesma corrida se
   // sobrescreveriam no Firestore.
+  // 🎯 Id do documento do resultado (o mesmo em resultados_partidas e
+  // replays_partidas).
+  function idDoResultado(edicaoId, pista, grupo) {
+    return `${edicaoId}_pista_${pista.nome.replace(/[^a-zA-Z0-9]/g, "")}${grupo ? `-${grupo}` : ""}`;
+  }
+
+  async function apagarResultadoPista(pista, grupo) {
+    const id = idDoResultado(`edicao_${edicaoAtual}`, pista, grupo);
+    try {
+      await deleteDoc(doc(db, "resultados_partidas", id));
+      // Replay pode nem existir (resultado de CSV) — apagar algo que não existe não dá erro.
+      await deleteDoc(doc(db, "replays_partidas", id));
+      abrirModalNotificacao("Resultado Apagado", `🗑️ O resultado de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} foi removido do site, junto com o replay.`, "sucesso");
+    } catch (erro) {
+      console.error("Erro ao apagar resultado:", erro);
+      abrirModalNotificacao("Erro ao Apagar", "Não foi possível apagar o resultado. Confira as regras do Firestore (permissão de escrita para admin).", "erro");
+    }
+  }
+
+  function confirmarApagarResultado(pista, grupo) {
+    abrirModalNotificacao(
+      "Apagar Resultado?",
+      `O resultado de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} e o replay dela vão sumir do site (Resultados, rankings, jornal). Não dá para desfazer — para voltar, é preciso enviar de novo.`,
+      "erro",
+      () => apagarResultadoPista(pista, grupo),
+      "Apagar",
+    );
+  }
+
   async function salvarResultadoPista(chave, pista, grupo) {
     // 🎯 Com arquivo de corrida carregado no card, ele substitui o CSV.
     const arquivo = arquivosCorrida[chave];
@@ -386,7 +428,7 @@ function RankAdmin() {
     try {
       const globaisSnap = await getDoc(doc(db, "pistas_sorteadas", "atual"));
       const edicaoId = globaisSnap.exists() ? globaisSnap.data().edicaoAtiva || "edicao_01" : "edicao_01";
-      const chaveUnicaCorrida = `${edicaoId}_pista_${pista.nome.replace(/[^a-zA-Z0-9]/g, "")}${grupo ? `-${grupo}` : ""}`;
+      const chaveUnicaCorrida = idDoResultado(edicaoId, pista, grupo);
 
       await setDoc(doc(db, "resultados_partidas", chaveUnicaCorrida), {
         edicaoId,
@@ -749,7 +791,21 @@ function RankAdmin() {
                     />
                   </div>
 
-                  <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+                  <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+                    {resultadosSalvos.has(idDoResultado(`edicao_${edicaoAtual}`, pista, grupo)) && (
+                      <>
+                        <span style={{ marginRight: "auto", color: "#1bd39e", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", fontWeight: 700 }}>
+                          <i className="fa-solid fa-circle-check"></i> Resultado já salvo (salvar de novo substitui)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => confirmarApagarResultado(pista, grupo)}
+                          style={{ background: "transparent", border: "1px solid rgba(224, 75, 55, 0.6)", color: "#e04b37", borderRadius: "8px", padding: "12px 20px", cursor: "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "8px" }}
+                        >
+                          <i className="fa-solid fa-trash"></i> Apagar resultado
+                        </button>
+                      </>
+                    )}
                     <button
                       type="button"
                       onClick={() => salvarResultadoPista(chave, pista, grupo)}
@@ -889,8 +945,20 @@ function RankAdmin() {
             ></i>
             <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "16pt", color: "#ffffff", margin: "0 0 12px 0", fontWeight: 700, letterSpacing: "0.5px" }}>{modalNotif.titulo}</h3>
             <p style={{ color: "#a4b3c6", fontSize: "10pt", lineHeight: 1.6, margin: "0 0 25px 0" }}>{modalNotif.mensagem}</p>
+            {modalNotif.aoConfirmar && (
+              <button
+                onClick={() => setModalNotif((m) => ({ ...m, aberto: false }))}
+                style={{ background: "transparent", border: "1px solid rgba(164, 179, 198, 0.4)", padding: "12px 30px", color: "#a4b3c6", fontFamily: "'Montserrat', sans-serif", fontSize: "9.5pt", fontWeight: 700, borderRadius: "6px", cursor: "pointer", letterSpacing: "1px", textTransform: "uppercase", marginRight: "12px" }}
+              >
+                Cancelar
+              </button>
+            )}
             <button
-              onClick={() => setModalNotif((m) => ({ ...m, aberto: false }))}
+              onClick={() => {
+                const acao = modalNotif.aoConfirmar;
+                setModalNotif((m) => ({ ...m, aberto: false }));
+                if (acao) acao();
+              }}
               style={{
                 background: modalNotif.tipo === "sucesso" ? "linear-gradient(135deg, #c5a059 0%, #d9b671 100%)" : "linear-gradient(135deg, #ff6855 0%, #e04b37 100%)",
                 border: "none",
@@ -905,7 +973,7 @@ function RankAdmin() {
                 textTransform: "uppercase",
               }}
             >
-              OK, ENTENDIDO
+              {modalNotif.aoConfirmar ? modalNotif.textoConfirmar || "Confirmar" : "OK, ENTENDIDO"}
             </button>
           </div>
         </div>
