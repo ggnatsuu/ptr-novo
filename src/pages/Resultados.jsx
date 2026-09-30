@@ -5,6 +5,7 @@ import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
 import CondicoesCorrida from "../components/CondicoesCorrida";
+import DestaquesCorrida from "../components/DestaquesCorrida";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import SecaoReplayResultado from "../components/SecaoReplayResultado";
 
@@ -434,6 +435,8 @@ function Resultados() {
               {corridaSelecionada.condicoesArquivo && (
                 <CondicoesCorrida condicoes={corridaSelecionada.condicoesArquivo} superficie={corridaSelecionada.terreno} />
               )}
+
+              <DestaquesCorrida corrida={corridaSelecionada} />
 
               {corridaSelecionada.linkReplay && (
                 <div style={{ textAlign: "center", marginBottom: "20px" }}>
