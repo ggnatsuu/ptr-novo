@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, getDocs, setDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
+import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
 
 // 🎯 Nome da corrida → ID do percurso no jogo. Usado pra conferir o arquivo
@@ -188,6 +189,10 @@ function RankAdmin() {
   // 🎯 Arquivo de corrida carregado em cada card (mesma chave do textarea):
   // { nomeArquivo, dados, avisos }. Quando existe, substitui o CSV colado.
   const [arquivosCorrida, setArquivosCorrida] = useState({});
+
+  // 🎯 Linha da prévia com o painel de detalhes aberto ("chaveDoCard-numero") —
+  // o mesmo painel da página de Resultados, pra conferir antes de salvar.
+  const [linhaPreviaAberta, setLinhaPreviaAberta] = useState(null);
 
   // 🎯 Nomes dos treinadores cadastrados (minúsculo), pra avisar na prévia
   // quando um nome do arquivo não bate com nenhum perfil do site.
@@ -656,14 +661,32 @@ function RankAdmin() {
                           ))}
                           <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "6px" }}>
                             <tbody>
-                              {dados.classificacao.map((linha) => (
-                                <tr key={linha.numero} style={{ borderTop: "1px solid rgba(164, 179, 198, 0.1)" }}>
-                                  <td style={{ padding: "4px 6px", color: "#c5a059", fontWeight: 700 }}>{linha.posicao}º</td>
-                                  <td style={{ padding: "4px 6px", color: "#f1ead4" }}>{linha.personagem}</td>
-                                  <td style={{ padding: "4px 6px" }}>[{linha.treinador}]</td>
-                                  <td style={{ padding: "4px 6px", textAlign: "right" }}>{linha.tempo}</td>
-                                </tr>
-                              ))}
+                              {dados.classificacao.map((linha) => {
+                                const dadosTreinador = dados.dadosTreinadores.find((d) => d.numero === linha.numero);
+                                const chaveLinha = `${chave}-${linha.numero}`;
+                                const aberta = dadosTreinador && linhaPreviaAberta === chaveLinha;
+                                return (
+                                  <Fragment key={linha.numero}>
+                                    <tr
+                                      onClick={dadosTreinador ? () => setLinhaPreviaAberta(aberta ? null : chaveLinha) : undefined}
+                                      title={dadosTreinador ? "Clique para ver skills, aptidões e deck" : undefined}
+                                      style={{ borderTop: "1px solid rgba(164, 179, 198, 0.1)", cursor: dadosTreinador ? "pointer" : "default", background: aberta ? "rgba(197, 160, 89, 0.08)" : "transparent" }}
+                                    >
+                                      <td style={{ padding: "4px 6px", color: "#c5a059", fontWeight: 700 }}>{linha.posicao}º</td>
+                                      <td style={{ padding: "4px 6px", color: "#f1ead4" }}>{linha.personagem}</td>
+                                      <td style={{ padding: "4px 6px" }}>[{linha.treinador}]</td>
+                                      <td style={{ padding: "4px 6px", textAlign: "right" }}>{linha.tempo}</td>
+                                    </tr>
+                                    {aberta && (
+                                      <tr>
+                                        <td colSpan={4} style={{ padding: 0 }}>
+                                          <PainelDetalheTreinador dados={dadosTreinador} />
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </Fragment>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
