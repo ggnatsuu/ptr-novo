@@ -6,9 +6,7 @@
 
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebase";
+import { buscarReplay, useUsuario } from "../utils/replayCompartilhado";
 
 // O replay (e o decodificador da simulação) só é baixado pra quem está logado.
 const ReplayCorrida = lazy(() => import("./ReplayCorrida"));
@@ -36,9 +34,14 @@ const CAVALOS_ENFEITE = [
   [52, 38], [56, 64], [60, 84], [63, 50], [67, 72], [72, 58], [77, 80], [83, 66],
 ];
 
-export function ReplayBloqueado() {
+// Também usado no painel do treinador (gráficos), com altura e texto próprios.
+export function ReplayBloqueado({
+  altura = 460,
+  titulo = "Replay exclusivo para treinadores",
+  texto = "Entre na sua conta para assistir à corrida completa, com skills, duelos e posições ao vivo.",
+}) {
   return (
-    <div style={{ ...ESTILO_CAIXA, position: "relative", overflow: "hidden", height: "460px" }}>
+    <div style={{ ...ESTILO_CAIXA, position: "relative", overflow: "hidden", height: `${altura}px` }}>
       {/* pista de enfeite, borrada */}
       <div style={{ position: "absolute", inset: 0, filter: "blur(7px)", opacity: 0.8 }} aria-hidden="true">
         <div style={{ position: "absolute", left: 0, right: 0, top: "14%", bottom: "14%", background: "#12301f" }} />
@@ -56,10 +59,10 @@ export function ReplayBloqueado() {
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "14px", background: "rgba(5, 10, 18, 0.3)", textAlign: "center", padding: "20px" }}>
         <i className="fa-solid fa-lock" style={{ fontSize: "26pt", color: "#c5a059" }}></i>
         <p style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "14pt", fontWeight: 700 }}>
-          Replay exclusivo para treinadores
+          {titulo}
         </p>
         <p style={{ margin: 0, fontFamily: "'Montserrat', sans-serif", color: "#a4b3c6", fontSize: "9.5pt", maxWidth: "420px" }}>
-          Entre na sua conta para assistir à corrida completa, com skills, duelos e posições ao vivo.
+          {texto}
         </p>
         <Link
           to="/login"
@@ -74,22 +77,20 @@ export function ReplayBloqueado() {
 
 function SecaoReplayResultado({ corrida }) {
   // undefined = ainda verificando o login; null = visitante.
-  const [usuario, setUsuario] = useState(undefined);
+  const usuario = useUsuario();
   // Resultado da busca, guardado junto com o id da corrida — ao trocar de
   // corrida o que estava aqui deixa de valer e aparece "Carregando...".
   const [busca, setBusca] = useState({ id: null, dados: null, erro: "" });
-
-  useEffect(() => onAuthStateChanged(auth, setUsuario), []);
 
   const logado = Boolean(usuario);
   useEffect(() => {
     if (!logado) return undefined;
     let cancelado = false;
-    getDoc(doc(db, "replays_partidas", corrida.id))
-      .then((snap) => {
+    buscarReplay(corrida.id)
+      .then((dados) => {
         if (cancelado) return;
-        setBusca(snap.exists()
-          ? { id: corrida.id, dados: snap.data(), erro: "" }
+        setBusca(dados
+          ? { id: corrida.id, dados, erro: "" }
           : { id: corrida.id, dados: null, erro: "O replay desta corrida não está disponível." });
       })
       .catch((erro) => {

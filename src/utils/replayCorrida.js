@@ -14,7 +14,7 @@ const TIPO_SKILL = 3;
 const TIPO_DISPUTA_PONTA = 4;
 const TIPO_DUELO = 5;
 
-function nomeDaSkill(id) {
+export function nomeDaSkill(id) {
   const nomes = skillNamesRaw[id] ?? (id >= 900000 && id < 1000000 ? skillNamesRaw[id - 800000] : null);
   return (nomes && (nomes[1] || nomes[0])) || `Skill ${id}`;
 }
@@ -32,6 +32,8 @@ export function prepararCorrida(raceData, replay) {
       velocidade: h.speed / 100, // m/s
       hp: h.hp,
       rushed: (h.temptationMode ?? 0) > 0,
+      // Índice de quem está bloqueando a frente (-1 = ninguém).
+      bloqueadoPor: h.blockFrontHorseIndex ?? -1,
     })),
   }));
   const numCavalos = frames[0].cavalos.length;
@@ -129,6 +131,8 @@ export function estadoNoTempo(corrida, t) {
       velocidade: a.velocidade + (b.velocidade - a.velocidade) * s,
       hp: a.hp + (b.hp - a.hp) * s,
       rushed: a.rushed,
+      // Igual ao Hakuraku: vale o quadro mais próximo.
+      bloqueadoPor: (s < 0.5 ? a : b).bloqueadoPor,
     };
   });
 }

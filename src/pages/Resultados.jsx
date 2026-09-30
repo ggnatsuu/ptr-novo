@@ -3,6 +3,7 @@ import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
+import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import SecaoReplayResultado from "../components/SecaoReplayResultado";
 
@@ -539,7 +540,9 @@ function Resultados() {
                           {aberta && (
                             <tr>
                               <td colSpan={12} style={{ padding: 0 }}>
-                                <PainelDetalheTreinador dados={dadosTreinador} />
+                                <PainelDetalheTreinador dados={dadosTreinador}>
+                                  {corridaSelecionada.origem === "arquivo" && <SecaoGraficoDesempenho corridaId={corridaSelecionada.id} numero={linha.numero} />}
+                                </PainelDetalheTreinador>
                               </td>
                             </tr>
                           )}

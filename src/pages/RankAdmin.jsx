@@ -5,6 +5,7 @@ import { doc, getDoc, getDocs, setDoc, collection, onSnapshot, serverTimestamp }
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
+import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
 
@@ -706,7 +707,9 @@ function RankAdmin() {
                                     {aberta && (
                                       <tr>
                                         <td colSpan={4} style={{ padding: 0 }}>
-                                          <PainelDetalheTreinador dados={dadosTreinador} />
+                                          <PainelDetalheTreinador dados={dadosTreinador}>
+                                            <SecaoGraficoDesempenho replay={dados.replay} numero={linha.numero} />
+                                          </PainelDetalheTreinador>
                                         </td>
                                       </tr>
                                     )}

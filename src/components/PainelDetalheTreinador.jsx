@@ -71,7 +71,8 @@ function SeloStatus({ skill }) {
   );
 }
 
-function PainelDetalheTreinador({ dados }) {
+// "children" (opcional) é o gráfico de desempenho, desenhado embaixo de tudo.
+function PainelDetalheTreinador({ dados, children }) {
   const skills = dados.skillsCorrida ?? [];
   const aptidoes = dados.aptidoesCorrida ?? {};
   const deck = dados.deck ?? [];
@@ -152,6 +153,14 @@ function PainelDetalheTreinador({ dados }) {
           </div>
         )}
       </div>
+
+      {/* GRÁFICO DE DESEMPENHO */}
+      {children && (
+        <div style={{ flex: "1 1 100%", minWidth: 0 }}>
+          <p style={estiloTituloBloco}>Performance</p>
+          {children}
+        </div>
+      )}
     </div>
   );
 }
