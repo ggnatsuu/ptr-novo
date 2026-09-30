@@ -177,7 +177,12 @@ function GraficoComparativo({ replay }) {
   const alternar = (indice) => setSelecionados(escolhidos.includes(indice) ? escolhidos.filter((i) => i !== indice) : [...escolhidos, indice]);
   const cavalosEscolhidos = escolhidos.map((i) => g.cavalos[i]);
 
-  const xDe = (t) => ESQ + (t / g.tempoFim) * (LARGURA - ESQ - DIR);
+  // O eixo de tempo vai até a chegada da última personagem ESCOLHIDA (e não
+  // da corrida toda), pra linha chegar até o fim do gráfico.
+  const tempoGrafico = cavalosEscolhidos.length && cavalosEscolhidos.every((c) => c.chegada !== null)
+    ? Math.max(...cavalosEscolhidos.map((c) => c.chegada))
+    : g.tempoFim;
+  const xDe = (t) => ESQ + (t / tempoGrafico) * (LARGURA - ESQ - DIR);
 
   // Escala de cada painel. A velocidade começa logo abaixo da menor
   // velocidade depois da largada, senão as diferenças (de poucos km/h) somem.
@@ -199,7 +204,7 @@ function GraficoComparativo({ replay }) {
   };
 
   const marcasX = [];
-  for (let t = 0; t <= g.tempoFim; t += g.tempoFim > 100 ? 20 : 10) marcasX.push(t);
+  for (let t = 0; t <= tempoGrafico; t += tempoGrafico > 100 ? 20 : 10) marcasX.push(t);
 
   // Bandeirinhas de chegada (no painel de Speed), afastadas pra não se sobreporem.
   const painelSpeed = PAINEIS[0];
@@ -215,8 +220,8 @@ function GraficoComparativo({ replay }) {
     const matriz = e.currentTarget.getScreenCTM();
     if (!matriz) return;
     const x = (e.clientX - matriz.e) / matriz.a;
-    const t = ((x - ESQ) / (LARGURA - ESQ - DIR)) * g.tempoFim;
-    setSob(t < 0 || t > g.tempoFim ? null : Math.round(t / PASSO_TEMPO) * PASSO_TEMPO);
+    const t = ((x - ESQ) / (LARGURA - ESQ - DIR)) * tempoGrafico;
+    setSob(t < 0 || t > tempoGrafico ? null : Math.min(tempoGrafico, Math.round(t / PASSO_TEMPO) * PASSO_TEMPO));
   }
 
   const linhasSob = sob !== null
@@ -283,7 +288,7 @@ function GraficoComparativo({ replay }) {
         <p style={{ color: "#5f758e", fontSize: "9.5pt", fontStyle: "italic", textAlign: "center", padding: "40px 0" }}>Escolha uma ou mais personagens acima para comparar.</p>
       ) : (
         <div style={{ position: "relative" }}>
-          <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} style={{ width: "100%", display: "block", cursor: "crosshair" }} onMouseMove={aoMover} onMouseLeave={() => setSob(null)}>
+          <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} style={{ width: "100%", display: "block", cursor: "crosshair", overflow: "visible" }} onMouseMove={aoMover} onMouseLeave={() => setSob(null)}>
             <defs>
               {cavalosEscolhidos.map((c) => (
                 <linearGradient key={c.indice} id={`comp-area-${c.indice}`} x1="0" y1="0" x2="0" y2="1">
@@ -296,8 +301,8 @@ function GraficoComparativo({ replay }) {
             {PAINEIS.map((painel) => (
               <g key={painel.metrica}>
                 {/* fases da corrida no fundo */}
-                {g.fases.map((f, i) => {
-                  const fim = g.fases[i + 1]?.inicio ?? g.tempoFim;
+                {g.fases.filter((f) => f.inicio < tempoGrafico).map((f, i, fases) => {
+                  const fim = Math.min(fases[i + 1]?.inicio ?? tempoGrafico, tempoGrafico);
                   return (
                     <g key={f.nome}>
                       <rect x={xDe(f.inicio)} y={painel.topo} width={Math.max(0, xDe(fim) - xDe(f.inicio))} height={painel.base - painel.topo} fill={i % 2 ? "rgba(197, 160, 89, 0.035)" : "rgba(164, 179, 198, 0.02)"} />
