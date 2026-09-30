@@ -24,6 +24,9 @@ const COR = {
   dHp: "#f39c52",
   grade: "rgba(164, 179, 198, 0.1)",
   texto: "#5f758e",
+  // cavalo escolhido em "Compare with" (linhas tracejadas)
+  speed2: "#ef5f91",
+  hp2: "#4dd0e1",
 };
 
 const FAIXAS = {
@@ -135,9 +138,22 @@ function GraficoDesempenho({ raceData, replay, numero }) {
   const g = useMemo(() => prepararGrafico(raceData, replay, numero), [raceData, replay, numero]);
   const [sob, setSob] = useState(null); // índice do ponto sob o mouse
 
+  // "Compare with": outro cavalo sobreposto (Speed e HP tracejados).
+  const [comparar, setComparar] = useState(null);
+  const g2 = useMemo(() => (comparar ? prepararGrafico(raceData, replay, comparar) : null), [raceData, replay, comparar]);
+  const vMax = Math.max(g.vMax, g2?.vMax ?? 0);
+  const hpMax = Math.max(g.hpMax, g2?.hpMax ?? 0);
+  const outros = (replay.cavalos ?? [])
+    .filter((c) => c.numero !== numero)
+    .sort((a, b) => Number(!a.treinador) - Number(!b.treinador) || (a.posicao ?? 99) - (b.posicao ?? 99));
+  const nomeComparado = (() => {
+    const c = (replay.cavalos ?? []).find((x) => x.numero === comparar);
+    return c ? `${c.treinador ?? "NPC"} — ${c.personagem}` : "";
+  })();
+
   const xDe = (t) => ESQ + (t / g.tempoMax) * (LARGURA - ESQ - DIR);
-  const yV = (v) => BASE_A - (v / g.vMax) * (BASE_A - TOPO_A);
-  const yHp = (hp) => BASE_A - (hp / g.hpMax) * (BASE_A - TOPO_A);
+  const yV = (v) => BASE_A - (v / vMax) * (BASE_A - TOPO_A);
+  const yHp = (hp) => BASE_A - (hp / hpMax) * (BASE_A - TOPO_A);
   const meioB = (TOPO_B + BASE_B) / 2;
   const yDv = (dv) => meioB - (dv / g.dvMax) * ((BASE_B - TOPO_B) / 2);
   const yDhp = (dhp) => meioB - (dhp / g.dhpMax) * ((BASE_B - TOPO_B) / 2);
@@ -166,11 +182,28 @@ function GraficoDesempenho({ raceData, replay, numero }) {
   }
 
   const p = sob !== null ? g.pontos[sob] : null;
+  const p2 = sob !== null && g2 ? g2.pontos[sob] : null; // mesmos quadros, mesmo índice
   const faixasAtivas = p ? g.faixas.filter((f) => p.t >= f.inicio && p.t <= f.fim).map((f) => f.tipo) : [];
   const bloqueioAtivo = p && p.bloq >= 0 ? g.bloqueios.find((b) => p.t >= b.inicio && p.t <= b.fim) : null;
 
   return (
     <div style={{ position: "relative", fontFamily: "'Montserrat', sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "8px", marginBottom: "6px", fontSize: "9pt", color: "#a4b3c6" }}>
+        <i className="fa-solid fa-code-compare" style={{ color: "#c5a059" }}></i>
+        Compare with
+        <select
+          value={comparar ?? ""}
+          onChange={(e) => setComparar(e.target.value ? Number(e.target.value) : null)}
+          style={{ background: "#0d1624", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.4)", borderRadius: "6px", padding: "4px 8px", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", maxWidth: "280px" }}
+        >
+          <option value="">—</option>
+          {outros.map((c) => (
+            <option key={c.numero} value={c.numero}>
+              {c.posicao ? `${c.posicao}. ` : ""}{c.treinador ?? "NPC"} — {c.personagem}
+            </option>
+          ))}
+        </select>
+      </div>
       <svg
         viewBox={`0 0 ${LARGURA} ${ALTURA}`}
         style={{ width: "100%", display: "block", cursor: "crosshair" }}
@@ -181,8 +214,8 @@ function GraficoDesempenho({ raceData, replay, numero }) {
         {fracoes.map((f) => (
           <g key={`ga-${f}`}>
             <line x1={ESQ} x2={LARGURA - DIR} y1={BASE_A - f * (BASE_A - TOPO_A)} y2={BASE_A - f * (BASE_A - TOPO_A)} stroke={COR.grade} />
-            <text x={ESQ - 6} y={BASE_A - f * (BASE_A - TOPO_A) + 4} textAnchor="end" fill={COR.speed} fontSize="11">{fmt(f * g.vMax, g.vMax < 10 ? 1 : 0)}</text>
-            <text x={LARGURA - DIR + 6} y={BASE_A - f * (BASE_A - TOPO_A) + 4} fill={COR.hp} fontSize="11">{fmt(f * g.hpMax)}</text>
+            <text x={ESQ - 6} y={BASE_A - f * (BASE_A - TOPO_A) + 4} textAnchor="end" fill={COR.speed} fontSize="11">{fmt(f * vMax, vMax < 10 ? 1 : 0)}</text>
+            <text x={LARGURA - DIR + 6} y={BASE_A - f * (BASE_A - TOPO_A) + 4} fill={COR.hp} fontSize="11">{fmt(f * hpMax)}</text>
           </g>
         ))}
         {[-1, -0.5, 0, 0.5, 1].map((f) => (
@@ -237,6 +270,13 @@ function GraficoDesempenho({ raceData, replay, numero }) {
         ))}
 
         {/* linhas */}
+        {g2 && (
+          <>
+            <polyline points={g2.pontos.map((q) => `${xDe(q.t).toFixed(1)},${yHp(q.hp).toFixed(1)}`).join(" ")} fill="none" stroke={COR.hp2} strokeWidth="2" strokeDasharray="6 4" />
+            <polyline points={g2.pontos.map((q) => `${xDe(q.t).toFixed(1)},${yV(q.v).toFixed(1)}`).join(" ")} fill="none" stroke={COR.speed2} strokeWidth="2" strokeDasharray="6 4" />
+            {g2.chegada !== null && <line x1={xDe(g2.chegada)} x2={xDe(g2.chegada)} y1={TOPO_A} y2={BASE_A} stroke={COR.speed2} strokeDasharray="2 4" opacity="0.8" />}
+          </>
+        )}
         <polyline points={linha((q) => xDe(q.t), (q) => yHp(q.hp))} fill="none" stroke={COR.hp} strokeWidth="2.2" />
         <polyline points={linha((q) => xDe(q.t), (q) => yV(q.v))} fill="none" stroke={COR.speed} strokeWidth="2.2" />
         <polyline points={linha((q) => xDe(q.t), (q) => yDhp(q.dhp))} fill="none" stroke={COR.dHp} strokeWidth="1.8" />
@@ -247,6 +287,8 @@ function GraficoDesempenho({ raceData, replay, numero }) {
           <g style={{ pointerEvents: "none" }}>
             <line x1={xDe(p.t)} x2={xDe(p.t)} y1={TOPO_A} y2={BASE_B} stroke="#f1ead4" strokeDasharray="3 3" opacity="0.7" />
             <circle cx={xDe(p.t)} cy={yV(p.v)} r="4" fill={COR.speed} />
+            {p2 && <circle cx={xDe(p2.t)} cy={yV(p2.v)} r="4" fill={COR.speed2} />}
+            {p2 && <circle cx={xDe(p2.t)} cy={yHp(p2.hp)} r="4" fill={COR.hp2} />}
             <circle cx={xDe(p.t)} cy={yHp(p.hp)} r="4" fill={COR.hp} />
             <circle cx={xDe(p.t)} cy={yDv(p.dv)} r="3.5" fill={COR.dSpeed} />
             <circle cx={xDe(p.t)} cy={yDhp(p.dhp)} r="3.5" fill={COR.dHp} />
@@ -287,12 +329,24 @@ function GraficoDesempenho({ raceData, replay, numero }) {
             </div>
           )}
           {bloqueioAtivo && <div style={{ marginTop: "6px", color: "#e8836f", fontWeight: 700 }}>⛔ Blocked by {bloqueioAtivo.nome}</div>}
+          {p2 && (
+            <div style={{ marginTop: "8px", paddingTop: "6px", borderTop: "1px dashed rgba(164, 179, 198, 0.25)" }}>
+              <div style={{ color: "#f1ead4", fontWeight: 700, marginBottom: "2px", maxWidth: "240px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                vs {nomeComparado} <span style={{ color: "#5f758e", fontWeight: 600 }}>• {fmt(p2.d, 1)}m</span>
+              </div>
+              <Linha cor={COR.speed2} nome="Speed" valor={`${fmt(p2.v, 2)} m/s (${fmt(p2.v * 3.6, 1)} km/h)`} />
+              <Linha cor={COR.hp2} nome="HP" valor={`${fmt(p2.hp)} (${fmt((p2.hp / g2.hpInicial) * 100)}%)`} />
+              <div style={{ marginTop: "4px", fontSize: "8.5pt", color: p.d >= p2.d ? "#1bd39e" : "#e04b37", fontWeight: 700 }}>
+                {p.d >= p2.d ? "▲" : "▼"} {fmt(Math.abs(p.d - p2.d), 1)}m {p.d >= p2.d ? "ahead" : "behind"}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* legenda */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px", marginTop: "6px", fontSize: "8.5pt", color: "#a4b3c6" }}>
-        {[[COR.speed, "Speed"], [COR.hp, "HP"], [COR.dSpeed, "ΔSpeed"], [COR.dHp, "ΔHP"]].map(([cor, nome]) => (
+        {[[COR.speed, "Speed"], [COR.hp, "HP"], [COR.dSpeed, "ΔSpeed"], [COR.dHp, "ΔHP"], ...(g2 ? [[COR.speed2, "Speed (compared)"], [COR.hp2, "HP (compared)"]] : [])].map(([cor, nome]) => (
           <span key={nome} style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
             <span style={{ width: "14px", height: "3px", background: cor, borderRadius: "2px" }} /> {nome}
           </span>
