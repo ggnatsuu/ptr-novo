@@ -23,7 +23,7 @@ const LARGURA = 1200;
 const ALTURA = 600;
 const TOPO_PISTA = 80; // espaço acima pros rótulos
 const BASE_PISTA = ALTURA - 50; // espaço abaixo pras faixas de curva/reta
-const RAIO = 19;
+const RAIO = 25;
 
 // Os ícones de roupa do jogo são quadrados (256px) com uma moldura dourada
 // e um pedestal embaixo. Pra caber num círculo, damos zoom no miolo da
@@ -365,7 +365,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
                   <circle r={RAIO} fill="#1b2a3f" stroke={e.rushed ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.rushed || sobMouse === c.indice ? 3.5 : 2} />
                   {c.icone
                     ? <image href={c.icone} x={recorteIcone(RAIO - 1).x} y={recorteIcone(RAIO - 1).y} width={recorteIcone(RAIO - 1).tamanho} height={recorteIcone(RAIO - 1).tamanho} clipPath="url(#replay-clip-icone)" />
-                    : <text y="5" textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
+                    : <text y="6" textAnchor="middle" fill="#f1ead4" fontSize="17" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
                 </g>
               );
             })}
