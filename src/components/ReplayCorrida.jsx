@@ -564,6 +564,8 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
                   hpInicial={corrida.hpInicial[alvoFicha]}
                   skills={corrida.rotulos.filter((rt) => rt.indice === alvoFicha && rt.tipo === "skill" && rt.inicio <= tempo)}
                   bloqueador={estado[alvoFicha].bloqueadoPor >= 0 ? nomeDoCavalo(estado[alvoFicha].bloqueadoPor) : null}
+                  frames={corrida.frames}
+                  tempoFinal={corrida.tempoFinal}
                 />
               )}
             </div>
@@ -641,7 +643,7 @@ const ESTILO_QUADRO = {
   border: "1px solid rgba(197, 160, 89, 0.2)",
   borderRadius: "8px",
   padding: "10px 12px",
-  height: "300px",
+  height: "360px",
   boxSizing: "border-box",
   overflow: "hidden",
   fontFamily: "'Montserrat', sans-serif",
@@ -665,7 +667,43 @@ function descreverEvento(ev, nomeDoCavalo) {
   }
 }
 
-function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, bloqueador }) {
+// Mini gráfico ao vivo da ficha: Speed e HP do cavalo na corrida toda
+// (apagadinho) e o trecho até o instante atual por cima, com a bolinha.
+function MiniGrafico({ frames, indice, tempo, tempoFinal, velocidadeAgora, hpAgora }) {
+  const L = 400;
+  const A = 90;
+  const serie = useMemo(() => frames.filter((f) => f.tempo <= tempoFinal).map((f) => ({ t: f.tempo, v: f.cavalos[indice].velocidade, hp: f.cavalos[indice].hp })), [frames, indice, tempoFinal]);
+  const vMax = Math.max(...serie.map((p) => p.v)) * 1.08 || 1;
+  const hpMax = Math.max(...serie.map((p) => p.hp)) * 1.08 || 1;
+  const x = (t) => (t / tempoFinal) * L;
+  const yV = (v) => A - 4 - (v / vMax) * (A - 8);
+  const yHp = (hp) => A - 4 - (Math.max(0, hp) / hpMax) * (A - 8);
+  const linha = (pontos, fy) => pontos.map((p) => `${x(p.t).toFixed(1)},${fy(p).toFixed(1)}`).join(" ");
+  const passado = [...serie.filter((p) => p.t < tempo), { t: tempo, v: velocidadeAgora, hp: hpAgora }];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: "12px", fontSize: "7.5pt", color: "#5f758e", marginBottom: "2px" }}>
+        <span><span style={{ display: "inline-block", width: "10px", height: "3px", background: "#5b8def", verticalAlign: "middle", marginRight: "4px" }} />Speed</span>
+        <span><span style={{ display: "inline-block", width: "10px", height: "3px", background: "#c8e05a", verticalAlign: "middle", marginRight: "4px" }} />HP</span>
+      </div>
+      <div style={{ position: "relative" }}>
+      <svg viewBox={`0 0 ${L} ${A}`} preserveAspectRatio="none" style={{ width: "100%", height: "80px", display: "block", background: "rgba(13, 22, 36, 0.6)", borderRadius: "4px" }}>
+        <polyline points={linha(serie, (p) => yHp(p.hp))} fill="none" stroke="#c8e05a" strokeWidth="1.5" opacity="0.18" vectorEffect="non-scaling-stroke" />
+        <polyline points={linha(serie, (p) => yV(p.v))} fill="none" stroke="#5b8def" strokeWidth="1.5" opacity="0.18" vectorEffect="non-scaling-stroke" />
+        <polyline points={linha(passado, (p) => yHp(p.hp))} fill="none" stroke="#c8e05a" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+        <polyline points={linha(passado, (p) => yV(p.v))} fill="none" stroke="#5b8def" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+        <line x1={x(tempo)} x2={x(tempo)} y1="0" y2={A} stroke="#f1ead4" strokeDasharray="3 3" opacity="0.5" vectorEffect="non-scaling-stroke" />
+      </svg>
+      {/* bolinhas do instante atual (em HTML pra não esticar com o gráfico) */}
+      {[[yV(velocidadeAgora), "#5b8def"], [yHp(hpAgora), "#c8e05a"]].map(([y, cor]) => (
+        <span key={cor} style={{ position: "absolute", left: `calc(${(x(tempo) / L) * 100}% - 4px)`, top: `calc(${(y / A) * 80}px - 4px)`, width: "8px", height: "8px", borderRadius: "50%", background: cor, boxShadow: "0 0 0 2px #0b1320" }} />
+      ))}
+      </div>
+    </div>
+  );
+}
+
+function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, bloqueador, frames, tempoFinal }) {
   const chegou = r.tempoChegada > 0 && tempo >= r.tempoChegada;
   const hpPct = Math.max(0, Math.min(100, (e.hp / (hpInicial || 1)) * 100));
   const ativos = modosAtivos(c, e.distancia);
@@ -709,6 +747,8 @@ function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, b
           ))}
         </div>
       )}
+
+      <MiniGrafico frames={frames} indice={c.indice} tempo={tempo} tempoFinal={tempoFinal} velocidadeAgora={e.velocidade} hpAgora={e.hp} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
         <p style={{ ...ESTILO_TITULO_QUADRO, fontSize: "7.5pt", marginBottom: "4px" }}>Skills até agora ({skills.length})</p>
