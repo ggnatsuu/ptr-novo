@@ -116,6 +116,8 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
   const [mostrarSkills, setMostrarSkills] = useState(true);
   const [mostrarEventos, setMostrarEventos] = useState(true);
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
+  const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
+  const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
 
   // Decodifica a simulação (o decodificador só é baixado aqui).
   useEffect(() => {
@@ -154,12 +156,13 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
     return () => cancelAnimationFrame(quadro);
   }, [tocando, velocidade, corrida]);
 
-  // Na janela: Esc fecha e espaço dá play/pause. Embutido na página não
-  // mexe no teclado (o espaço tem que continuar rolando a página).
+  // Espaço dá play/pause; na janela, Esc fecha. Embutido na página, o
+  // espaço só controla o replay com o mouse em cima dele — fora disso
+  // continua rolando a página normalmente.
   useEffect(() => {
-    if (!aoFechar) return undefined;
+    if (!aoFechar && !mouseDentro) return undefined;
     const tecla = (e) => {
-      if (e.key === "Escape") aoFechar();
+      if (e.key === "Escape" && aoFechar) aoFechar();
       if (e.key === " " && e.target === document.body) {
         e.preventDefault();
         setTocando((v) => !v);
@@ -167,7 +170,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
-  }, [aoFechar]);
+  }, [aoFechar, mouseDentro]);
 
   const estado = useMemo(() => (corrida ? estadoNoTempo(corrida, tempo) : null), [corrida, tempo]);
 
@@ -266,7 +269,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
 
   return (
     <Moldura titulo={titulo} aoFechar={aoFechar}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "flex-start" }}>
+      <div onMouseEnter={() => setMouseDentro(true)} onMouseLeave={() => { setMouseDentro(false); setSobMouse(null); }} style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "flex-start" }}>
         {/* PISTA */}
         <div style={{ flex: "1 1 620px", minWidth: 0 }}>
           <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} style={{ width: "100%", display: "block", background: "#0b1320", borderRadius: "8px", border: "1px solid rgba(197, 160, 89, 0.2)" }}>
@@ -332,9 +335,8 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               const y = yDe(e.raia);
               const seguido = seguindo === c.indice;
               return (
-                <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={c.npc ? 0.45 : 1} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)}>
-                  <title>{`${c.personagem}${c.treinador ? ` [${c.treinador}]` : " (NPC)"}`}</title>
-                  <circle r={RAIO} fill="#1b2a3f" stroke={e.kakari ? "#e04b37" : seguido ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.kakari ? 3 : 2} />
+                <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={c.npc ? 0.45 : 1} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
+                  <circle r={RAIO} fill="#1b2a3f" stroke={e.kakari ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.kakari || sobMouse === c.indice ? 3.5 : 2} />
                   {c.icone
                     ? <image href={c.icone} x={recorteIcone(RAIO - 1).x} y={recorteIcone(RAIO - 1).y} width={recorteIcone(RAIO - 1).tamanho} height={recorteIcone(RAIO - 1).tamanho} clipPath="url(#replay-clip-icone)" />
                     : <text y="5" textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
@@ -354,6 +356,25 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
                 </g>
               );
             })}
+
+            {/* etiqueta de quem é o cavalo sob o mouse */}
+            {sobMouse !== null && visiveis.some((c) => c.indice === sobMouse) && (() => {
+              const c = corrida.cavalos[sobMouse];
+              const x = xDe(estado[sobMouse].distancia);
+              const y = yDe(estado[sobMouse].raia);
+              const linha2 = c.treinador ?? "NPC";
+              const largura = Math.max(c.personagem.length * 8.2, linha2.length * 7.6) + 24;
+              const altura = 44;
+              const caixaX = Math.min(Math.max(x - largura / 2, 4), LARGURA - largura - 4);
+              const caixaY = y - RAIO - altura - 8 >= 4 ? y - RAIO - altura - 8 : y + RAIO + 8;
+              return (
+                <g style={{ pointerEvents: "none" }}>
+                  <rect x={caixaX} y={caixaY} width={largura} height={altura} rx="6" fill="#0b1320" stroke="#c5a059" strokeWidth="1.5" opacity="0.97" />
+                  <text x={caixaX + largura / 2} y={caixaY + 18} textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.personagem}</text>
+                  <text x={caixaX + largura / 2} y={caixaY + 35} textAnchor="middle" fill={c.treinador ? "#c5a059" : "#5f758e"} fontSize="13" fontWeight="600" fontFamily="Montserrat, sans-serif">{linha2}</text>
+                </g>
+              );
+            })()}
           </svg>
 
           {/* CONTROLES */}
@@ -406,7 +427,9 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               <div
                 key={c.indice}
                 onClick={() => trocarSeguir(c.indice)}
-                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "6px", cursor: "pointer", opacity: c.npc ? 0.55 : 1, background: seguido ? "rgba(197, 160, 89, 0.15)" : "transparent", fontFamily: "'Montserrat', sans-serif" }}
+                onMouseEnter={() => setSobMouse(c.indice)}
+                onMouseLeave={() => setSobMouse(null)}
+                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "6px", cursor: "pointer", opacity: c.npc ? 0.55 : 1, background: seguido ? "rgba(197, 160, 89, 0.15)" : sobMouse === c.indice ? "rgba(197, 160, 89, 0.07)" : "transparent", fontFamily: "'Montserrat', sans-serif" }}
               >
                 <span style={{ width: "22px", textAlign: "right", color: "#c5a059", fontWeight: 800, fontSize: "9.5pt" }}>{c.chegou ? c.r.posicaoFinal : i + 1}</span>
                 {c.icone
