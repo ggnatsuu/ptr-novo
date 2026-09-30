@@ -519,14 +519,14 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
             <div style={{ ...ESTILO_QUADRO, display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                 <p style={ESTILO_TITULO_QUADRO}>Eventos — clique para ir ao momento</p>
-                <select value={filtroFeed} onChange={(e) => setFiltroFeed(e.target.value)} style={{ background: "#0d1624", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "6px", padding: "2px 6px", fontSize: "8pt", fontFamily: "'Montserrat', sans-serif" }}>
+                <select value={filtroFeed} onChange={(e) => setFiltroFeed(e.target.value)} style={{ background: "#0d1624", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "6px", padding: "3px 8px", fontSize: "9.5pt", fontFamily: "'Montserrat', sans-serif" }}>
                   <option value="todos">All</option>
                   <option value="treinadores">Trainers only</option>
                   <option value="seguido">Followed only</option>
                 </select>
               </div>
               <div style={{ flex: 1, overflowY: "auto" }}>
-                {eventosFeed.length === 0 && <p style={{ color: "#5f758e", fontSize: "8.5pt", fontStyle: "italic", margin: "6px 0" }}>Os eventos aparecem aqui conforme a corrida anda.</p>}
+                {eventosFeed.length === 0 && <p style={{ color: "#5f758e", fontSize: "10pt", fontStyle: "italic", margin: "6px 0" }}>Os eventos aparecem aqui conforme a corrida anda.</p>}
                 {eventosFeed.map((ev) => {
                   const c = corrida.cavalos[ev.indice];
                   const { cor, texto } = descreverEvento(ev, nomeDoCavalo);
@@ -534,12 +534,12 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
                     <div
                       key={`${ev.t}-${ev.indice}-${ev.tipo}-${ev.texto ?? ""}`}
                       onClick={() => { setTempo(Math.max(0, ev.t - 1.5)); setSeguindo(ev.indice); }}
-                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 4px", borderBottom: "1px solid rgba(164, 179, 198, 0.06)", cursor: "pointer", opacity: c.npc ? 0.6 : 1, fontFamily: "'Montserrat', sans-serif", fontSize: "8.5pt" }}
+                      style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 4px", borderBottom: "1px solid rgba(164, 179, 198, 0.06)", cursor: "pointer", opacity: c.npc ? 0.6 : 1, fontFamily: "'Montserrat', sans-serif", fontSize: "10.5pt" }}
                     >
-                      <span style={{ color: "#5f758e", fontFamily: "'Courier New', monospace", minWidth: "42px" }}>{formatarTempo(ev.t)}</span>
+                      <span style={{ color: "#8193a8", fontFamily: "'Courier New', monospace", minWidth: "54px", fontSize: "10pt" }}>{formatarTempo(ev.t)}</span>
                       {c.icone
-                        ? <IconeRedondo src={c.icone} tamanho={22} />
-                        : <span style={{ width: "22px", height: "22px", flexShrink: 0, borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "7pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
+                        ? <IconeRedondo src={c.icone} tamanho={28} />
+                        : <span style={{ width: "28px", height: "28px", flexShrink: 0, borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "8.5pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
                       <span style={{ color: "#f1ead4", fontWeight: 700, whiteSpace: "nowrap" }}>{nomeDoCavalo(ev.indice)}</span>
                       <span style={{ color: cor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{texto}</span>
                     </div>
@@ -550,7 +550,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
             <div style={ESTILO_QUADRO}>
               {alvoFicha === null ? (
-                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", color: "#5f758e", fontSize: "9pt", fontStyle: "italic", padding: "0 20px" }}>
+                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", color: "#5f758e", fontSize: "10.5pt", fontStyle: "italic", padding: "0 20px" }}>
                   Clique numa personagem (na pista ou no placar) para segui-la e ver a ficha dela aqui. Passar o mouse também mostra.
                 </div>
               ) : (
@@ -643,13 +643,13 @@ const ESTILO_QUADRO = {
   border: "1px solid rgba(197, 160, 89, 0.2)",
   borderRadius: "8px",
   padding: "10px 12px",
-  height: "400px",
+  height: "460px",
   boxSizing: "border-box",
   overflow: "hidden",
   fontFamily: "'Montserrat', sans-serif",
 };
 
-const ESTILO_TITULO_QUADRO = { margin: 0, fontSize: "8.5pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" };
+const ESTILO_TITULO_QUADRO = { margin: 0, fontSize: "10pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" };
 
 const ORDINAIS = (n) => `${n}${n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th"}`;
 
@@ -684,7 +684,7 @@ function MiniGrafico({ frames, indice, tempo, tempoFinal, velocidadeAgora, hpAgo
   const passado = [...serie.filter((p) => p.t < tempo), { t: tempo, v: velocidadeAgora, hp: hpAgora }];
   return (
     <div>
-      <div style={{ display: "flex", gap: "12px", fontSize: "7.5pt", color: "#5f758e", marginBottom: "2px" }}>
+      <div style={{ display: "flex", gap: "12px", fontSize: "9pt", color: "#8193a8", marginBottom: "3px" }}>
         <span><span style={{ display: "inline-block", width: "10px", height: "3px", background: "#5b8def", verticalAlign: "middle", marginRight: "4px" }} />Speed</span>
         <span><span style={{ display: "inline-block", width: "10px", height: "3px", background: "#c8e05a", verticalAlign: "middle", marginRight: "4px" }} />HP</span>
       </div>
@@ -719,19 +719,19 @@ function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, b
     <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         {c.icone
-          ? <IconeRedondo src={c.icone} tamanho={46} />
+          ? <IconeRedondo src={c.icone} tamanho={54} />
           : <span style={{ width: "46px", height: "46px", borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{c.numero}</span>}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ color: "#f1ead4", fontWeight: 800, fontSize: "11pt" }}>{c.personagem}</div>
-          <div style={{ color: c.treinador ? "#c5a059" : "#5f758e", fontSize: "9pt", fontWeight: 600 }}>{c.treinador ?? "NPC"}{c.estilo ? ` • ${c.estilo}` : ""}</div>
+          <div style={{ color: "#f1ead4", fontWeight: 800, fontSize: "13.5pt" }}>{c.personagem}</div>
+          <div style={{ color: c.treinador ? "#c5a059" : "#5f758e", fontSize: "11pt", fontWeight: 600 }}>{c.treinador ?? "NPC"}{c.estilo ? ` • ${c.estilo}` : ""}</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontWeight: 900, fontSize: "20pt", lineHeight: 1 }}>{chegou ? r.posicaoFinal : posicao}º</div>
-          <div style={{ color: "#5f758e", fontSize: "7.5pt" }}>{chegou ? `finished ${formatarTempo(r.tempoChegada)}` : atrasLider < 0.05 ? "leading" : `${atrasLider.toFixed(1)}m behind leader`}</div>
+          <div style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontWeight: 900, fontSize: "24pt", lineHeight: 1 }}>{chegou ? r.posicaoFinal : posicao}º</div>
+          <div style={{ color: "#8193a8", fontSize: "9.5pt" }}>{chegou ? `finished ${formatarTempo(r.tempoChegada)}` : atrasLider < 0.05 ? "leading" : `${atrasLider.toFixed(1)}m behind leader`}</div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 14px", fontSize: "8.5pt", color: "#a4b3c6" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px", fontSize: "10.5pt", color: "#a4b3c6" }}>
         <span>Speed <strong style={{ color: "#f1ead4", float: "right" }}>{(e.velocidade * 3.6).toFixed(1)} km/h</strong></span>
         <span>Distance <strong style={{ color: "#f1ead4", float: "right" }}>{e.distancia.toFixed(0)} m</strong></span>
         <span style={{ gridColumn: "1 / -1" }}>
@@ -744,19 +744,19 @@ function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, b
 
       {/* Linha dos selos com altura fixa (mesmo vazia), pra nada embaixo pular
           quando um Pace Up / Downhill aparece ou some. */}
-      <div style={{ display: "flex", gap: "5px", height: "20px", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ display: "flex", gap: "6px", height: "24px", overflow: "hidden", flexShrink: 0 }}>
         {selos.map((selo) => (
-          <span key={selo.texto} style={{ color: selo.cor, border: `1px solid ${selo.cor}`, borderRadius: "10px", padding: "1px 8px", fontSize: "8pt", fontWeight: 700, whiteSpace: "nowrap", lineHeight: "16px" }}>{selo.texto}</span>
+          <span key={selo.texto} style={{ color: selo.cor, border: `1px solid ${selo.cor}`, borderRadius: "10px", padding: "1px 9px", fontSize: "9.5pt", fontWeight: 700, whiteSpace: "nowrap", lineHeight: "20px" }}>{selo.texto}</span>
         ))}
       </div>
 
       <MiniGrafico frames={frames} indice={c.indice} tempo={tempo} tempoFinal={tempoFinal} velocidadeAgora={e.velocidade} hpAgora={e.hp} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-        <p style={{ ...ESTILO_TITULO_QUADRO, fontSize: "7.5pt", marginBottom: "4px" }}>Skills até agora ({skills.length})</p>
+        <p style={{ ...ESTILO_TITULO_QUADRO, fontSize: "9pt", marginBottom: "5px" }}>Skills até agora ({skills.length})</p>
         <div style={{ flex: 1, overflowY: "auto", display: "flex", flexWrap: "wrap", alignContent: "flex-start", gap: "4px" }}>
           {[...skills].reverse().map((sk) => (
-            <span key={`${sk.inicio}-${sk.texto}`} title={formatarTempo(sk.inicio)} style={{ background: "rgba(197, 160, 89, 0.12)", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "4px", padding: "1px 6px", fontSize: "7.5pt" }}>
+            <span key={`${sk.inicio}-${sk.texto}`} title={formatarTempo(sk.inicio)} style={{ background: "rgba(197, 160, 89, 0.12)", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "4px", padding: "2px 8px", fontSize: "9.5pt" }}>
               {sk.texto}
             </span>
           ))}
