@@ -1,15 +1,10 @@
-import { Fragment, Suspense, lazy, useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { Link } from "react-router-dom";
-import { auth, db } from "../config/firebase";
+import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
-
-// 🎯 O replay (e o decodificador da simulação) só é baixado quando alguém
-// clica em "Assistir Replay".
-const ReplayCorrida = lazy(() => import("../components/ReplayCorrida"));
+import SecaoReplayResultado from "../components/SecaoReplayResultado";
 
 // 🎯 PARTE 1/3: busca as corridas com resultado já lançado pra edição
 // ativa, e monta o carrossel de cards clicáveis (nome, distância,
@@ -92,39 +87,6 @@ function Resultados() {
   // 🎯 Linha da tabela com o painel de detalhes aberto ("idDaCorrida-numero").
   const [linhaAberta, setLinhaAberta] = useState(null);
 
-  // 🎯 Replay da corrida: só pra treinadores logados. Os dados ficam em
-  // replays_partidas/{id do resultado} e só existem pra resultados enviados
-  // pelo arquivo do jogo (origem "arquivo").
-  const [usuario, setUsuario] = useState(null);
-  const [replayAberto, setReplayAberto] = useState(null);
-  const [carregandoReplay, setCarregandoReplay] = useState(false);
-  // Aviso guardado junto com o id da corrida, pra sumir ao trocar de corrida.
-  const [avisoReplay, setAvisoReplay] = useState({ id: null, texto: "" });
-
-  useEffect(() => onAuthStateChanged(auth, setUsuario), []);
-
-  async function abrirReplay(corrida) {
-    const avisar = (texto) => setAvisoReplay({ id: corrida.id, texto });
-    avisar("");
-    if (!usuario) {
-      avisar("login");
-      return;
-    }
-    setCarregandoReplay(true);
-    try {
-      const snap = await getDoc(doc(db, "replays_partidas", corrida.id));
-      if (snap.exists()) {
-        setReplayAberto({ dados: snap.data(), titulo: `${corrida.grade} • ${corrida.pistaNome}${corrida.grupo ? ` — Grupo ${corrida.grupo}` : ""}` });
-      } else {
-        avisar("O replay desta corrida não está disponível.");
-      }
-    } catch (erro) {
-      console.error("Erro ao carregar replay:", erro);
-      avisar("Não foi possível carregar o replay agora. Tente novamente mais tarde.");
-    } finally {
-      setCarregandoReplay(false);
-    }
-  }
 
   const carrosselRef = useRef(null);
 
@@ -455,23 +417,12 @@ function Resultados() {
           {/* TABELA DETALHADA DE TELEMETRIA */}
           {corridaSelecionada && (
             <div style={{ width: "100%", maxWidth: "1550px", margin: "0 auto 60px auto" }}>
-              <h3 style={{ textAlign: "center", fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "15pt", marginBottom: corridaSelecionada.linkReplay || corridaSelecionada.origem === "arquivo" ? "14px" : "20px" }}>
+              <h3 style={{ textAlign: "center", fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "15pt", marginBottom: corridaSelecionada.linkReplay ? "14px" : "20px" }}>
                 {corridaSelecionada.grade} • {corridaSelecionada.pistaNome}{corridaSelecionada.grupo ? ` — Grupo ${corridaSelecionada.grupo}` : ""} — Resultados Detalhados
               </h3>
 
-              {(corridaSelecionada.linkReplay || corridaSelecionada.origem === "arquivo") && (
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "12px", marginBottom: "20px" }}>
-                  {corridaSelecionada.origem === "arquivo" && (
-                    <button
-                      type="button"
-                      onClick={() => abrirReplay(corridaSelecionada)}
-                      disabled={carregandoReplay}
-                      style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(197, 160, 89, 0.18)", border: "1px solid #c5a059", color: "#c5a059", borderRadius: "50px", padding: "8px 20px", fontSize: "9pt", fontWeight: 700, fontFamily: "'Montserrat'", cursor: carregandoReplay ? "wait" : "pointer" }}
-                    >
-                      <i className={`fa-solid ${carregandoReplay ? "fa-spinner fa-spin" : "fa-play"}`}></i> Assistir Replay
-                    </button>
-                  )}
-                  {corridaSelecionada.linkReplay && (
+              {corridaSelecionada.linkReplay && (
+                <div style={{ textAlign: "center", marginBottom: "20px" }}>
                   <a
                     href={corridaSelecionada.linkReplay}
                     target="_blank"
@@ -480,14 +431,6 @@ function Resultados() {
                   >
                     <i className="fa-solid fa-arrow-up-right-from-square"></i> Ver Detalhes da Corrida
                   </a>
-                  )}
-                  {avisoReplay.texto && avisoReplay.id === corridaSelecionada.id && (
-                    <p style={{ width: "100%", textAlign: "center", margin: 0, fontFamily: "'Montserrat'", fontSize: "9pt", color: "#a4b3c6" }}>
-                      {avisoReplay.texto === "login"
-                        ? <>🔒 O replay é exclusivo para treinadores. <Link to="/login" style={{ color: "#c5a059", fontWeight: 700 }}>Entre na Área do Treinador</Link> para assistir.</>
-                        : avisoReplay.texto}
-                    </p>
-                  )}
                 </div>
               )}
 
@@ -606,6 +549,13 @@ function Resultados() {
                   </tbody>
                 </table>
               </div>
+
+              {/* 🎯 Replay (só corridas enviadas pelo arquivo do jogo) */}
+              {corridaSelecionada.origem === "arquivo" && (
+                <div style={{ marginTop: "30px" }}>
+                  <SecaoReplayResultado corrida={corridaSelecionada} />
+                </div>
+              )}
             </div>
           )}
         </>
@@ -663,11 +613,6 @@ function Resultados() {
             </div>
           )}
         </div>
-      )}
-      {replayAberto && (
-        <Suspense fallback={null}>
-          <ReplayCorrida replay={replayAberto.dados} titulo={replayAberto.titulo} aoFechar={() => setReplayAberto(null)} />
-        </Suspense>
       )}
     </main>
   );

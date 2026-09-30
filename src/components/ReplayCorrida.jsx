@@ -104,6 +104,8 @@ function posicionarRotulos(itens) {
 // COMPONENTE
 // ---------------------------------------------------------------------
 
+// Sem "aoFechar", o replay é desenhado embutido na página (Resultados) em
+// vez de numa janela por cima de tudo (prévia do RankAdmin).
 function ReplayCorrida({ replay, titulo, aoFechar }) {
   const [corrida, setCorrida] = useState(null);
   const [erro, setErro] = useState(null);
@@ -152,8 +154,10 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
     return () => cancelAnimationFrame(quadro);
   }, [tocando, velocidade, corrida]);
 
-  // Esc fecha; espaço dá play/pause.
+  // Na janela: Esc fecha e espaço dá play/pause. Embutido na página não
+  // mexe no teclado (o espaço tem que continuar rolando a página).
   useEffect(() => {
+    if (!aoFechar) return undefined;
     const tecla = (e) => {
       if (e.key === "Escape") aoFechar();
       if (e.key === " " && e.target === document.body) {
@@ -458,6 +462,16 @@ function Opcao({ ativo, aoTrocar, children }) {
 }
 
 function Moldura({ titulo, aoFechar, children }) {
+  if (!aoFechar) {
+    return (
+      <div style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "18px", boxSizing: "border-box", boxShadow: "0 8px 25px rgba(0,0,0,0.5)" }}>
+        <h3 style={{ margin: "0 0 14px 0", fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "13pt" }}>
+          <i className="fa-solid fa-film"></i> Replay{titulo ? ` — ${titulo}` : ""}
+        </h3>
+        {children}
+      </div>
+    );
+  }
   return (
     <div
       onClick={aoFechar}
