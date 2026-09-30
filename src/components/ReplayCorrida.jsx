@@ -17,13 +17,36 @@ import { prepararCorrida, estadoNoTempo } from "../utils/replayCorrida";
 // CONSTANTES DE DESENHO
 // ---------------------------------------------------------------------
 
-const LARGURA = 1000;
-const ALTURA = 340;
-const TOPO_PISTA = 58; // espaço acima pros rótulos
-const BASE_PISTA = ALTURA - 44; // espaço abaixo pras faixas de curva/reta
-const RAIO = 13;
+const LARGURA = 1200;
+const ALTURA = 600;
+const TOPO_PISTA = 80; // espaço acima pros rótulos
+const BASE_PISTA = ALTURA - 50; // espaço abaixo pras faixas de curva/reta
+const RAIO = 19;
+
+// Os ícones de roupa do jogo são quadrados (256px) com uma moldura dourada
+// e um pedestal embaixo. Pra caber num círculo, damos zoom no miolo da
+// moldura: centro em (128, 136) e raio ~88 dentro da imagem original.
+const ICONE_TAM = 256;
+const ICONE_CX = 128;
+const ICONE_CY = 136;
+const ICONE_R = 88;
+
+function recorteIcone(raio) {
+  const escala = raio / ICONE_R;
+  return { tamanho: ICONE_TAM * escala, x: -ICONE_CX * escala, y: -ICONE_CY * escala };
+}
+
+// Ícone redondo em HTML (placar), com o mesmo recorte do SVG.
+function IconeRedondo({ src, tamanho }) {
+  const r = recorteIcone(tamanho / 2);
+  return (
+    <span style={{ position: "relative", display: "inline-block", width: tamanho, height: tamanho, borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: "#1b2a3f" }}>
+      <img src={src} alt="" style={{ position: "absolute", width: r.tamanho, height: r.tamanho, left: tamanho / 2 + r.x, top: tamanho / 2 + r.y, maxWidth: "none" }} />
+    </span>
+  );
+}
 const RAIA_MIN_ESCALA = 3000; // lanePosition: 0 = cerca interna; ~10000 = portão mais aberto
-const ALTURA_ROTULO = 16;
+const ALTURA_ROTULO = 20;
 const JANELA_MIN_M = 70;
 const JANELA_MAX_M = 260;
 
@@ -67,7 +90,7 @@ function posicionarRotulos(itens) {
   const colocados = [];
   const bate = (a, b) => a.x < b.x + b.largura && b.x < a.x + a.largura && a.y < b.y + ALTURA_ROTULO && b.y < a.y + ALTURA_ROTULO;
   itens.forEach((item) => {
-    const largura = item.texto.length * 6 + 12;
+    const largura = item.texto.length * 7.4 + 16;
     const x = Math.min(Math.max(item.xCavalo - largura / 2, 2), LARGURA - largura - 2);
     const andares = [0, 1, 2, 3, 4].map((k) => item.yCavalo - RAIO - 4 - ALTURA_ROTULO - k * (ALTURA_ROTULO + 2));
     andares.push(item.yCavalo + RAIO + 4);
@@ -259,7 +282,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               s.fim >= camera.inicio && s.inicio <= camera.fim && (
                 <g key={`sub-${i}`}>
                   <rect x={xDe(s.inicio)} y={TOPO_PISTA - 6} width={Math.max(1, xDe(s.fim) - xDe(s.inicio))} height="5" rx="2" fill={s.subida ? "#c8e05a" : "#4aa3a9"} opacity="0.85" />
-                  <text x={Math.max(4, xDe(s.inicio) + 4)} y={TOPO_PISTA - 10} fill={s.subida ? "#c8e05a" : "#4aa3a9"} fontSize="9.5" fontFamily="Montserrat, sans-serif">{s.subida ? "Uphill" : "Downhill"}</text>
+                  <text x={Math.max(4, xDe(s.inicio) + 4)} y={TOPO_PISTA - 10} fill={s.subida ? "#c8e05a" : "#4aa3a9"} fontSize="12" fontFamily="Montserrat, sans-serif">{s.subida ? "Uphill" : "Downhill"}</text>
                 </g>
               )
             ))}
@@ -270,7 +293,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               c.fim >= camera.inicio && c.inicio <= camera.fim && (
                 <g key={`curva-${i}`}>
                   <rect x={xDe(c.inicio)} y={BASE_PISTA + 6} width={Math.max(1, xDe(c.fim) - xDe(c.inicio))} height="16" fill="rgba(197, 160, 89, 0.35)" />
-                  <text x={Math.max(4, xDe(c.inicio) + 4)} y={BASE_PISTA + 18} fill="#f1ead4" fontSize="10" fontFamily="Montserrat, sans-serif">{c.nome}</text>
+                  <text x={Math.max(4, xDe(c.inicio) + 4)} y={BASE_PISTA + 18} fill="#f1ead4" fontSize="12" fontFamily="Montserrat, sans-serif">{c.nome}</text>
                 </g>
               )
             ))}
@@ -279,7 +302,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
             {marcas.map((m) => (
               <g key={`m-${m}`}>
                 <line x1={xDe(m)} x2={xDe(m)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#f1ead4" strokeWidth="1" opacity="0.08" />
-                <text x={xDe(m)} y={ALTURA - 8} fill="#5f758e" fontSize="10" textAnchor="middle" fontFamily="Montserrat, sans-serif">{m}m</text>
+                <text x={xDe(m)} y={ALTURA - 8} fill="#5f758e" fontSize="12" textAnchor="middle" fontFamily="Montserrat, sans-serif">{m}m</text>
               </g>
             ))}
 
@@ -288,7 +311,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               f.d >= camera.inicio && f.d <= camera.fim && (
                 <g key={f.nome}>
                   <line x1={xDe(f.d)} x2={xDe(f.d)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#c5a059" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.7" />
-                  <text x={xDe(f.d) + 4} y={TOPO_PISTA + 12} fill="#c5a059" fontSize="10" fontFamily="Montserrat, sans-serif">{f.nome}</text>
+                  <text x={xDe(f.d) + 4} y={TOPO_PISTA + 12} fill="#c5a059" fontSize="12" fontFamily="Montserrat, sans-serif">{f.nome}</text>
                 </g>
               )
             ))}
@@ -309,8 +332,8 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
                   <title>{`${c.personagem}${c.treinador ? ` [${c.treinador}]` : " (NPC)"}`}</title>
                   <circle r={RAIO} fill="#1b2a3f" stroke={e.kakari ? "#e04b37" : seguido ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.kakari ? 3 : 2} />
                   {c.icone
-                    ? <image href={c.icone} x={-(RAIO - 1)} y={-(RAIO - 1)} width={(RAIO - 1) * 2} height={(RAIO - 1) * 2} clipPath="url(#replay-clip-icone)" />
-                    : <text y="4" textAnchor="middle" fill="#f1ead4" fontSize="11" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
+                    ? <image href={c.icone} x={recorteIcone(RAIO - 1).x} y={recorteIcone(RAIO - 1).y} width={recorteIcone(RAIO - 1).tamanho} height={recorteIcone(RAIO - 1).tamanho} clipPath="url(#replay-clip-icone)" />
+                    : <text y="5" textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
                 </g>
               );
             })}
@@ -323,7 +346,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
                 <g key={`${r.indice}-${r.tipo}-${r.texto}`} opacity={npc ? 0.55 : 1} style={{ pointerEvents: "none" }}>
                   <line x1={r.xCavalo} y1={r.yCavalo} x2={Math.min(Math.max(r.xCavalo, r.x + 4), r.x + r.largura - 4)} y2={r.y > r.yCavalo ? r.y : r.y + ALTURA_ROTULO} stroke={cores.fundo} strokeWidth="1" opacity="0.6" />
                   <rect x={r.x} y={r.y} width={r.largura} height={ALTURA_ROTULO} rx="4" fill={cores.fundo} opacity="0.95" />
-                  <text x={r.x + r.largura / 2} y={r.y + 12} textAnchor="middle" fill={cores.texto} fontSize="10.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
+                  <text x={r.x + r.largura / 2} y={r.y + 14.5} textAnchor="middle" fill={cores.texto} fontSize="13" fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
                 </g>
               );
             })}
@@ -368,7 +391,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
         </div>
 
         {/* PLACAR AO VIVO */}
-        <div style={{ flex: "0 1 330px", minWidth: "260px", background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "10px", maxHeight: "460px", overflowY: "auto" }}>
+        <div style={{ flex: "0 1 360px", minWidth: "280px", background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "10px", maxHeight: "78vh", overflowY: "auto" }}>
           <p style={{ margin: "0 0 8px 0", fontFamily: "'Montserrat', sans-serif", fontSize: "8.5pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" }}>
             Posições — clique para seguir
           </p>
@@ -383,8 +406,8 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               >
                 <span style={{ width: "22px", textAlign: "right", color: "#c5a059", fontWeight: 800, fontSize: "9.5pt" }}>{c.chegou ? c.r.posicaoFinal : i + 1}</span>
                 {c.icone
-                  ? <img src={c.icone} alt="" style={{ width: "24px", height: "24px", borderRadius: "50%" }} />
-                  : <span style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "8pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
+                  ? <IconeRedondo src={c.icone} tamanho={34} />
+                  : <span style={{ width: "34px", height: "34px", flexShrink: 0, borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "8pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ color: "#f1ead4", fontSize: "9pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.personagem}</div>
                   <div style={{ color: "#5f758e", fontSize: "7.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.treinador ?? "NPC"}</div>
@@ -438,11 +461,11 @@ function Moldura({ titulo, aoFechar, children }) {
   return (
     <div
       onClick={aoFechar}
-      style={{ position: "fixed", inset: 0, background: "rgba(5, 10, 18, 0.85)", zIndex: 2000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }}
+      style={{ position: "fixed", inset: 0, background: "rgba(5, 10, 18, 0.85)", zIndex: 2000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "16px 12px", overflowY: "auto" }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "100%", maxWidth: "1400px", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "12px", padding: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
+        style={{ width: "100%", maxWidth: "min(1900px, 98vw)", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "12px", padding: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
           <h3 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "14pt" }}>
