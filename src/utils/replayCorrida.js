@@ -93,7 +93,27 @@ export function prepararCorrida(raceData, replay) {
   const tempoFinal = Math.min(frames[frames.length - 1].tempo, ultimaChegada + 2);
   const distancia = replay.condicoes?.distancia ?? courseData[replay.courseId]?.distance ?? 2000;
 
-  return { frames, hpInicial, resultados, cavalos, rotulos, tempoFinal, distancia };
+  // Feed de eventos embaixo da pista: os mesmos rótulos, mais o início de
+  // cada bloqueio e de cada Rushed (tirados dos quadros) e a chegada.
+  const eventos = rotulos.map((r) => ({ t: r.inicio, indice: r.indice, tipo: r.tipo, texto: r.texto }));
+  for (let i = 0; i < numCavalos; i++) {
+    for (let k = 0; k < frames.length; k++) {
+      const atual = frames[k].cavalos[i];
+      const anterior = k ? frames[k - 1].cavalos[i] : null;
+      if (atual.bloqueadoPor >= 0 && (!anterior || anterior.bloqueadoPor !== atual.bloqueadoPor)) {
+        eventos.push({ t: frames[k].tempo, indice: i, tipo: "bloqueio", por: atual.bloqueadoPor });
+      }
+      if (atual.rushed && !(anterior && anterior.rushed)) {
+        eventos.push({ t: frames[k].tempo, indice: i, tipo: "rushed" });
+      }
+    }
+    if (resultados[i].tempoChegada > 0) {
+      eventos.push({ t: resultados[i].tempoChegada, indice: i, tipo: "chegada", posicao: resultados[i].posicaoFinal });
+    }
+  }
+  eventos.sort((x, y) => x.t - y.t);
+
+  return { frames, hpInicial, resultados, cavalos, rotulos, eventos, tempoFinal, distancia };
 }
 
 // Posição de cada cavalo no instante t (Hermite com a velocidade como derivada).

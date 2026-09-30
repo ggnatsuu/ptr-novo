@@ -135,6 +135,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
   const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
   const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
+  const [filtroFeed, setFiltroFeed] = useState("todos"); // "todos" | "treinadores" | "seguido"
 
   // Pedido novo de "seguir": câmera no cavalo e play (do início, se já acabou).
   const [pedidoAtendido, setPedidoAtendido] = useState(null);
@@ -282,6 +283,41 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
   const trocarSeguir = (indice) => setSeguindo((atual) => (atual === indice ? null : indice));
 
+  // Foco: seguindo alguém, os outros cavalos (e os rótulos deles) ficam transparentes.
+  const opacidade = (c, base) => (seguindo !== null && c.indice !== seguindo ? base * 0.3 : base);
+
+  // Posição de todo mundo agora (inclusive NPCs escondidos), pra ficha.
+  const posicaoAgora = new Map(
+    corrida.cavalos
+      .map((c) => {
+        const r = corrida.resultados[c.indice];
+        return { indice: c.indice, chegou: r.tempoChegada > 0 && tempo >= r.tempoChegada, final: r.posicaoFinal, d: estado[c.indice].distancia };
+      })
+      .sort((a, b) => {
+        if (a.chegou && b.chegou) return a.final - b.final;
+        if (a.chegou !== b.chegou) return a.chegou ? -1 : 1;
+        return b.d - a.d;
+      })
+      .map((x, pos) => [x.indice, pos + 1]),
+  );
+  const distanciaLider = Math.max(...estado.map((e) => e.distancia));
+
+  // Feed: eventos que já aconteceram, do mais novo pro mais antigo.
+  const nomeDoCavalo = (i) => corrida.cavalos[i].treinador ?? corrida.cavalos[i].personagem;
+  const eventosFeed = corrida.eventos
+    .filter((ev) => ev.t <= tempo + 0.01)
+    .filter((ev) => mostrarNpcs || !corrida.cavalos[ev.indice].npc)
+    .filter((ev) => {
+      if (filtroFeed === "treinadores") return !corrida.cavalos[ev.indice].npc;
+      if (filtroFeed === "seguido") return seguindo === null || ev.indice === seguindo;
+      return true;
+    })
+    .reverse()
+    .slice(0, 80);
+
+  // Ficha: cavalo com o mouse em cima; senão, o seguido.
+  const alvoFicha = sobMouse ?? seguindo;
+
   // Desenha quem está atrás primeiro, pra quem está na frente ficar por cima.
   const ordemDesenho = [...visiveis].sort((a, b) => estado[a.indice].distancia - estado[b.indice].distancia);
 
@@ -361,7 +397,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const y = yDe(e.raia);
               const seguido = seguindo === c.indice;
               return (
-                <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={c.npc ? 0.45 : 1} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
+                <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={opacidade(c, c.npc ? 0.45 : 1)} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
                   <circle r={RAIO} fill="#1b2a3f" stroke={e.rushed ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.rushed || sobMouse === c.indice ? 3.5 : 2} />
                   {c.icone
                     ? <image href={c.icone} x={recorteIcone(RAIO - 1).x} y={recorteIcone(RAIO - 1).y} width={recorteIcone(RAIO - 1).tamanho} height={recorteIcone(RAIO - 1).tamanho} clipPath="url(#replay-clip-icone)" />
@@ -372,7 +408,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
             {/* ícone de bloqueado (círculo vermelho com faixa branca), por cima de todos os cavalos */}
             {mostrarEventos && ordemDesenho.map((c) => estado[c.indice].bloqueadoPor >= 0 && (
-              <g key={`bloq-${c.indice}`} transform={`translate(${xDe(estado[c.indice].distancia) + RAIO * 0.75}, ${yDe(estado[c.indice].raia) + RAIO * 0.7})`} opacity={c.npc ? 0.6 : 1} style={{ pointerEvents: "none" }}>
+              <g key={`bloq-${c.indice}`} transform={`translate(${xDe(estado[c.indice].distancia) + RAIO * 0.75}, ${yDe(estado[c.indice].raia) + RAIO * 0.7})`} opacity={opacidade(c, c.npc ? 0.6 : 1)} style={{ pointerEvents: "none" }}>
                 <circle r="10" fill="#e04b37" stroke="#fff" strokeWidth="2" />
                 <rect x="-6" y="-2.2" width="12" height="4.4" rx="1.2" fill="#fff" />
               </g>
@@ -387,7 +423,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               let x = xDe(estado[c.indice].distancia) - total / 2;
               const y = yDe(estado[c.indice].raia) + RAIO + 3;
               return (
-                <g key={`modo-${c.indice}`} opacity={c.npc ? 0.5 : 0.95} style={{ pointerEvents: "none" }}>
+                <g key={`modo-${c.indice}`} opacity={opacidade(c, c.npc ? 0.5 : 0.95)} style={{ pointerEvents: "none" }}>
                   {ativos.map((tipo, i) => {
                     const caixaX = x;
                     x += larguras[i] + 4;
@@ -407,7 +443,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const cores = CORES_ROTULO[r.tipo];
               const npc = corrida.cavalos[r.indice].npc;
               return (
-                <g key={`${r.indice}-${r.tipo}-${r.texto}`} opacity={npc ? 0.55 : 1} style={{ pointerEvents: "none" }}>
+                <g key={`${r.indice}-${r.tipo}-${r.texto}`} opacity={opacidade(corrida.cavalos[r.indice], npc ? 0.55 : 1)} style={{ pointerEvents: "none" }}>
                   <line x1={r.xCavalo} y1={r.yCavalo} x2={Math.min(Math.max(r.xCavalo, r.x + 4), r.x + r.largura - 4)} y2={r.y > r.yCavalo ? r.y : r.y + ALTURA_ROTULO} stroke={cores.fundo} strokeWidth="1" opacity="0.6" />
                   <rect x={r.x} y={r.y} width={r.largura} height={ALTURA_ROTULO} rx="4" fill={cores.fundo} opacity="0.95" />
                   <text x={r.x + r.largura / 2} y={r.y + 11.8} textAnchor="middle" fill={cores.texto} fontSize="10.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
@@ -477,6 +513,61 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               </button>
             )}
           </div>
+
+          {/* FEED DE EVENTOS + FICHA */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "12px", marginTop: "14px" }}>
+            <div style={{ ...ESTILO_QUADRO, display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                <p style={ESTILO_TITULO_QUADRO}>Eventos — clique para ir ao momento</p>
+                <select value={filtroFeed} onChange={(e) => setFiltroFeed(e.target.value)} style={{ background: "#0d1624", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "6px", padding: "2px 6px", fontSize: "8pt", fontFamily: "'Montserrat', sans-serif" }}>
+                  <option value="todos">All</option>
+                  <option value="treinadores">Trainers only</option>
+                  <option value="seguido">Followed only</option>
+                </select>
+              </div>
+              <div style={{ flex: 1, overflowY: "auto" }}>
+                {eventosFeed.length === 0 && <p style={{ color: "#5f758e", fontSize: "8.5pt", fontStyle: "italic", margin: "6px 0" }}>Os eventos aparecem aqui conforme a corrida anda.</p>}
+                {eventosFeed.map((ev) => {
+                  const c = corrida.cavalos[ev.indice];
+                  const { cor, texto } = descreverEvento(ev, nomeDoCavalo);
+                  return (
+                    <div
+                      key={`${ev.t}-${ev.indice}-${ev.tipo}-${ev.texto ?? ""}`}
+                      onClick={() => { setTempo(Math.max(0, ev.t - 1.5)); setSeguindo(ev.indice); }}
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 4px", borderBottom: "1px solid rgba(164, 179, 198, 0.06)", cursor: "pointer", opacity: c.npc ? 0.6 : 1, fontFamily: "'Montserrat', sans-serif", fontSize: "8.5pt" }}
+                    >
+                      <span style={{ color: "#5f758e", fontFamily: "'Courier New', monospace", minWidth: "42px" }}>{formatarTempo(ev.t)}</span>
+                      {c.icone
+                        ? <IconeRedondo src={c.icone} tamanho={22} />
+                        : <span style={{ width: "22px", height: "22px", flexShrink: 0, borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", fontSize: "7pt", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.numero}</span>}
+                      <span style={{ color: "#f1ead4", fontWeight: 700, whiteSpace: "nowrap" }}>{nomeDoCavalo(ev.indice)}</span>
+                      <span style={{ color: cor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{texto}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={ESTILO_QUADRO}>
+              {alvoFicha === null ? (
+                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", color: "#5f758e", fontSize: "9pt", fontStyle: "italic", padding: "0 20px" }}>
+                  Clique numa personagem (na pista ou no placar) para segui-la e ver a ficha dela aqui. Passar o mouse também mostra.
+                </div>
+              ) : (
+                <FichaCavalo
+                  c={corrida.cavalos[alvoFicha]}
+                  e={estado[alvoFicha]}
+                  r={corrida.resultados[alvoFicha]}
+                  tempo={tempo}
+                  posicao={posicaoAgora.get(alvoFicha)}
+                  atrasLider={distanciaLider - estado[alvoFicha].distancia}
+                  hpInicial={corrida.hpInicial[alvoFicha]}
+                  skills={corrida.rotulos.filter((rt) => rt.indice === alvoFicha && rt.tipo === "skill" && rt.inicio <= tempo)}
+                  bloqueador={estado[alvoFicha].bloqueadoPor >= 0 ? nomeDoCavalo(estado[alvoFicha].bloqueadoPor) : null}
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         <div style={{ flex: "0 1 360px", minWidth: "280px", display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -544,6 +635,94 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 // ---------------------------------------------------------------------
 // PEÇAS DE INTERFACE
 // ---------------------------------------------------------------------
+
+const ESTILO_QUADRO = {
+  background: "#0b1320",
+  border: "1px solid rgba(197, 160, 89, 0.2)",
+  borderRadius: "8px",
+  padding: "10px 12px",
+  height: "300px",
+  boxSizing: "border-box",
+  overflow: "hidden",
+  fontFamily: "'Montserrat', sans-serif",
+};
+
+const ESTILO_TITULO_QUADRO = { margin: 0, fontSize: "8.5pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" };
+
+const ORDINAIS = (n) => `${n}${n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th"}`;
+
+// Texto e cor de cada linha do feed.
+function descreverEvento(ev, nomeDoCavalo) {
+  switch (ev.tipo) {
+    case "skill": return { cor: "#c5a059", texto: `✨ ${ev.texto}` };
+    case "duelo": return { cor: CORES_ROTULO.duelo.fundo, texto: "⚔️ Duel" };
+    case "ponta": return { cor: CORES_ROTULO.ponta.fundo, texto: "🏇 Spot Struggle" };
+    case "spurt": return { cor: CORES_ROTULO.spurt.fundo, texto: "🏁 Last Spurt" };
+    case "rushed": return { cor: CORES_ROTULO.rushed.fundo, texto: "🔴 Rushed" };
+    case "bloqueio": return { cor: "#e8836f", texto: `⛔ blocked by ${nomeDoCavalo(ev.por)}` };
+    case "chegada": return { cor: "#f1ead4", texto: `🏆 finished ${ORDINAIS(ev.posicao)}` };
+    default: return { cor: "#a4b3c6", texto: ev.texto ?? "" };
+  }
+}
+
+function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, bloqueador }) {
+  const chegou = r.tempoChegada > 0 && tempo >= r.tempoChegada;
+  const hpPct = Math.max(0, Math.min(100, (e.hp / (hpInicial || 1)) * 100));
+  const ativos = modosAtivos(c, e.distancia);
+  const selos = [
+    ...ativos.map((tipo) => ({ cor: MODOS[tipo].cor, texto: `${MODOS[tipo].simbolo} ${MODOS[tipo].texto}` })),
+    ...(e.rushed ? [{ cor: "#e04b37", texto: "Rushed" }] : []),
+    ...(bloqueador ? [{ cor: "#e8836f", texto: `⛔ Blocked by ${bloqueador}` }] : []),
+    ...(r.inicioSpurt > 0 && e.distancia >= r.inicioSpurt && !chegou ? [{ cor: CORES_ROTULO.spurt.fundo, texto: "🏁 Last Spurt" }] : []),
+  ];
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {c.icone
+          ? <IconeRedondo src={c.icone} tamanho={46} />
+          : <span style={{ width: "46px", height: "46px", borderRadius: "50%", background: "#1b2a3f", color: "#a4b3c6", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{c.numero}</span>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: "#f1ead4", fontWeight: 800, fontSize: "11pt" }}>{c.personagem}</div>
+          <div style={{ color: c.treinador ? "#c5a059" : "#5f758e", fontSize: "9pt", fontWeight: 600 }}>{c.treinador ?? "NPC"}{c.estilo ? ` • ${c.estilo}` : ""}</div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontWeight: 900, fontSize: "20pt", lineHeight: 1 }}>{chegou ? r.posicaoFinal : posicao}º</div>
+          <div style={{ color: "#5f758e", fontSize: "7.5pt" }}>{chegou ? `finished ${formatarTempo(r.tempoChegada)}` : atrasLider < 0.05 ? "leading" : `${atrasLider.toFixed(1)}m behind leader`}</div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 14px", fontSize: "8.5pt", color: "#a4b3c6" }}>
+        <span>Speed <strong style={{ color: "#f1ead4", float: "right" }}>{(e.velocidade * 3.6).toFixed(1)} km/h</strong></span>
+        <span>Distance <strong style={{ color: "#f1ead4", float: "right" }}>{e.distancia.toFixed(0)} m</strong></span>
+        <span style={{ gridColumn: "1 / -1" }}>
+          HP <strong style={{ color: "#f1ead4", float: "right" }}>{Math.max(0, Math.round(e.hp))} ({hpPct.toFixed(0)}%)</strong>
+          <span style={{ display: "block", height: "5px", background: "rgba(164, 179, 198, 0.15)", borderRadius: "3px", marginTop: "4px" }}>
+            <span style={{ display: "block", width: `${hpPct}%`, height: "100%", borderRadius: "3px", background: hpPct > 30 ? "#1bd39e" : hpPct > 10 ? "#c5a059" : "#e04b37" }} />
+          </span>
+        </span>
+      </div>
+
+      {selos.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+          {selos.map((selo) => (
+            <span key={selo.texto} style={{ color: selo.cor, border: `1px solid ${selo.cor}`, borderRadius: "10px", padding: "1px 8px", fontSize: "8pt", fontWeight: 700 }}>{selo.texto}</span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+        <p style={{ ...ESTILO_TITULO_QUADRO, fontSize: "7.5pt", marginBottom: "4px" }}>Skills até agora ({skills.length})</p>
+        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexWrap: "wrap", alignContent: "flex-start", gap: "4px" }}>
+          {[...skills].reverse().map((sk) => (
+            <span key={`${sk.inicio}-${sk.texto}`} title={formatarTempo(sk.inicio)} style={{ background: "rgba(197, 160, 89, 0.12)", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "4px", padding: "1px 6px", fontSize: "7.5pt" }}>
+              {sk.texto}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function estiloBotao(ativo) {
   return {
