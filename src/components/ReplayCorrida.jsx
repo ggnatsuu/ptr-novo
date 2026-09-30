@@ -24,6 +24,11 @@ const ALTURA = 600;
 const TOPO_PISTA = 80; // espaço acima pros rótulos
 const BASE_PISTA = ALTURA - 50; // espaço abaixo pras faixas de curva/reta
 const RAIO = 25;
+// Modo "Chibis": tamanho do sprite (a imagem é quadrada, 256px, com o
+// boneco ocupando quase tudo) e o quanto a cabeça fica acima dos pés.
+const TAM_CHIBI = RAIO * 3.4;
+const TOPO_CHIBI = TAM_CHIBI * 0.85;
+const CHAVE_MODO_VISUAL = "ptr-replay-visual";
 
 // Os ícones de roupa do jogo são quadrados (256px) com uma moldura dourada
 // e um pedestal embaixo. Pra caber num círculo, damos zoom no miolo da
@@ -132,6 +137,22 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const [mostrarSkills, setMostrarSkills] = useState(true);
   const [mostrarEventos, setMostrarEventos] = useState(true);
   const [mostrarModos, setMostrarModos] = useState(true);
+  // "icones" (bolinhas com o ícone da roupa) ou "chibis" (bonequinhos).
+  const [modoVisual, setModoVisualEstado] = useState(() => {
+    try {
+      return window.localStorage.getItem(CHAVE_MODO_VISUAL) === "chibis" ? "chibis" : "icones";
+    } catch {
+      return "icones";
+    }
+  });
+  const setModoVisual = (modo) => {
+    setModoVisualEstado(modo);
+    try {
+      window.localStorage.setItem(CHAVE_MODO_VISUAL, modo);
+    } catch {
+      // navegador sem armazenamento: só não lembra a escolha
+    }
+  };
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
   const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
   const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
@@ -283,6 +304,12 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
   const trocarSeguir = (indice) => setSeguindo((atual) => (atual === indice ? null : indice));
 
+  // Modo chibi: cavalos de treinador viram bonequinhos (NPCs continuam bolinha).
+  // O ponto (x, y) do cavalo passa a ser o dos pés; rótulos e etiquetas sobem
+  // pra cima da cabeça.
+  const usaChibi = (c) => modoVisual === "chibis" && Boolean(c.chibi);
+  const deslocTopo = (c) => (usaChibi(c) ? RAIO - TOPO_CHIBI : 0);
+
   // Foco: seguindo alguém, os outros cavalos (e os rótulos deles) ficam transparentes.
   const opacidade = (c, base) => (seguindo !== null && c.indice !== seguindo ? base * 0.3 : base);
 
@@ -319,13 +346,15 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const alvoFicha = sobMouse ?? seguindo;
 
   // Desenha quem está atrás primeiro, pra quem está na frente ficar por cima.
-  const ordemDesenho = [...visiveis].sort((a, b) => estado[a.indice].distancia - estado[b.indice].distancia);
+  const ordemDesenho = [...visiveis].sort((a, b) => (modoVisual === "chibis"
+    ? yDe(estado[a.indice].raia) - yDe(estado[b.indice].raia) || estado[a.indice].distancia - estado[b.indice].distancia
+    : estado[a.indice].distancia - estado[b.indice].distancia));
 
   // Rótulos: eventos (duelo, rushed...) têm prioridade; depois quem vai na frente.
   const rotulosNaTela = posicionarRotulos(
     [...rotulosPorCavalo.entries()]
       .filter(([indice]) => visiveis.some((c) => c.indice === indice))
-      .flatMap(([indice, lista]) => lista.map((r) => ({ ...r, indice, xCavalo: xDe(estado[indice].distancia), yCavalo: yDe(estado[indice].raia) })))
+      .flatMap(([indice, lista]) => lista.map((r) => ({ ...r, indice, xCavalo: xDe(estado[indice].distancia), yCavalo: yDe(estado[indice].raia) + deslocTopo(corrida.cavalos[indice]) })))
       .sort((a, b) => Number(a.tipo === "skill") - Number(b.tipo === "skill") || b.xCavalo - a.xCavalo),
   );
 
@@ -396,6 +425,25 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const x = xDe(e.distancia);
               const y = yDe(e.raia);
               const seguido = seguindo === c.indice;
+              if (usaChibi(c)) {
+                const r = corrida.resultados[c.indice];
+                const chegou = r.tempoChegada > 0 && tempo >= r.tempoChegada;
+                // Pódio comemora depois de cruzar a linha.
+                const imagem = chegou && r.posicaoFinal <= 3 && c.chibiFesta ? c.chibiFesta : c.chibi;
+                // Balanço leve enquanto corre (fase diferente pra cada um).
+                const pulo = tocando && !chegou ? -Math.abs(Math.sin(tempo * 9 + c.indice * 1.7)) * 5 : 0;
+                const destaque = seguido || sobMouse === c.indice;
+                const corSombra = e.rushed ? "#e04b37" : destaque ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6";
+                return (
+                  <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={opacidade(c, 1)} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
+                    <ellipse cx="0" cy="0" rx={RAIO * 1.05} ry={RAIO * 0.32} fill={corSombra} opacity={destaque || e.rushed ? 0.8 : 0.5} />
+                    {destaque && <ellipse cx="0" cy="0" rx={RAIO * 1.05} ry={RAIO * 0.32} fill="none" stroke="#f1ead4" strokeWidth="1.5" opacity="0.7" />}
+                    <image href={imagem} x={-TAM_CHIBI / 2} y={-TAM_CHIBI * 0.93 + pulo} width={TAM_CHIBI} height={TAM_CHIBI} />
+                    {/* área de clique do bonequinho */}
+                    <rect x={-TAM_CHIBI * 0.32} y={-TOPO_CHIBI} width={TAM_CHIBI * 0.64} height={TOPO_CHIBI} fill="transparent" />
+                  </g>
+                );
+              }
               return (
                 <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={opacidade(c, c.npc ? 0.45 : 1)} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
                   <circle r={RAIO} fill="#1b2a3f" stroke={e.rushed ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.rushed || sobMouse === c.indice ? 3.5 : 2} />
@@ -408,7 +456,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
             {/* ícone de bloqueado (círculo vermelho com faixa branca), por cima de todos os cavalos */}
             {mostrarEventos && ordemDesenho.map((c) => estado[c.indice].bloqueadoPor >= 0 && (
-              <g key={`bloq-${c.indice}`} transform={`translate(${xDe(estado[c.indice].distancia) + RAIO * 0.75}, ${yDe(estado[c.indice].raia) + RAIO * 0.7})`} opacity={opacidade(c, c.npc ? 0.6 : 1)} style={{ pointerEvents: "none" }}>
+              <g key={`bloq-${c.indice}`} transform={`translate(${xDe(estado[c.indice].distancia) + (usaChibi(c) ? TAM_CHIBI * 0.3 : RAIO * 0.75)}, ${yDe(estado[c.indice].raia) + (usaChibi(c) ? -TOPO_CHIBI * 0.7 : RAIO * 0.7)})`} opacity={opacidade(c, c.npc ? 0.6 : 1)} style={{ pointerEvents: "none" }}>
                 <circle r="10" fill="#e04b37" stroke="#fff" strokeWidth="2" />
                 <rect x="-6" y="-2.2" width="12" height="4.4" rx="1.2" fill="#fff" />
               </g>
@@ -421,7 +469,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const larguras = ativos.map((tipo) => (MODOS[tipo].simbolo.length + MODOS[tipo].texto.length + 1) * 6.3 + 12);
               const total = larguras.reduce((a, b) => a + b, 0) + (ativos.length - 1) * 4;
               let x = xDe(estado[c.indice].distancia) - total / 2;
-              const y = yDe(estado[c.indice].raia) + RAIO + 3;
+              const y = yDe(estado[c.indice].raia) + (usaChibi(c) ? RAIO * 0.4 : RAIO) + 3;
               return (
                 <g key={`modo-${c.indice}`} opacity={opacidade(c, c.npc ? 0.5 : 0.95)} style={{ pointerEvents: "none" }}>
                   {ativos.map((tipo, i) => {
@@ -455,7 +503,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
             {sobMouse !== null && visiveis.some((c) => c.indice === sobMouse) && (() => {
               const c = corrida.cavalos[sobMouse];
               const x = xDe(estado[sobMouse].distancia);
-              const y = yDe(estado[sobMouse].raia);
+              const y = yDe(estado[sobMouse].raia) + deslocTopo(c);
               const linha2 = c.treinador ?? "NPC";
               const bloqueador = estado[sobMouse].bloqueadoPor >= 0 ? corrida.cavalos[estado[sobMouse].bloqueadoPor] : null;
               const linha3 = bloqueador ? `Blocked by #${bloqueador.numero} ${bloqueador.personagem}` : null;
@@ -501,6 +549,12 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
 
           {/* OPÇÕES */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "10px", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", color: "#a4b3c6" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              Visual:
+              {[["icones", "Ícones"], ["chibis", "Chibis"]].map(([modo, nome]) => (
+                <button key={modo} type="button" onClick={() => setModoVisual(modo)} style={{ ...estiloBotao(modoVisual === modo), padding: "2px 10px", fontSize: "8.5pt" }}>{nome}</button>
+              ))}
+            </span>
             <Opcao ativo={mostrarSkills} aoTrocar={setMostrarSkills}>Skill labels</Opcao>
             <Opcao ativo={mostrarEventos} aoTrocar={setMostrarEventos}>Duels / Rushed / Blocked / Last spurt</Opcao>
             {corrida.cavalos.some((c) => c.modos.length > 0) && (

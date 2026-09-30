@@ -5,7 +5,7 @@
 
 import skillNamesRaw from "../uma-skill-tools/data/skillnames.json";
 import courseData from "../uma-skill-tools/data/course_data.json";
-import { iconeDaRoupa } from "./iconeRoupa";
+import { chibiDaRoupa, iconeDaRoupa } from "./iconeRoupa";
 
 const DURACAO_ROTULO_SKILL = 2.5;
 const DURACAO_ROTULO_EVENTO = 3;
@@ -54,6 +54,8 @@ export function prepararCorrida(raceData, replay) {
       treinador: info.treinador ?? null,
       npc: !info.treinador,
       icone: iconeDaRoupa(info.cardId),
+      chibi: chibiDaRoupa(info.cardId),
+      chibiFesta: chibiDaRoupa(info.cardId, true),
       estilo: info.estilo ?? null,
       modos: info.modos ?? [], // só existe em replays enviados depois da 2ª etapa
     };
