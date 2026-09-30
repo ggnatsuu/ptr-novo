@@ -153,6 +153,32 @@ function calcularHp(frames, indice, distanciaPista) {
   };
 }
 
+// 🎯 Aptidões na escala do jogo (1 = G ... 8 = S), só as que valem na corrida.
+const NOMES_TERRENO = { 1: "Turf", 2: "Dirt" };
+const NOMES_DISTANCIA = { 1: "Sprint", 2: "Mile", 3: "Medium", 4: "Long" };
+const NOMES_ESTILO = { 1: "Front Runner", 2: "Pace Chaser", 3: "Late Surger", 4: "End Closer" };
+const CAMPO_TERRENO = { 1: "proper_ground_turf", 2: "proper_ground_dirt" };
+const CAMPO_DISTANCIA = { 1: "proper_distance_short", 2: "proper_distance_mile", 3: "proper_distance_middle", 4: "proper_distance_long" };
+const CAMPO_ESTILO = { 1: "proper_running_style_nige", 2: "proper_running_style_senko", 3: "proper_running_style_sashi", 4: "proper_running_style_oikomi" };
+
+// Mesmas faixas usadas pelo Hakuraku (RaceJsonParser.getCourseAptitudeFilters).
+function categoriaDistancia(metros) {
+  if (metros <= 1400) return 1;
+  if (metros <= 1800) return 2;
+  if (metros <= 2400) return 3;
+  return 4;
+}
+
+function aptidoesDaCorrida(dados, terreno, distancia) {
+  const estilo = dados.running_style;
+  const aptidao = (nome, campo) => (nome && campo ? { nome, nota: dados[campo] ?? null } : null);
+  return {
+    terreno: aptidao(NOMES_TERRENO[terreno], CAMPO_TERRENO[terreno]),
+    distancia: aptidao(NOMES_DISTANCIA[distancia], CAMPO_DISTANCIA[distancia]),
+    estilo: aptidao(NOMES_ESTILO[estilo], CAMPO_ESTILO[estilo]),
+  };
+}
+
 // ----------------------------------------------------------------------
 // LEITURA DO ARQUIVO
 // ----------------------------------------------------------------------
@@ -237,13 +263,15 @@ export async function lerArquivoCorrida(textoArquivo) {
   // aqui (import dinâmico) pra não pesar o resto do site. Se falhar, o
   // resto da classificação continua valendo e essas colunas ficam "-".
   let avisoCalculo = null;
+  const skillsPorNumero = new Map();
   try {
     const { calcularColunasPesadas } = await import("./hakuraku/colunasPesadas");
     const pesadas = await calcularColunasPesadas(json);
     todasAsLinhas.forEach((linha) => {
       const extra = pesadas.get(linha.numero);
       if (!extra) return;
-      Object.assign(linha, extra);
+      Object.assign(linha, extra.colunas);
+      skillsPorNumero.set(linha.numero, extra.skills);
     });
   } catch (erro) {
     console.error("Erro ao calcular as colunas pesadas:", erro);
@@ -257,6 +285,8 @@ export async function lerArquivoCorrida(textoArquivo) {
   const npcsIgnorados = todasAsLinhas.length - classificacao.length;
 
   const posicaoPorIndice = new Map(todasAsLinhas.map((l) => [l.numero - 1, l.posicao]));
+  const terrenoDaPista = pistaDoArquivo.ground === 2 ? 2 : 1;
+  const categoriaDaPista = categoriaDistancia(distanciaPista);
   const dadosTreinadores = cavalos
     .filter((c) => c.trainerName)
     .map((c) => {
@@ -283,6 +313,11 @@ export async function lerArquivoCorrida(textoArquivo) {
         aptidaoTerreno: c.activeProperGroundType ?? null,
         deck: deck.map((carta) => ({ id: carta.supportCardId, lb: carta.limitBreakCount })),
         skills: (dados.skill_array ?? []).map((s) => s.skill_id),
+        // 🎯 Pro painel de detalhes na página de Resultados: status de cada
+        // skill na corrida e as 3 aptidões que importam nela (terreno da
+        // pista, distância da pista e estilo usado) — mesmo recorte do Hakuraku.
+        skillsCorrida: skillsPorNumero.get(c.horseIndex + 1) ?? null,
+        aptidoesCorrida: aptidoesDaCorrida(dados, terrenoDaPista, categoriaDaPista),
       };
     });
 

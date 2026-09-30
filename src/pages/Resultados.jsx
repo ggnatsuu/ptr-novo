@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
+import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 
 // 🎯 PARTE 1/3: busca as corridas com resultado já lançado pra edição
 // ativa, e monta o carrossel de cards clicáveis (nome, distância,
@@ -55,16 +56,16 @@ function formatarDistancia(item, nomePista, pistasArquivadas) {
   return "Distância não informada";
 }
 
-// 🎯 Faixas de cor do WT: até -0.3 é verde (bom), entre -0.35 e -0.4 é
-// dourado/amarelo (atenção), o resto (pior que -0.4, ou o intervalo entre
-// -0.3 e -0.35) fica vermelho.
 // 🎯 Campos de telemetria podem vir vazios (null) — ex: colunas que o
-// upload do arquivo de corrida ainda não calcula. Mostra "-" nesses casos.
+// upload do arquivo de corrida não conseguiu calcular. Mostra "-" nesses casos.
 function mostrar(valor, sufixo = "") {
   if (valor === null || valor === undefined || valor === "") return "-";
   return `${valor}${sufixo}`;
 }
 
+// 🎯 Faixas de cor do WT: até -0.3 é verde (bom), entre -0.35 e -0.4 é
+// dourado/amarelo (atenção), o resto (pior que -0.4, ou o intervalo entre
+// -0.3 e -0.35) fica vermelho.
 function corWT(valor) {
   if (valor === null || valor === undefined) return "#a4b3c6";
   if (valor >= -0.3) return "#1bd39e";
@@ -81,6 +82,8 @@ function Resultados() {
   const [edicaoVisualizada, setEdicaoVisualizada] = useState(null);
   const [limiteEdicoesAntigas, setLimiteEdicoesAntigas] = useState(10);
   const [indiceSelecionado, setIndiceSelecionado] = useState(null);
+  // 🎯 Linha da tabela com o painel de detalhes aberto ("idDaCorrida-numero").
+  const [linhaAberta, setLinhaAberta] = useState(null);
 
   const carrosselRef = useRef(null);
 
@@ -460,9 +463,18 @@ function Resultados() {
                       .map((linha) => {
                         const corPosicao = linha.posicao === 1 ? "#c5a059" : linha.posicao === 2 ? "#a4b3c6" : linha.posicao === 3 ? "#cd7f32" : "#f1ead4";
                         const corStyle = CORES_STYLE[linha.style] || "#a4b3c6";
+                        // 🎯 Só corridas enviadas pelo arquivo do jogo têm os dados do painel.
+                        const dadosTreinador = corridaSelecionada.dadosTreinadores?.find((d) => d.numero === linha.numero);
+                        const chaveLinha = `${corridaSelecionada.id}-${linha.numero}`;
+                        const aberta = dadosTreinador && linhaAberta === chaveLinha;
 
                         return (
-                          <tr key={linha.posicao} style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)", background: linha.posicao <= 3 ? "rgba(197, 160, 89, 0.03)" : "transparent" }}>
+                          <Fragment key={linha.posicao}>
+                          <tr
+                            onClick={dadosTreinador ? () => setLinhaAberta(aberta ? null : chaveLinha) : undefined}
+                            title={dadosTreinador ? "Clique para ver skills, aptidões e deck" : undefined}
+                            style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)", background: aberta ? "rgba(197, 160, 89, 0.08)" : linha.posicao <= 3 ? "rgba(197, 160, 89, 0.03)" : "transparent", cursor: dadosTreinador ? "pointer" : "default" }}
+                          >
                             <td style={{ ...estiloCelulaBase, color: corPosicao, fontWeight: 800, fontSize: "14pt" }}>{linha.posicao}</td>
                             <td style={{ ...estiloCelulaBase, color: "#a4b3c6", fontSize: "10.5pt" }}>{linha.numero}</td>
                             <td style={{ ...estiloCelulaBase, textAlign: "left" }}>
@@ -517,6 +529,14 @@ function Resultados() {
                             </td>
                             <td style={{ ...estiloCelulaBase, color: corWT(linha.wt_s), fontWeight: 700, fontSize: "11pt" }}>{mostrar(linha.wt_s, "m")}</td>
                           </tr>
+                          {aberta && (
+                            <tr>
+                              <td colSpan={12} style={{ padding: 0 }}>
+                                <PainelDetalheTreinador dados={dadosTreinador} />
+                              </td>
+                            </tr>
+                          )}
+                          </Fragment>
                         );
                       })}
                   </tbody>

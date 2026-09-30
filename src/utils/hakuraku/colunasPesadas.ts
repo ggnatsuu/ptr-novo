@@ -16,6 +16,7 @@ import { computeOtherEvents } from "./analysisUtils";
 import { computeCharaTableData } from "./useCharaTableData";
 import { estimateWorldTransform } from "./useWorldTransformEstimate";
 import CourseShapeLoader from "./CourseShapeLoader";
+import { getSkillDef } from "./SkillDataUtils";
 import UMDatabaseWrapper from "./UMDatabaseWrapper";
 
 export type ColunasPesadas = {
@@ -30,6 +31,36 @@ export type ColunasPesadas = {
     pace_down_s: number | null;
     wt_s: number | null;
 };
+
+export type StatusSkill = "activated" | "failed-wit" | "failed-condition" | "not-activated";
+
+export type SkillCorrida = { id: number; status: StatusSkill; vezes: number };
+
+export type DetalhesCavalo = { colunas: ColunasPesadas; skills: SkillCorrida[] };
+
+// ---- Status de cada skill aprendida (igual ao CharaCard.tsx do Hakuraku) ----
+
+function statusDaSkill(row: any, skillId: number): StatusSkill {
+    if (row.activatedSkillCounts.has(skillId)) return "activated";
+    const sorteio = row.skillLotteryResults?.get(skillId);
+    if (sorteio?.category === "LOTTERY_FAILED" && !sorteio.retriggered) return "failed-wit";
+    if (sorteio?.category === "WON_NOT_TRIGGERED" || sorteio?.category === "GUARANTEED_NOT_TRIGGERED") return "failed-condition";
+    return "not-activated";
+}
+
+function skillsDaCorrida(row: any): SkillCorrida[] {
+    const ordem: StatusSkill[] = ["activated", "failed-wit", "failed-condition", "not-activated"];
+    // Mesma ordenação da tela do Hakuraku: grupo, depois ícone, depois id.
+    return row.trainedChara.skills
+        .map((skill: any) => ({
+            id: skill.skillId,
+            status: statusDaSkill(row, skill.skillId),
+            vezes: row.activatedSkillCounts.get(skill.skillId) ?? 0,
+            icone: getSkillDef(skill.skillId)?.iconId || 0,
+        }))
+        .sort((a: any, b: any) => ordem.indexOf(a.status) - ordem.indexOf(b.status) || a.icone - b.icone || a.id - b.id)
+        .map(({ id, status, vezes }: any) => ({ id, status, vezes }));
+}
 
 // ---- Montagem do raceHorseInfo (igual ao parseActFormatRaceJson do Hakuraku) ----
 
@@ -160,10 +191,11 @@ function formatarLinha(row: any, perdaWt: number | undefined): ColunasPesadas {
 }
 
 /**
- * Recebe o JSON do arquivo de corrida e devolve as colunas pesadas por
- * número do cavalo (horseIndex + 1, o "NO." da tabela).
+ * Recebe o JSON do arquivo de corrida e devolve, por número do cavalo
+ * (horseIndex + 1, o "NO." da tabela), as colunas pesadas e o status de
+ * cada skill aprendida.
  */
-export async function calcularColunasPesadas(json: any): Promise<Map<number, ColunasPesadas>> {
+export async function calcularColunasPesadas(json: any): Promise<Map<number, DetalhesCavalo>> {
     const cavalos = json.raceHorse ?? json["<RaceHorse>k__BackingField"];
     const raceHorseInfo = montarRaceHorseInfo(cavalos);
     const raceData = await deserializeFromBase64(json.simDataBase64 ?? json["<SimDataBase64>k__BackingField"]);
@@ -190,11 +222,11 @@ export async function calcularColunasPesadas(json: any): Promise<Map<number, Col
     await CourseShapeLoader.initialize();
     const wt = estimateWorldTransform(raceData.frame ?? [], courseId !== undefined ? String(courseId) : null, json.laneDistanceMax);
 
-    const resultado = new Map<number, ColunasPesadas>();
+    const resultado = new Map<number, DetalhesCavalo>();
     tabela.forEach((row: any) => {
         const indice = row.frameOrder - 1;
         const perda = wt ? perdaWtNaChegada(raceData, indice, row.horseResultData.finishTimeRaw, wt.cumulativeLossByFrame) : undefined;
-        resultado.set(row.frameOrder, formatarLinha(row, perda));
+        resultado.set(row.frameOrder, { colunas: formatarLinha(row, perda), skills: skillsDaCorrida(row) });
     });
     return resultado;
 }
