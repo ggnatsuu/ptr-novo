@@ -14,12 +14,17 @@ import courseData from "../uma-skill-tools/data/course_data.json";
 import { prepararCorrida, estadoNoTempo } from "../utils/replayCorrida";
 import { decodificarReplay } from "../utils/replayCompartilhado";
 import MinimapaPista from "./MinimapaPista";
+import { useTelaEstreita } from "../utils/useTelaEstreita";
 
 // ---------------------------------------------------------------------
 // CONSTANTES DE DESENHO
 // ---------------------------------------------------------------------
 
-const LARGURA = 1200;
+// Largura do desenho da pista: no celular fica mais "quadrada" (e os textos
+// dentro dela crescem na mesma proporção, pela escala E), senão tudo encolhe.
+const LARGURA_PADRAO = 1200;
+const LARGURA_ESTREITA = 640;
+const ESCALA_TEXTO_ESTREITA = 1.6;
 const ALTURA = 600;
 const TOPO_PISTA = 80; // espaço acima pros rótulos
 const BASE_PISTA = ALTURA - 50; // espaço abaixo pras faixas de curva/reta
@@ -105,15 +110,16 @@ function enquadramento(estado, indicesVisiveis, seguindo) {
 
 // Coloca cada rótulo no primeiro "andar" livre acima do cavalo (ou logo
 // abaixo, se não couber em cima); rótulo que não acha lugar fica de fora.
-function posicionarRotulos(itens) {
+function posicionarRotulos(itens, larguraTela, E = 1) {
   const colocados = [];
-  const bate = (a, b) => a.x < b.x + b.largura && b.x < a.x + a.largura && a.y < b.y + ALTURA_ROTULO && b.y < a.y + ALTURA_ROTULO;
+  const alturaRotulo = ALTURA_ROTULO * E;
+  const bate = (a, b) => a.x < b.x + b.largura && b.x < a.x + a.largura && a.y < b.y + alturaRotulo && b.y < a.y + alturaRotulo;
   itens.forEach((item) => {
-    const largura = item.texto.length * 6 + 12;
-    const x = Math.min(Math.max(item.xCavalo - largura / 2, 2), LARGURA - largura - 2);
-    const andares = [0, 1, 2, 3, 4].map((k) => item.yCavalo - RAIO - 4 - ALTURA_ROTULO - k * (ALTURA_ROTULO + 2));
+    const largura = (item.texto.length * 6 + 12) * E;
+    const x = Math.min(Math.max(item.xCavalo - largura / 2, 2), larguraTela - largura - 2);
+    const andares = [0, 1, 2, 3, 4].map((k) => item.yCavalo - RAIO - 4 - alturaRotulo - k * (alturaRotulo + 2));
     andares.push(item.yCavalo + RAIO + 4);
-    const y = andares.find((yy) => yy >= 2 && yy + ALTURA_ROTULO <= ALTURA - 2 && !colocados.some((c) => bate({ x, y: yy, largura }, c)));
+    const y = andares.find((yy) => yy >= 2 && yy + alturaRotulo <= ALTURA - 2 && !colocados.some((c) => bate({ x, y: yy, largura }, c)));
     if (y !== undefined) colocados.push({ ...item, x, y, largura });
   });
   return colocados;
@@ -156,6 +162,9 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const [seguindo, setSeguindo] = useState(null); // índice do cavalo seguido pela câmera
   const [sobMouse, setSobMouse] = useState(null); // cavalo com o mouse em cima (pista ou placar)
   const [mouseDentro, setMouseDentro] = useState(false); // mouse em cima do replay
+  const estreito = useTelaEstreita();
+  const LARGURA = estreito ? LARGURA_ESTREITA : LARGURA_PADRAO;
+  const E = estreito ? ESCALA_TEXTO_ESTREITA : 1; // escala dos textos dentro da pista
   const [filtroFeed, setFiltroFeed] = useState("todos"); // "todos" | "treinadores" | "seguido"
 
   // Pedido novo de "seguir": câmera no cavalo e play (do início, se já acabou).
@@ -356,6 +365,8 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
       .filter(([indice]) => visiveis.some((c) => c.indice === indice))
       .flatMap(([indice, lista]) => lista.map((r) => ({ ...r, indice, xCavalo: xDe(estado[indice].distancia), yCavalo: yDe(estado[indice].raia) + deslocTopo(corrida.cavalos[indice]) })))
       .sort((a, b) => Number(a.tipo === "skill") - Number(b.tipo === "skill") || b.xCavalo - a.xCavalo),
+    LARGURA,
+    E,
   );
 
   return (
@@ -380,7 +391,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               s.fim >= camera.inicio && s.inicio <= camera.fim && (
                 <g key={`sub-${i}`}>
                   <rect x={xDe(s.inicio)} y={TOPO_PISTA - 6} width={Math.max(1, xDe(s.fim) - xDe(s.inicio))} height="5" rx="2" fill={s.subida ? "#c8e05a" : "#4aa3a9"} opacity="0.85" />
-                  <text x={Math.max(4, xDe(s.inicio) + 4)} y={TOPO_PISTA - 10} fill={s.subida ? "#c8e05a" : "#4aa3a9"} fontSize="12" fontFamily="Montserrat, sans-serif">{s.subida ? "Uphill" : "Downhill"}</text>
+                  <text x={Math.max(4, xDe(s.inicio) + 4)} y={TOPO_PISTA - 10} fill={s.subida ? "#c8e05a" : "#4aa3a9"} fontSize={12 * E} fontFamily="Montserrat, sans-serif">{s.subida ? "Uphill" : "Downhill"}</text>
                 </g>
               )
             ))}
@@ -391,7 +402,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               c.fim >= camera.inicio && c.inicio <= camera.fim && (
                 <g key={`curva-${i}`}>
                   <rect x={xDe(c.inicio)} y={BASE_PISTA + 6} width={Math.max(1, xDe(c.fim) - xDe(c.inicio))} height="16" fill="rgba(197, 160, 89, 0.35)" />
-                  <text x={Math.max(4, xDe(c.inicio) + 4)} y={BASE_PISTA + 18} fill="#f1ead4" fontSize="12" fontFamily="Montserrat, sans-serif">{c.nome}</text>
+                  <text x={Math.max(4, xDe(c.inicio) + 4)} y={BASE_PISTA + 18} fill="#f1ead4" fontSize={12 * E} fontFamily="Montserrat, sans-serif">{c.nome}</text>
                 </g>
               )
             ))}
@@ -400,7 +411,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
             {marcas.map((m) => (
               <g key={`m-${m}`}>
                 <line x1={xDe(m)} x2={xDe(m)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#f1ead4" strokeWidth="1" opacity="0.08" />
-                <text x={xDe(m)} y={ALTURA - 8} fill="#5f758e" fontSize="12" textAnchor="middle" fontFamily="Montserrat, sans-serif">{m}m</text>
+                <text x={xDe(m)} y={ALTURA - 8} fill="#5f758e" fontSize={12 * E} textAnchor="middle" fontFamily="Montserrat, sans-serif">{m}m</text>
               </g>
             ))}
 
@@ -409,7 +420,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               f.d >= camera.inicio && f.d <= camera.fim && (
                 <g key={f.nome}>
                   <line x1={xDe(f.d)} x2={xDe(f.d)} y1={TOPO_PISTA} y2={BASE_PISTA} stroke="#c5a059" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.7" />
-                  <text x={xDe(f.d) + 4} y={TOPO_PISTA + 12} fill="#c5a059" fontSize="12" fontFamily="Montserrat, sans-serif">{f.nome}</text>
+                  <text x={xDe(f.d) + 4} y={TOPO_PISTA + 12 * E} fill="#c5a059" fontSize={12 * E} fontFamily="Montserrat, sans-serif">{f.nome}</text>
                 </g>
               )
             ))}
@@ -466,7 +477,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
             {mostrarModos && ordemDesenho.map((c) => {
               const ativos = modosAtivos(c, estado[c.indice].distancia);
               if (!ativos.length) return null;
-              const larguras = ativos.map((tipo) => (MODOS[tipo].simbolo.length + MODOS[tipo].texto.length + 1) * 6.3 + 12);
+              const larguras = ativos.map((tipo) => ((MODOS[tipo].simbolo.length + MODOS[tipo].texto.length + 1) * 6.3 + 12) * E);
               const total = larguras.reduce((a, b) => a + b, 0) + (ativos.length - 1) * 4;
               let x = xDe(estado[c.indice].distancia) - total / 2;
               const y = yDe(estado[c.indice].raia) + (usaChibi(c) ? RAIO * 0.4 : RAIO) + 3;
@@ -477,8 +488,8 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
                     x += larguras[i] + 4;
                     return (
                       <g key={tipo}>
-                        <rect x={caixaX} y={y} width={larguras[i]} height="16" rx="8" fill="#0b1320" stroke={MODOS[tipo].cor} strokeWidth="1.5" />
-                        <text x={caixaX + larguras[i] / 2} y={y + 11.8} textAnchor="middle" fill={MODOS[tipo].cor} fontSize="10.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{`${MODOS[tipo].simbolo} ${MODOS[tipo].texto}`}</text>
+                        <rect x={caixaX} y={y} width={larguras[i]} height={16 * E} rx={8 * E} fill="#0b1320" stroke={MODOS[tipo].cor} strokeWidth="1.5" />
+                        <text x={caixaX + larguras[i] / 2} y={y + 11.8 * E} textAnchor="middle" fill={MODOS[tipo].cor} fontSize={10.5 * E} fontWeight="700" fontFamily="Montserrat, sans-serif">{`${MODOS[tipo].simbolo} ${MODOS[tipo].texto}`}</text>
                       </g>
                     );
                   })}
@@ -492,9 +503,9 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const npc = corrida.cavalos[r.indice].npc;
               return (
                 <g key={`${r.indice}-${r.tipo}-${r.texto}`} opacity={opacidade(corrida.cavalos[r.indice], npc ? 0.55 : 1)} style={{ pointerEvents: "none" }}>
-                  <line x1={r.xCavalo} y1={r.yCavalo} x2={Math.min(Math.max(r.xCavalo, r.x + 4), r.x + r.largura - 4)} y2={r.y > r.yCavalo ? r.y : r.y + ALTURA_ROTULO} stroke={cores.fundo} strokeWidth="1" opacity="0.6" />
-                  <rect x={r.x} y={r.y} width={r.largura} height={ALTURA_ROTULO} rx="4" fill={cores.fundo} opacity="0.95" />
-                  <text x={r.x + r.largura / 2} y={r.y + 11.8} textAnchor="middle" fill={cores.texto} fontSize="10.5" fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
+                  <line x1={r.xCavalo} y1={r.yCavalo} x2={Math.min(Math.max(r.xCavalo, r.x + 4), r.x + r.largura - 4)} y2={r.y > r.yCavalo ? r.y : r.y + ALTURA_ROTULO * E} stroke={cores.fundo} strokeWidth="1" opacity="0.6" />
+                  <rect x={r.x} y={r.y} width={r.largura} height={ALTURA_ROTULO * E} rx="4" fill={cores.fundo} opacity="0.95" />
+                  <text x={r.x + r.largura / 2} y={r.y + 11.8 * E} textAnchor="middle" fill={cores.texto} fontSize={10.5 * E} fontWeight="700" fontFamily="Montserrat, sans-serif">{r.texto}</text>
                 </g>
               );
             })}
@@ -507,16 +518,16 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               const linha2 = c.treinador ?? "NPC";
               const bloqueador = estado[sobMouse].bloqueadoPor >= 0 ? corrida.cavalos[estado[sobMouse].bloqueadoPor] : null;
               const linha3 = bloqueador ? `Blocked by #${bloqueador.numero} ${bloqueador.personagem}` : null;
-              const largura = Math.max(c.personagem.length * 8.2, linha2.length * 7.6, linha3 ? linha3.length * 6.8 : 0) + 24;
-              const altura = linha3 ? 60 : 44;
+              const largura = (Math.max(c.personagem.length * 8.2, linha2.length * 7.6, linha3 ? linha3.length * 6.8 : 0) + 24) * E;
+              const altura = (linha3 ? 60 : 44) * E;
               const caixaX = Math.min(Math.max(x - largura / 2, 4), LARGURA - largura - 4);
               const caixaY = y - RAIO - altura - 8 >= 4 ? y - RAIO - altura - 8 : y + RAIO + 8;
               return (
                 <g style={{ pointerEvents: "none" }}>
                   <rect x={caixaX} y={caixaY} width={largura} height={altura} rx="6" fill="#0b1320" stroke="#c5a059" strokeWidth="1.5" opacity="0.97" />
-                  <text x={caixaX + largura / 2} y={caixaY + 18} textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.personagem}</text>
-                  <text x={caixaX + largura / 2} y={caixaY + 35} textAnchor="middle" fill={c.treinador ? "#c5a059" : "#5f758e"} fontSize="13" fontWeight="600" fontFamily="Montserrat, sans-serif">{linha2}</text>
-                  {linha3 && <text x={caixaX + largura / 2} y={caixaY + 52} textAnchor="middle" fill="#e04b37" fontSize="12" fontWeight="700" fontFamily="Montserrat, sans-serif">{linha3}</text>}
+                  <text x={caixaX + largura / 2} y={caixaY + 18 * E} textAnchor="middle" fill="#f1ead4" fontSize={14 * E} fontWeight="700" fontFamily="Montserrat, sans-serif">{c.personagem}</text>
+                  <text x={caixaX + largura / 2} y={caixaY + 35 * E} textAnchor="middle" fill={c.treinador ? "#c5a059" : "#5f758e"} fontSize={13 * E} fontWeight="600" fontFamily="Montserrat, sans-serif">{linha2}</text>
+                  {linha3 && <text x={caixaX + largura / 2} y={caixaY + 52 * E} textAnchor="middle" fill="#e04b37" fontSize={12 * E} fontWeight="700" fontFamily="Montserrat, sans-serif">{linha3}</text>}
                 </g>
               );
             })()}
@@ -602,7 +613,7 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
               </div>
             </div>
 
-            <div style={ESTILO_QUADRO}>
+            <div style={alvoFicha === null && estreito ? { ...ESTILO_QUADRO, height: "auto", padding: "18px 12px" } : ESTILO_QUADRO}>
               {alvoFicha === null ? (
                 <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", color: "#5f758e", fontSize: "10.5pt", fontStyle: "italic", padding: "0 20px" }}>
                   Clique numa personagem (na pista ou no placar) para segui-la e ver a ficha dela aqui. Passar o mouse também mostra.

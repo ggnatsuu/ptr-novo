@@ -9,6 +9,7 @@ import CondicoesCorrida from "../components/CondicoesCorrida";
 import DestaquesCorrida from "../components/DestaquesCorrida";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import SecaoReplayResultado from "../components/SecaoReplayResultado";
+import { useTelaEstreita } from "../utils/useTelaEstreita";
 
 // 🎯 PARTE 1/3: busca as corridas com resultado já lançado pra edição
 // ativa, e monta o carrossel de cards clicáveis (nome, distância,
@@ -41,6 +42,25 @@ const estiloCelulaBase = {
 };
 
 const CORES_STYLE = { FRONT: "#3498db", PACE: "#2ecc71", LATE: "#f39c12", END: "#e74c3c" };
+
+// 🎯 No celular, as 3 primeiras colunas (posição, número, personagem) ficam
+// fixas enquanto o resto da tabela rola pro lado. Largura e posição de cada uma:
+const COLUNAS_FIXAS = [
+  { esquerda: 0, largura: 44 },
+  { esquerda: 44, largura: 38 },
+  { esquerda: 82, largura: 150 },
+];
+const estiloColunaFixa = (i, fundo) => ({
+  position: "sticky",
+  left: COLUNAS_FIXAS[i].esquerda,
+  zIndex: 1,
+  background: fundo,
+  width: COLUNAS_FIXAS[i].largura,
+  minWidth: COLUNAS_FIXAS[i].largura,
+  maxWidth: COLUNAS_FIXAS[i].largura,
+  padding: i < 2 ? "14px 4px" : "14px 8px 14px 6px",
+  ...(i === 2 ? { boxShadow: "6px 0 8px -6px rgba(0, 0, 0, 0.8)" } : {}),
+});
 
 // 🎯 Formata a distância de forma tolerante: corridas salvas com o bug
 // antigo (campo "distancia" ausente/undefined) tentam se recuperar
@@ -278,6 +298,19 @@ function Resultados() {
   const itemSelecionado = indiceSelecionado !== null ? listaCombinada[indiceSelecionado] : null;
   const corridaSelecionada = itemSelecionado ? itemSelecionado.resultado : null;
 
+  // 🎯 Celular: o painel do treinador fica dentro da tabela (que é larga e
+  // rola pro lado); ele "gruda" na parte visível com a largura da caixa.
+  const estreito = useTelaEstreita();
+  const tabelaScrollRef = useRef(null);
+  const [larguraVisivelTabela, setLarguraVisivelTabela] = useState(null);
+  useEffect(() => {
+    const el = tabelaScrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const observador = new ResizeObserver(([entrada]) => setLarguraVisivelTabela(entrada.contentRect.width));
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, [corridaSelecionada?.id]);
+
   return (
     <main className="main-layout-wrapper">
       <div className="lottery-header">
@@ -452,11 +485,11 @@ function Resultados() {
                 </div>
               )}
 
-              <div className="quadro-table-scroll" style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", boxShadow: "0 8px 25px rgba(0,0,0,0.5)", boxSizing: "border-box", overflowX: "auto" }}>
+              <div ref={tabelaScrollRef} className="quadro-table-scroll" style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", boxShadow: "0 8px 25px rgba(0,0,0,0.5)", boxSizing: "border-box", overflowX: "auto" }}>
                 <table style={{ width: "100%", minWidth: "1350px", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
-                      {["FINISH", "NO.", "CHARACTER", "TIME", "STYLE", "DELAY", "LAST SPURT", "HP RESULT", "DUEL", "DOWNHILL", "PACE", "WT"].map((titulo) => (
+                      {["FINISH", "NO.", "CHARACTER", "TIME", "STYLE", "DELAY", "LAST SPURT", "HP RESULT", "DUEL", "DOWNHILL", "PACE", "WT"].map((titulo, i) => (
                         <th
                           key={titulo}
                           style={{
@@ -471,9 +504,10 @@ function Resultados() {
                             textAlign: "center",
                             whiteSpace: "nowrap",
                             fontFamily: "'Montserrat', sans-serif",
+                            ...(estreito && i < 3 ? { ...estiloColunaFixa(i, "#0b1320"), zIndex: 2, textAlign: i === 2 ? "left" : "center" } : {}),
                           }}
                         >
-                          {titulo}
+                          {estreito && titulo === "FINISH" ? "#" : titulo}
                         </th>
                       ))}
                     </tr>
@@ -488,6 +522,8 @@ function Resultados() {
                         const dadosTreinador = corridaSelecionada.dadosTreinadores?.find((d) => d.numero === linha.numero);
                         const chaveLinha = `${corridaSelecionada.id}-${linha.numero}`;
                         const aberta = dadosTreinador && linhaAberta === chaveLinha;
+                        // Fundo sólido das colunas fixas (no celular), no mesmo tom da linha.
+                        const fundoFixo = aberta ? "#171c22" : linha.posicao <= 3 ? "#0f1726" : "#0d1624";
 
                         return (
                           <Fragment key={linha.posicao}>
@@ -496,25 +532,25 @@ function Resultados() {
                             title={dadosTreinador ? "Clique para ver skills, aptidões e deck" : undefined}
                             style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)", background: aberta ? "rgba(197, 160, 89, 0.08)" : linha.posicao <= 3 ? "rgba(197, 160, 89, 0.03)" : "transparent", cursor: dadosTreinador ? "pointer" : "default" }}
                           >
-                            <td style={{ ...estiloCelulaBase, color: corPosicao, fontWeight: 800, fontSize: "14pt" }}>{linha.posicao}</td>
-                            <td style={{ ...estiloCelulaBase, color: "#a4b3c6", fontSize: "10.5pt" }}>{linha.numero}</td>
-                            <td style={{ ...estiloCelulaBase, textAlign: "left" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <td style={{ ...estiloCelulaBase, color: corPosicao, fontWeight: 800, fontSize: estreito ? "12pt" : "14pt", ...(estreito ? estiloColunaFixa(0, fundoFixo) : {}) }}>{linha.posicao}</td>
+                            <td style={{ ...estiloCelulaBase, color: "#a4b3c6", fontSize: "10.5pt", ...(estreito ? estiloColunaFixa(1, fundoFixo) : {}) }}>{linha.numero}</td>
+                            <td style={{ ...estiloCelulaBase, textAlign: "left", ...(estreito ? estiloColunaFixa(2, fundoFixo) : {}) }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: estreito ? "6px" : "10px" }}>
                                 {(iconeDaRoupa(dadosTreinador?.cardId) || obterUrlImagemPersonagem(linha.personagem)) && (
                                   <img
                                     src={iconeDaRoupa(dadosTreinador?.cardId) || obterUrlImagemPersonagem(linha.personagem)}
                                     alt={linha.personagem}
                                     style={{
-                                      width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flexShrink: 0,
+                                      width: estreito ? "28px" : "36px", height: estreito ? "28px" : "36px", borderRadius: "50%", objectFit: "cover", flexShrink: 0,
                                       // O ícone da roupa já vem com a moldura dourada do jogo.
                                       border: iconeDaRoupa(dadosTreinador?.cardId) ? "none" : "1px solid rgba(197, 160, 89, 0.4)",
                                     }}
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                   />
                                 )}
-                                <div>
-                                  <div style={{ fontWeight: 700, color: "#f1ead4", fontSize: "11pt" }}>{linha.personagem}</div>
-                                  <div style={{ fontSize: "9pt", color: "#c5a059" }}>[{linha.treinador}]</div>
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontWeight: 700, color: "#f1ead4", fontSize: estreito ? "9.5pt" : "11pt", ...(estreito ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } : {}) }}>{linha.personagem}</div>
+                                  <div style={{ fontSize: estreito ? "8pt" : "9pt", color: "#c5a059", ...(estreito ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } : {}) }}>[{linha.treinador}]</div>
                                 </div>
                               </div>
                             </td>
@@ -557,6 +593,7 @@ function Resultados() {
                           {aberta && (
                             <tr>
                               <td colSpan={12} style={{ padding: 0 }}>
+                                <div style={estreito && larguraVisivelTabela ? { position: "sticky", left: 0, width: larguraVisivelTabela } : undefined}>
                                 <PainelDetalheTreinador
                                   dados={dadosTreinador}
                                   aoSeguirNoReplay={corridaSelecionada.origem === "arquivo" ? () => seguirNoReplay(linha.numero) : undefined}
@@ -572,6 +609,7 @@ function Resultados() {
                                 >
                                   {corridaSelecionada.origem === "arquivo" && <SecaoGraficoDesempenho corridaId={corridaSelecionada.id} numero={linha.numero} />}
                                 </PainelDetalheTreinador>
+                                </div>
                               </td>
                             </tr>
                           )}

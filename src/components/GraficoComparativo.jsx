@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { decodificarReplay } from "../utils/replayCompartilhado";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import { caminhoSuave, escalaBonita } from "../utils/graficos";
+import { useTelaEstreita } from "../utils/useTelaEstreita";
 
 const LARGURA = 1000;
 const ESQ = 52;
@@ -119,6 +120,8 @@ function GraficoComparativo({ replay }) {
   const [selecionados, setSelecionados] = useState(null); // null = ainda no padrão
   const [mostrarNpcs, setMostrarNpcs] = useState(false);
   const [sob, setSob] = useState(null); // instante (s) sob o mouse
+  // No celular o gráfico ganha largura mínima e rola pro lado (senão os textos somem).
+  const estreito = useTelaEstreita();
 
   useEffect(() => {
     let cancelado = false;
@@ -249,7 +252,8 @@ function GraficoComparativo({ replay }) {
       {escolhidos.length === 0 ? (
         <p style={{ color: "#5f758e", fontSize: "9.5pt", fontStyle: "italic", textAlign: "center", padding: "40px 0" }}>Escolha uma ou mais personagens acima para comparar.</p>
       ) : (
-        <div style={{ position: "relative" }}>
+        <div style={estreito ? { overflowX: "auto" } : undefined}>
+        <div style={{ position: "relative", minWidth: estreito ? "720px" : undefined }}>
           <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} style={{ width: "100%", display: "block", cursor: "crosshair", overflow: "visible" }} onMouseMove={aoMover} onMouseLeave={() => setSob(null)}>
             <defs>
               {cavalosEscolhidos.map((c) => (
@@ -363,6 +367,7 @@ function GraficoComparativo({ replay }) {
               ))}
             </div>
           )}
+        </div>
         </div>
       )}
     </div>

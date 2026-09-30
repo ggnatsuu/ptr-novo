@@ -9,6 +9,7 @@
 import { useMemo, useState } from "react";
 import { nomeDaSkill } from "../utils/replayCorrida";
 import { caminhoSuave, escalaBonita } from "../utils/graficos";
+import { useTelaEstreita } from "../utils/useTelaEstreita";
 
 const LARGURA = 1000;
 const ESQ = 58;
@@ -163,6 +164,8 @@ function prepararGrafico(raceData, replay, numero) {
 function GraficoDesempenho({ raceData, replay, numero }) {
   const g = useMemo(() => prepararGrafico(raceData, replay, numero), [raceData, replay, numero]);
   const [sob, setSob] = useState(null); // instante (s) sob o mouse
+  // No celular o gráfico ganha largura mínima e rola pro lado (senão os textos somem).
+  const estreito = useTelaEstreita();
 
   // "Compare with": outro cavalo sobreposto (Speed e HP tracejados).
   const [comparar, setComparar] = useState(null);
@@ -241,6 +244,8 @@ function GraficoDesempenho({ raceData, replay, numero }) {
         </select>
       </div>
 
+      <div style={estreito ? { overflowX: "auto" } : undefined}>
+      <div style={{ position: "relative", minWidth: estreito ? "720px" : undefined }}>
       <svg
         viewBox={`0 0 ${LARGURA} ${ALTURA}`}
         style={{ width: "100%", display: "block", cursor: "crosshair", overflow: "visible" }}
@@ -443,6 +448,9 @@ function GraficoDesempenho({ raceData, replay, numero }) {
           )}
         </div>
       )}
+
+      </div>
+      </div>
 
       {/* legenda */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px", marginTop: "8px", fontSize: "8.5pt", color: "#a4b3c6" }}>
