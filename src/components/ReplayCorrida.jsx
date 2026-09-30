@@ -643,7 +643,7 @@ const ESTILO_QUADRO = {
   border: "1px solid rgba(197, 160, 89, 0.2)",
   borderRadius: "8px",
   padding: "10px 12px",
-  height: "360px",
+  height: "400px",
   boxSizing: "border-box",
   overflow: "hidden",
   fontFamily: "'Montserrat', sans-serif",
@@ -669,6 +669,8 @@ function descreverEvento(ev, nomeDoCavalo) {
 
 // Mini gráfico ao vivo da ficha: Speed e HP do cavalo na corrida toda
 // (apagadinho) e o trecho até o instante atual por cima, com a bolinha.
+const ALTURA_MINI = 120; // altura do mini gráfico na tela, em px
+
 function MiniGrafico({ frames, indice, tempo, tempoFinal, velocidadeAgora, hpAgora }) {
   const L = 400;
   const A = 90;
@@ -687,7 +689,7 @@ function MiniGrafico({ frames, indice, tempo, tempoFinal, velocidadeAgora, hpAgo
         <span><span style={{ display: "inline-block", width: "10px", height: "3px", background: "#c8e05a", verticalAlign: "middle", marginRight: "4px" }} />HP</span>
       </div>
       <div style={{ position: "relative" }}>
-      <svg viewBox={`0 0 ${L} ${A}`} preserveAspectRatio="none" style={{ width: "100%", height: "80px", display: "block", background: "rgba(13, 22, 36, 0.6)", borderRadius: "4px" }}>
+      <svg viewBox={`0 0 ${L} ${A}`} preserveAspectRatio="none" style={{ width: "100%", height: `${ALTURA_MINI}px`, display: "block", background: "rgba(13, 22, 36, 0.6)", borderRadius: "4px" }}>
         <polyline points={linha(serie, (p) => yHp(p.hp))} fill="none" stroke="#c8e05a" strokeWidth="1.5" opacity="0.18" vectorEffect="non-scaling-stroke" />
         <polyline points={linha(serie, (p) => yV(p.v))} fill="none" stroke="#5b8def" strokeWidth="1.5" opacity="0.18" vectorEffect="non-scaling-stroke" />
         <polyline points={linha(passado, (p) => yHp(p.hp))} fill="none" stroke="#c8e05a" strokeWidth="2" vectorEffect="non-scaling-stroke" />
@@ -696,7 +698,7 @@ function MiniGrafico({ frames, indice, tempo, tempoFinal, velocidadeAgora, hpAgo
       </svg>
       {/* bolinhas do instante atual (em HTML pra não esticar com o gráfico) */}
       {[[yV(velocidadeAgora), "#5b8def"], [yHp(hpAgora), "#c8e05a"]].map(([y, cor]) => (
-        <span key={cor} style={{ position: "absolute", left: `calc(${(x(tempo) / L) * 100}% - 4px)`, top: `calc(${(y / A) * 80}px - 4px)`, width: "8px", height: "8px", borderRadius: "50%", background: cor, boxShadow: "0 0 0 2px #0b1320" }} />
+        <span key={cor} style={{ position: "absolute", left: `calc(${(x(tempo) / L) * 100}% - 4px)`, top: `calc(${(y / A) * ALTURA_MINI}px - 4px)`, width: "8px", height: "8px", borderRadius: "50%", background: cor, boxShadow: "0 0 0 2px #0b1320" }} />
       ))}
       </div>
     </div>
@@ -740,13 +742,13 @@ function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, b
         </span>
       </div>
 
-      {selos.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
-          {selos.map((selo) => (
-            <span key={selo.texto} style={{ color: selo.cor, border: `1px solid ${selo.cor}`, borderRadius: "10px", padding: "1px 8px", fontSize: "8pt", fontWeight: 700 }}>{selo.texto}</span>
-          ))}
-        </div>
-      )}
+      {/* Linha dos selos com altura fixa (mesmo vazia), pra nada embaixo pular
+          quando um Pace Up / Downhill aparece ou some. */}
+      <div style={{ display: "flex", gap: "5px", height: "20px", overflow: "hidden", flexShrink: 0 }}>
+        {selos.map((selo) => (
+          <span key={selo.texto} style={{ color: selo.cor, border: `1px solid ${selo.cor}`, borderRadius: "10px", padding: "1px 8px", fontSize: "8pt", fontWeight: 700, whiteSpace: "nowrap", lineHeight: "16px" }}>{selo.texto}</span>
+        ))}
+      </div>
 
       <MiniGrafico frames={frames} indice={c.indice} tempo={tempo} tempoFinal={tempoFinal} velocidadeAgora={e.velocidade} hpAgora={e.hp} />
 
