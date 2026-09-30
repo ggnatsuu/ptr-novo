@@ -1,0 +1,310 @@
+/* ==========================================================================
+   ESTILO DESKTOP PRESERVADO
+   ========================================================================== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+    background-color: rgba(11, 19, 32, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(197, 159, 89, 0.35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* 🎯 Ao rolar a página, fica um pouco mais opaca/escura — mesma ideia de
+   antes, só que agora sem encolher a altura toda (é barra cheia, não cápsula). */
+.navbar.scrolled {
+    background-color: rgba(7, 11, 18, 0.97);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+    border-color: rgba(197, 159, 89, 0.5);
+}
+
+.navbar.scrolled .nav-header-top { height: 62px; }
+.navbar.scrolled .logo-img { height: 46px; }
+
+.nav-header-top {
+    width: 100%;
+    height: 78px;
+    padding: 0 32px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    transition: height 0.3s ease;
+}
+
+.nav-logo { flex-shrink: 0; }
+.nav-auth-box-desktop-only { flex-shrink: 0; }
+
+/* 🎯 O menu fica no meio, entre o logo e o perfil — flex:1 faz ele ocupar
+   o espaço sobrando, e justify-content:center centraliza os links dentro
+   desse espaço (em vez de grudar do lado do logo). */
+.nav-links-bar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: height 0.3s ease;
+}
+
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-img { height: 64px; width: auto; border-radius: 20%; display: block; object-fit: contain; transition: height 0.3s ease, transform 0.25s ease; }
+.nav-logo:hover .logo-img { transform: scale(1.05); }
+.logo-text { font-family: 'Cinzel', serif; font-size: 13pt; font-weight: 800; color: #f1ead4 !important; letter-spacing: 1px; white-space: nowrap; }
+
+.nav-menu-wrapper { display: none; }
+.nav-links { display: flex; justify-content: center; gap: 8px; flex-grow: 1; }
+.nav-item { font-family: 'Montserrat', sans-serif; font-size: 10pt; font-weight: 600; color: #f1ead4; text-decoration: none; padding: 8px 16px; border-radius: 50px; border: 2px solid transparent; transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease; white-space: nowrap; letter-spacing: 0.5px; background: transparent; outline: none; cursor: pointer; }
+.nav-item:hover { color: #0d1b2a; background-color: #c5a059; border-color: #c5a059; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(197, 160, 89, 0.25); }
+.nav-item.active { color: #c5a059; background-color: rgba(197, 160, 89, 0.1); border-color: rgba(197, 160, 89, 0.4); text-shadow: 0 0 14px rgba(197, 160, 89, 0.3); }
+.nav-item.active:hover { color: #0d1b2a; text-shadow: none; }
+.nav-auth-box { flex-shrink: 0; }
+
+.btn-login { font-family: 'Montserrat', sans-serif; font-size: 9pt; font-weight: 700; background-color: #0b1320; color: #f1ead4; padding: 12px 28px; border-radius: 50px; text-decoration: none; border: 2px solid #c5a059; transition: all 0.2s; white-space: nowrap; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.1); letter-spacing: 1px; text-transform: uppercase; }
+.btn-login:hover { background-color: #c5a059; color: #0d1b2a; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.3); }
+
+.btn-close-drawer { display: none; }
+.menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 24px; height: 18px; background: transparent; border: none; cursor: pointer; padding: 0; outline: none; }
+.menu-toggle .bar { width: 100%; height: 3px; background-color: #f1ead4; border-radius: 5px; transition: all 0.2s; }
+
+/* DROPDOWNS E AUXILIARES */
+.user-dropdown { position: relative; display: inline-block; }
+.dropdown-toggle { background-color: rgba(197, 160, 89, 0.05); border: 2px solid rgba(197, 160, 89, 0.7); color: #f1ead4; font-family: 'Montserrat', sans-serif; font-size: 9.5pt; font-weight: 700; padding: 11px 24px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.dropdown-arrow { font-size: 8pt; color: #c5a059; transition: transform 0.2s, color 0.2s; }
+.nav-item:hover .dropdown-arrow { color: #0d1b2a; }
+.dropdown-content { position: absolute; right: 0; top: calc(100% + 12px); background-color: #0b1320; border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 12px; min-width: 170px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; padding: 6px; z-index: 1100; opacity: 0; transform: translateY(-10px); visibility: hidden; transition: all 0.2s; }
+.user-dropdown.open .dropdown-content { opacity: 1; transform: translateY(0); visibility: visible; }
+.user-dropdown.open .dropdown-arrow { transform: rotate(180deg); }
+.dropdown-content a, .dropdown-content button { width: 100%; background: transparent; border: none; text-align: left; padding: 12px 14px; text-decoration: none; color: #a4b3c6; font-family: 'Montserrat', sans-serif; font-size: 9.5pt; font-weight: 600; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.15s; box-sizing: border-box; }
+.dropdown-content a:hover, .dropdown-content button:hover { background-color: rgba(197, 160, 89, 0.1); color: #c5a059; }
+.btn-login.hidden, .user-dropdown.hidden { display: none !important; }
+
+.body-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px); }
+.body-overlay.active { opacity: 1; pointer-events: auto; }
+
+/* ==========================================================================
+   MEDIA QUERY MOBILE COMPLETA (ESTILO GAVETA JORNAL)
+   ========================================================================== */
+@media (max-width: 1400px) {
+    .navbar {
+        top: 0; left: 0; transform: none; width: 100%; height: 75px;
+        border-radius: 0; border: none; border-bottom: 1px solid rgba(197, 159, 89, 0.3);
+        padding: 0 20px; background-color: #070b12; display: block;
+    }
+    /* 🎯 Zera o padding próprio (herdado da regra desktop, 32px de cada
+       lado) — sem isso, ele soma com o padding de 20px da .navbar aqui em
+       cima e sobra pouco espaço pro hambúrguer em telas estreitas (tipo
+       iPhone SE, 375px), empurrando ele pra fora da área visível. */
+    .nav-header-top { width: 100%; height: 100%; padding: 0; display: flex; justify-content: space-between; align-items: center; }
+    .logo-img { height: 44px; }
+    .logo-text { font-size: 11pt; }
+    .menu-toggle { display: flex; z-index: 1001; }
+    .nav-links-bar { display: none; }
+    .nav-auth-box-desktop-only { display: none !important; }
+
+    /* A GAVETA (Fundo escuro, vinda da direita) */
+    .nav-menu-wrapper {
+        position: fixed; top: 0; right: 0; width: 75%; max-width: 320px; height: 100vh;
+        background-color: #0d1624; z-index: 1050; flex-direction: column; 
+        justify-content: flex-start; align-items: flex-start; margin-left: 0; 
+        padding: 50px 24px; box-sizing: border-box; gap: 35px;
+        border-left: 1px solid rgba(197, 159, 89, 0.2);
+        transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+    }
+    .nav-menu-wrapper.open { transform: translateX(0); }
+
+    .btn-close-drawer {
+        display: block; position: absolute; top: 15px; right: 20px;
+        background: transparent; border: none; color: #a4b3c6; font-size: 26pt;
+        cursor: pointer; line-height: 1; outline: none;
+    }
+    .btn-close-drawer:hover { color: #ff6855; }
+
+    .nav-links { flex-direction: column; align-items: flex-start; gap: 15px; width: 100%; flex-grow: 0; }
+    
+    /* Configuração dos Links Internos Claros */
+    .nav-links .nav-item {
+        font-size: 12pt !important; color: #f1ead4 !important; font-weight: 700 !important;
+        width: 100%; padding: 12px 0 !important; border-radius: 0; border: none;
+        border-bottom: 1px solid rgba(164, 179, 198, 0.1) !important; text-align: left;
+    }
+    .nav-links .nav-item.active { border-bottom: none !important; border-left: 3px solid #c5a059 !important; padding-left: 12px !important; color: #c5a059 !important; }
+    .nav-links .nav-item:hover { color: #c5a059 !important; background: transparent; }
+
+    .nav-auth-box { width: 100%; margin-top: auto; }
+    .btn-login { display: block; text-align: center; width: 100%; padding: 14px 0; font-size: 10.5pt; }
+    
+    .user-dropdown { width: 100%; display: block !important; }
+    .user-dropdown > button {
+      width: 100%; justify-content: space-between !important;
+      border-radius: 0 !important; border: none !important;
+      border-bottom: 1px solid rgba(164, 179, 198, 0.1) !important;
+      background: transparent !important; text-shadow: none !important;
+      padding: 12px 0 !important;
+    }
+    .user-dropdown > button.active {
+      border-bottom: none !important; border-left: 3px solid #c5a059 !important;
+      padding-left: 12px !important;
+    }
+    .dropdown-toggle { width: 100%; justify-content: space-between; padding: 12px 20px; font-size: 11pt; }
+    .dropdown-content { position: static !important; transform: none !important; opacity: 1 !important; visibility: visible !important; box-shadow: none; border: none; background: rgba(0, 0, 0, 0.2); margin-top: 10px; max-height: 0; overflow: hidden; padding: 0; transition: max-height 0.2s ease-out; }
+    .user-dropdown.open .dropdown-content { max-height: 200px; padding: 6px; }
+    .dropdown-content a, .dropdown-content button { font-size: 11pt; padding: 12px 20px; color: #a4b3c6; }
+}
+body.menu-active { overflow: hidden; }
+
+/* 🎯 Abaixo de 480px, o texto do logo ("Pocolord's Twinkles Road") não
+   cabe do lado do hambúrguer de jeito nenhum, não importa o padding —
+   esconde só o texto e mantém o brasão redondo, que já identifica a
+   marca sozinho e libera espaço garantido pro botão de menu. */
+@media (max-width: 480px) {
+    .logo-text { display: none; }
+}
+
+/* ==========================================================================
+   MODAL DE CONFIRMAÇÃO DE LOGOUT (estava faltando este CSS inteiro)
+   ========================================================================== */
+.ptr-logout-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.ptr-logout-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ptr-modal-box {
+    background: #0b1320;
+    border: 1px solid rgba(197, 160, 89, 0.4);
+    border-radius: 16px;
+    padding: 32px 30px;
+    width: 90%;
+    max-width: 340px;
+    text-align: center;
+    box-sizing: border-box;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform: translateY(-14px);
+    transition: transform 0.25s ease;
+}
+
+.ptr-logout-overlay.active .ptr-modal-box {
+    transform: translateY(0);
+}
+
+.ptr-modal-title {
+    font-family: 'Cinzel', serif;
+    color: #f1ead4;
+    font-size: 14pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+}
+
+.ptr-modal-text {
+    font-family: 'Montserrat', sans-serif;
+    color: #a4b3c6;
+    font-size: 10pt;
+    line-height: 1.5;
+    margin: 0 0 26px 0;
+}
+
+.ptr-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.ptr-btn-cancel, .ptr-btn-confirm {
+    flex: 1;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 0;
+    border-radius: 50px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.ptr-btn-cancel {
+    background: transparent;
+    border-color: rgba(164, 179, 198, 0.3);
+    color: #a4b3c6;
+}
+
+.ptr-btn-cancel:hover {
+    border-color: #a4b3c6;
+    color: #f1ead4;
+}
+
+.ptr-btn-confirm {
+    background: #ff6855;
+    border-color: #ff6855;
+    color: #0b1320;
+}
+
+.ptr-btn-confirm:hover {
+    background: #ff8975;
+    border-color: #ff8975;
+    box-shadow: 0 4px 15px rgba(255, 104, 85, 0.35);
+}
+
+/* ==========================================================================
+   BOLINHA DE "CHECK-IN ABERTO" — some sozinha quando o prazo fecha,
+   já que ela só é renderizada enquanto janelaCheckin.dentroDoPrazo é true.
+   ========================================================================== */
+.checkin-aberto-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #3ddc84;
+    box-shadow: 0 0 6px rgba(61, 220, 132, 0.8);
+    animation: checkinPulse 1.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes checkinPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+/* No mobile, o item fica em largura total (não pílula) — em vez de
+   posição absoluta com valor chutado, deixa a bolinha fluir ao lado do
+   texto normalmente (mais robusto, não depende do tamanho exato do
+   texto "Agenda"). */
+@media (max-width: 1400px) {
+    .nav-links .checkin-aberto-dot {
+        position: static;
+        display: inline-block;
+        margin-left: 8px;
+        vertical-align: middle;
+        top: auto; right: auto;
+    }
+}

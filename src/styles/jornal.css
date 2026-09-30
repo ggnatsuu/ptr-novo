@@ -1,0 +1,527 @@
+/* ==========================================================================
+   MÍDIA JORNAL PTR - RESOLUÇÃO DE LAYOUT E RESPONSIVIDADE
+   ========================================================================== */
+
+/* Correção do recuo vertical para descolar da navbar fixa */
+.main-layout-wrapper {
+    margin-top: 150px !important;
+    padding: 0 24px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* GRID PRINCIPAL DO DESKTOP (Recupera o Leitor na esquerda e Sidebar na direita) */
+.jornal-main-grid {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 50px auto;
+    box-sizing: border-box;
+}
+
+.jornal-leitor-area {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* AVISO DE EDIÇÃO ANTERIOR + BOTÃO DE VOLTAR */
+.banner-edicao-antiga {
+    background: rgba(255, 104, 85, 0.08);
+    border: 1px solid rgba(254, 194, 44, 0.4);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.banner-edicao-antiga span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #f1ead4;
+}
+
+.banner-edicao-antiga span i {
+    color: #fec22c;
+    margin-right: 6px;
+}
+
+.banner-edicao-antiga button {
+    background: #fec22c;
+    border: none;
+    color: #000000;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.banner-edicao-antiga button:hover {
+    background: #fec22c;
+    box-shadow: 0 4px 15px rgba(254, 194, 44, 00.4px);
+}
+
+/* Quebra o grid e empilha em telas menores (Tablets e Celulares) */
+@media (max-width: 1024px) {
+    .jornal-main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* LEITOR IMERSIVO DE IMAGENS */
+.leitor-container {
+    background: #0d1624;
+    border: 1px solid rgba(197, 160, 89, 1);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.viewport-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.jornal-view-img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.2s ease;
+    display: block;
+}
+
+/* Setas flutuantes de PC */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(11, 19, 32, 0.85);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    color: #ffffff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.nav-arrow:hover {
+    background: #ff6855;
+    border-color: #ff6855;
+    box-shadow: 0 0 12px rgba(255, 104, 85, 0.5);
+}
+
+.arrow-left { left: -65px; }
+.arrow-right { right: -65px; }
+
+@media (max-width: 768px) {
+    .nav-arrow { display: none !important; }
+    .leitor-container { padding: 15px; }
+}
+
+/* Rodapé do Leitor */
+.leitor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(164, 179, 198, 0.1);
+}
+
+.paginacao-info {
+    font-size: 9.5pt;
+    color: #a4b3c6;
+    font-weight: 700;
+}
+
+.btn-cinema {
+    background: transparent;
+    border: 1px solid rgba(255, 104, 85, 0.4);
+    color: #ff6855;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 8.5pt;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s;
+}
+
+.btn-cinema:hover {
+    background: #ff6855;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(255,104,85,0.3);
+}
+
+/* BARRA DE INFORMAÇÕES DA EDIÇÃO */
+.info-barra {
+    margin-top: 25px;
+    background: #0d1624; /* Mudado para combinar com o fundo do leitor */
+    border-radius: 12px;
+    padding: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    border: 1px solid rgba(197, 160, 89, 1);
+    box-sizing: border-box;
+}
+
+.info-meta h2 {
+    margin: 0 0 6px 0;
+    color: #ffffff;
+    font-family: 'Cinzel', serif;
+    font-size: 13pt;
+    letter-spacing: 0.5px;
+}
+
+.info-meta span {
+    font-size: 9pt;
+    color: #a4b3c6;
+}
+
+.btn-baixar {
+    background: linear-gradient(135deg, #ff6855 0%, #e04b37 100%);
+    border: none;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 9pt;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(255,104,85,0.25);
+    transition: all 0.2s;
+}
+
+.btn-baixar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,104,85,0.4);
+    filter: brightness(1.1);
+}
+
+/* HISTÓRICO (BANCA DE REVISTAS) */
+.secao-historico-jornais {
+    width: 100%;
+    max-width: 1200px;
+    margin: 30px auto 60px auto;
+    box-sizing: border-box;
+}
+
+.historico-header {
+    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.historico-badge {
+    display: inline-block;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 4px;
+    background: #ff6855;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.historico-title {
+    margin: 0;
+    color: #ffffff;
+    font-family: 'Cinzel', serif;
+    font-size: 18pt;
+}
+
+.historico-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 25px;
+}
+
+.jornal-card {
+    background: #0d1624;
+    border: 1px solid rgba(197, 160, 89, 0.15);
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.jornal-card:hover {
+    transform: translateY(-5px);
+    border-color: #ff6855;
+    box-shadow: 0 10px 25px rgba(255,104,85,0.2);
+}
+
+.card-capa-wrapper {
+    width: 100%;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0b1320;
+    margin-bottom: 12px;
+}
+
+.card-capa-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.card-tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(13, 22, 36, 0.9);
+    border: 1px solid #c5a059;
+    color: #c5a059;
+    font-size: 7.5pt;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.card-titulo {
+    margin: 0;
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* SIDEBAR DE LÍDERES */
+.sidebar-rank {
+    background: #0d1624;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.sidebar-rank-header h3 {
+    margin: 0 0 5px 0;
+    font-size: 11pt;
+    color: #c5a059;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sidebar-rank-header h2 {
+    margin: 0;
+    font-size: 14pt;
+    color: #ffffff;
+    font-family: 'Cinzel', serif;
+}
+
+.sidebar-divider {
+    width: 40px;
+    height: 2px;
+    background: #ff6855;
+    margin: 10px 0 20px 0;
+}
+
+.podium-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.podium-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #0b1320;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(164, 179, 198, 0.05);
+    box-sizing: border-box;
+}
+
+.podium-gold {
+    border-color: rgba(197, 160, 89, 0.25);
+}
+
+.podium-pos {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: 14pt;
+    width: 25px;
+}
+
+.pos-1 { color: #c5a059; text-shadow: 0 0 10px rgba(197,160,89,0.3); }
+.pos-2 { color: #a4b3c6; }
+.pos-3 { color: #b87333; }
+
+.podium-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.podium-name {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.podium-sub {
+    font-size: 8pt;
+    color: #a4b3c6;
+}
+
+/* MODAL CINEMA (TELA CHEIA) */
+.cinema-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(4, 7, 12, 0.98);
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.cinema-content-wrapper {
+    position: relative;
+    max-height: 92vh;
+    max-width: 90vw;
+}
+
+.cinema-img {
+    max-height: 92vh;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    transition: transform 0.15s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+}
+
+.btn-close-cinema {
+    position: fixed; /* Muda para fixed para ignorar o tamanho da imagem */
+    top: 20px; 
+    right: 20px;
+    background: rgba(11, 19, 32, 0.8); /* Fundo escuro sutil para dar contraste em imagens claras */
+    border: 1px solid rgba(197, 160, 89, 0.3); /* Borda dourada sutil seguindo o padrão do site */
+    color: #ffffff; 
+    font-size: 20pt; 
+    cursor: pointer;
+    opacity: 0.8; 
+    transition: all 0.2s;
+    z-index: 100002; /* Fica acima do container da imagem */
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-cinema:hover { 
+    opacity: 1; 
+    color: #ff6855; 
+    border-color: #ff6855;
+    background: #0d1624;
+}
+
+@media (max-width: 768px) {
+    .btn-close-cinema {
+        top: 15px;
+        right: 15px;
+        font-size: 16pt;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ==========================================================================
+   ESTILIZAÇÃO E POSICIONAMENTO DAS SETAS DENTRO DO MODO CINEMA
+   ========================================================================== */
+#ptr-cinema-nav-wrapper .cinema-arrow {
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: rgba(11, 19, 32, 0.85) !important;
+    border: 1px solid rgba(197, 160, 89, 0.3) !important;
+    color: #ffffff !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    z-index: 100005 !important; /* Força ficar na frente da cortina escura do cinema */
+}
+
+#ptr-cinema-nav-wrapper .cinema-arrow:hover {
+    background: #ff6855 !important;
+    border-color: #ff6855 !important;
+    box-shadow: 0 0 12px rgba(255, 104, 85, 0.5) !important;
+}
+
+#ptr-cinema-nav-wrapper #btn-cinema-ant { left: 40px !important; }
+#ptr-cinema-nav-wrapper #btn-cinema-prox { right: 40px !important; }
+
+/* Esconde as setas injetadas no mobile para dar foco ao gesto de arrasto (Swipe) */
+@media (max-width: 768px) {
+    #ptr-cinema-nav-wrapper .cinema-arrow {
+        display: none !important;
+    }
+}

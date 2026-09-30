@@ -1,0 +1,89 @@
+/* Ícone de ordenação sutil e luxuoso */
+.sort-icon-hint {
+    font-size: 8pt;
+    color: #5f758e;
+    margin-left: 5px;
+    opacity: 0.4;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+/* Quando o usuário focar ou passar o mouse na coluna, o ícone brilha em dourado */
+th:hover .sort-icon-hint {
+    opacity: 1;
+    color: #c5a059;
+}
+
+/* ==========================================================================
+   ESTILIZAÇÃO PREMIUM DO BOTÃO DE FILTRO DO PLACAR DE LÍDERES
+   ========================================================================== */
+#btnFiltroCategoria {
+    background-color: #0b1320 !important;
+    color: #f1ead4 !important;
+    border: 2px solid #c5a059 !important;
+    border-radius: 50px !important;
+    padding: 10px 24px !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 9.5pt !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+#btnFiltroCategoria:hover {
+    background-color: #c5a059 !important;
+    color: #0b1320 !important;
+    box-shadow: 0 4px 20px rgba(197, 160, 89, 0.3) !important;
+}
+
+#btnFiltroCategoria i {
+    color: #c5a059 !important;
+    transition: color 0.2s ease-in-out !important;
+}
+
+#btnFiltroCategoria:hover i {
+    color: #0b1320 !important;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE EXCLUSIVA PARA A TABELA NO CELULAR
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Ativa a rolagem horizontal apenas se os dados passarem do limite da tela */
+    .ptr-table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch; /* Deixa o deslize do dedo suave no iOS/Android */
+    }
+
+    /* Força a tabela a manter um tamanho mínimo confortável para não esmagar os nomes */
+    #tabelaRankGeral {
+        min-width: 650px !important;
+    }
+    
+    /* Ajuste fino para os paddings das células não ficarem gigantescos no celular */
+    #tabelaRankGeral th, 
+    #tabelaRankGeral td {
+        padding: 12px 8px !important;
+        font-size: 9.5pt !important;
+    }
+}
+
+/* Customização premium da barra de rolagem horizontal da tabela (PTR Theme) */
+.ptr-table-responsive::-webkit-scrollbar {
+    height: 5px !important; /* Deixa a barra horizontal bem fininha embaixo da tabela */
+}
+.ptr-table-responsive::-webkit-scrollbar-track {
+    background: rgba(11, 19, 32, 0.5) !important;
+}
+.ptr-table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(197, 160, 89, 0.4) !important;
+    border-radius: 10px !important;
+}
+.ptr-table-responsive::-webkit-scrollbar-thumb:hover {
+    background: rgba(197, 160, 89, 0.8) !important;
+}

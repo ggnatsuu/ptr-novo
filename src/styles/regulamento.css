@@ -1,0 +1,286 @@
+/* ==========================================================================
+   PÁGINA DE REGULAMENTO — classes com prefixo "reg-" (home.css já ensinou
+   que CSS genérico colide fácil quando é importado globalmente em
+   main.jsx junto com o de todas as outras páginas).
+   ========================================================================== */
+.reg-pagina {
+    width: 100%;
+    min-height: 100vh;
+    padding: 160px 20px 100px;
+    box-sizing: border-box;
+}
+
+.reg-cabecalho {
+    max-width: 900px;
+    margin: 0 auto 50px;
+    text-align: center;
+}
+.reg-cabecalho-rotulo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13pt;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #a4b3c6;
+    margin: 0 0 10px 0;
+}
+.reg-cabecalho-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 35pt;
+    font-weight: 700;
+    color: #c5a059;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* Índice — mesma cara de "card" usada em outras páginas (fundo escuro,
+   borda dourada translúcida), em grade de 2 colunas pra não ficar uma
+   lista comprida de 12 itens numa coluna só. */
+.reg-indice {
+    max-width: 900px;
+    margin: 0 auto 60px;
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid rgba(197, 160, 89, 0.25);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-sizing: border-box;
+}
+.reg-indice-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 14.5pt;
+    font-weight: 600;
+    color: #c5a059;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 16px 0;
+}
+.reg-indice-lista {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 30px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.reg-indice-lista a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12.5pt;
+    color: #d7dee6;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.reg-indice-lista a:hover {
+    color: #c5a059;
+    border-color: rgba(197, 160, 89, 0.5);
+}
+
+/* Índice flutuante — fixo na lateral direita, some/aparece via JS
+   (IntersectionObserver no Regulamento.jsx) conforme o índice principal
+   sai/volta pra tela. Só em telas largas o bastante pra caber do lado do
+   texto sem espremer nada (ver media query no fim do arquivo). */
+.reg-indice-flutuante {
+    position: fixed;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    width: 240px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: rgba(13, 27, 42, 0.92);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    box-sizing: border-box;
+    animation: reg-indice-flutuante-entrada 0.25s ease;
+}
+@keyframes reg-indice-flutuante-entrada {
+    from { opacity: 0; transform: translateY(-50%) translateX(12px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+.reg-indice-flutuante-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 12.5pt;
+    font-weight: 600;
+    color: #c5a059;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px 0;
+}
+.reg-indice-flutuante-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.reg-indice-flutuante-lista a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11.5pt;
+    line-height: 1.4;
+    color: #d7dee6;
+    text-decoration: none;
+    display: block;
+    transition: color 0.2s ease;
+}
+.reg-indice-flutuante-lista a:hover { color: #c5a059; }
+
+/* Corpo do texto — coluna estreita de propósito, texto longo lê melhor
+   sem linhas gigantes. */
+.reg-conteudo {
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+.reg-secao {
+    /* compensa a navbar fixa ao pular direto pra uma seção via link do
+       índice — sem isso o título fica escondido atrás do menu */
+    scroll-margin-top: 100px;
+}
+
+.reg-secao-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 24pt;
+    font-weight: 700;
+    color: #c5a059;
+    margin: 0 0 20px 0;
+    letter-spacing: 0.5px;
+}
+.reg-subsecao-titulo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16pt;
+    font-weight: 700;
+    color: #f1ead4;
+    margin: 30px 0 14px 0;
+}
+
+.reg-secao p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14pt;
+    line-height: 1.75;
+    color: #d7dee6;
+    margin: 0 0 16px 0;
+}
+.reg-secao strong { color: #c5a059; font-weight: 700; }
+
+.reg-lista {
+    margin: 0 0 16px 0;
+    padding-left: 22px;
+}
+.reg-lista li {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14pt;
+    line-height: 1.75;
+    color: #d7dee6;
+    margin-bottom: 4px;
+}
+.reg-lista li::marker { color: #c5a059; }
+.reg-lista .reg-lista {
+    margin: 6px 0 6px 0;
+}
+
+.reg-divisor {
+    max-width: 200px;
+    margin: 50px auto;
+    border: none;
+    border-top: 1px dashed rgba(197, 160, 89, 0.3);
+}
+
+/* Pontuação — bloco de destaque (participação) + tabela (resultado) */
+.reg-pontuacao-participacao {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    background: rgba(197, 160, 89, 0.08);
+    border-left: 4px solid #c5a059;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+.reg-pontuacao-participacao-numero {
+    font-family: 'Cinzel', serif;
+    font-size: 29pt;
+    font-weight: 700;
+    color: #c5a059;
+}
+.reg-pontuacao-participacao-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13pt;
+    color: #a4b3c6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reg-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid rgba(197, 160, 89, 0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.reg-tabela caption {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a4b3c6;
+    text-align: left;
+    padding: 14px 20px 0;
+    caption-side: top;
+}
+.reg-tabela thead th {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #c5a059;
+    text-align: left;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+}
+.reg-tabela tbody td {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13pt;
+    color: #d7dee6;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(241, 234, 212, 0.06);
+}
+.reg-tabela tbody tr:last-child td { border-bottom: none; }
+.reg-tabela tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+
+/* Glossário — lista de definição */
+.reg-glossario { margin: 0; }
+.reg-glossario dt {
+    font-family: 'Cinzel', serif;
+    font-size: 14.5pt;
+    font-weight: 700;
+    color: #c5a059;
+    margin-top: 16px;
+}
+.reg-glossario dt:first-child { margin-top: 0; }
+.reg-glossario dd {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14pt;
+    line-height: 1.6;
+    color: #d7dee6;
+    margin: 4px 0 0 0;
+}
+
+/* Abaixo disso não sobra espaço na lateral pra caber os 200px do índice
+   flutuante sem invadir o texto — melhor esconder do que espremer. */
+@media (max-width: 1300px) {
+    .reg-indice-flutuante { display: none; }
+}
+
+@media (max-width: 768px) {
+    .reg-pagina { padding: 120px 15px 80px; }
+    .reg-cabecalho-titulo { font-size: 24pt; }
+    .reg-indice { padding: 22px 20px; }
+    .reg-indice-lista { grid-template-columns: 1fr; }
+    .reg-secao-titulo { font-size: 20pt; }
+}

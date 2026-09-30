@@ -1,0 +1,226 @@
+/* ==========================================================================
+   ESTILIZAÇÃO DA TELA DE LOGIN & CADASTRO (OTIMIZADO PARA HARDWARE)
+   ========================================================================== */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-grow: 1;
+    padding: 20px;
+    width: 100%;
+}
+
+.auth-card {
+    background: rgba(11, 19, 32, 0.85);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 550px;
+    padding: 45px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin-top: 5%;
+    /* OTIMIZADO: Limitada a transição apenas para propriedades não geométricas */
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    will-change: transform, opacity;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-tabs {
+    display: flex;
+    background: rgba(14, 23, 38, 0.6);
+    border: 1px solid rgba(164, 179, 198, 0.15);
+    border-radius: 50px;
+    padding: 5px;
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 14px;
+    color: #a4b3c6;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11pt;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-btn.active {
+    background-color: #c5a059;
+    color: #0e1726;
+    box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);
+}
+
+.form-header { text-align: center; margin-bottom: 25px; }
+.form-header h2 { font-family: 'Cinzel', serif; color: #c5a059; font-size: 20pt; margin: 0 0 12px 0; letter-spacing: 0.5px; }
+.form-header p { font-family: 'Montserrat', sans-serif; color: #f1ead4; font-size: 13pt; margin: 0; line-height: 1.6; }
+
+.input-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.input-container label { font-family: 'Montserrat', sans-serif; font-size: 11pt; font-weight: 600; color: #c5a059; }
+.input-field-wrapper { position: relative; display: flex; align-items: center; }
+.input-icon { position: absolute; left: 15px; color: rgba(164, 179, 198, 0.6); font-size: 11pt; }
+.input-field-wrapper input { width: 100%; background-color: #0e1726; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 10px; padding: 16px 15px 16px 45px; color: #f1ead4; font-family: 'Montserrat', sans-serif; font-size: 11.5pt; outline: none; transition: border-color 0.2s ease; }
+.input-field-wrapper input:focus { border-color: #c5a059; }
+.input-field-wrapper input::placeholder { color: rgba(164, 179, 198, 0.4); }
+
+.btn-auth-submit { width: 100%; background: transparent; border: 2px solid #c5a059; color: #c5a059; padding: 14px; font-family: 'Montserrat', sans-serif; font-weight: 700; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; margin-top: 10px; }
+.btn-auth-submit:hover { background-color: #c5a059; color: #0b1320; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); }
+
+.auth-form-container { position: relative; width: 100%; }
+.auth-form {
+    width: 100%;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    visibility: visible;
+    /* OTIMIZADO: Transições unificadas nas propriedades aceleradas por GPU */
+    transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.auth-form.hidden {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+@media (max-width: 480px) {
+    .auth-card { padding: 25px 20px; }
+    .form-header h2 { font-size: 15pt; }
+}
+
+/* ==========================================================================
+   MODAL PREMIUM PTR (SUCESSO / AVISO) — identidade visual dourada
+   ========================================================================== */
+.ptr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 18, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ptr-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ptr-modal-box {
+    background: linear-gradient(160deg, #0e1726, #0b1320);
+    border: 1px solid rgba(63, 166, 111, 0.4);
+    border-radius: 16px;
+    padding: 35px 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(197, 160, 89, 0.08);
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.ptr-modal-overlay.active .ptr-modal-box {
+    transform: scale(1) translateY(0);
+}
+
+/* Ícone de check dourado no topo, reforça "deu certo" visualmente */
+.ptr-modal-box::before {
+    content: "\2713";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: rgba(63, 166, 111, 0.12);
+    border: 1px solid rgba(63, 166, 111, 0.5);
+    color: #3fa66f;
+    font-size: 22pt;
+    font-weight: 700;
+}
+
+.ptr-modal-title {
+    font-family: 'Cinzel', serif;
+    color: #3fa66f;
+    font-size: 16pt;
+    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
+}
+
+.ptr-modal-text {
+    font-family: 'Montserrat', sans-serif;
+    color: #f1ead4;
+    font-size: 11.5pt;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+.ptr-modal-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.ptr-btn-confirm {
+    background-color: #3fa66f;
+    color: #0b1320;
+    border: none;
+    padding: 12px 40px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 11pt;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+}
+
+.ptr-btn-confirm:hover {
+    background-color: #56c288;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(63, 166, 111, 0.3);
+}
+
+/* ==========================================================================
+   VARIANTE DE ERRO — vermelho, para não confundir com sucesso
+   ========================================================================== */
+.ptr-modal-box.erro {
+    border-color: rgba(224, 75, 55, 0.4);
+}
+
+.ptr-modal-box.erro::before {
+    content: "\0021";
+    background: rgba(224, 75, 55, 0.12);
+    border-color: rgba(224, 75, 55, 0.5);
+    color: #e04b37;
+}
+
+.ptr-modal-box.erro .ptr-modal-title {
+    color: #e04b37;
+}
+
+.ptr-modal-box.erro .ptr-btn-confirm {
+    background-color: #e04b37;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(224, 75, 55, 0.3);
+}
+
+.ptr-modal-box.erro .ptr-btn-confirm:hover {
+    background-color: #ef6b52;
+    box-shadow: 0 6px 18px rgba(224, 75, 55, 0.4);
+}

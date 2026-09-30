@@ -1,0 +1,52 @@
+@media (max-width: 768px) {
+    /* ==========================================================================
+       1. MENU OVERLAY — REMOVIDO DAQUI DE PROPÓSITO.
+       Esse bloco definia .nav-menu-wrapper, .menu-toggle, .nav-item, .nav-logo,
+       .body-overlay etc com um visual antigo (fundo branco, dropdown vindo de
+       cima) que colidia com o navbar.css atual (fundo escuro, gaveta lateral
+       vindo da direita) — as duas media queries (≤768px e ≤1200px) ficavam
+       ativas ao mesmo tempo no celular, e essas regras aqui sobrescreviam por
+       cima do navbar.css nas propriedades que coincidiam, gerando aquele
+       visual híbrido/quebrado. Toda a estilização de menu/navbar mobile agora
+       vive só em navbar.css — não duplica aqui.
+       ========================================================================== */
+    
+
+    .hero-content {
+        margin-top: 40px !important;
+        padding: 0 15px;
+    }
+
+    /* Adaptação do Calendário Azul Marinho no Mobile — .advanced-calendar-section
+       e as duas classes de título/subtítulo abaixo são reaproveitadas pelo
+       Sorteio.jsx (3 seções lá usam essas mesmas classes), então continuam
+       aqui mesmo depois da Home ter trocado esse conteúdo. */
+    .advanced-calendar-section {
+        width: 100%;
+        position: static;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 40px 0;
+    }
+
+    .advanced-section-title {
+        font-size: 18pt;
+        text-align: center;
+        padding: 0 15px;
+    }
+
+    .advanced-section-subtitle {
+        text-align: center;
+        padding: 0 15px;
+    }
+
+}
+
+    /* Adaptação do Rodapé no Mobile */
+    .main-footer {
+        padding: 40px 15px;
+    }
+
+    .footer-links {
+        gap: 20px; /* Diminui a distância lateral no celular */
+    }

@@ -1,0 +1,15 @@
+/* 🎯 src/index.css
+   Antes tinha o CSS de exemplo padrão do Vite (logo giratória, card de
+   contador, e principalmente a regra "#root { max-width: 1280px; margin:
+   0 auto; padding: 2rem; }" que estava encaixotando o site inteiro numa
+   caixa estreita centralizada — causa da "moldura" que aparecia em
+   TODAS as páginas). Removido tudo isso; quem cuida do estilo global
+   de verdade agora é o styles/style.css.
+*/
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,213 @@
+/* 🎯 src/styles/transmissao.css
+   Página de Transmissão ao Vivo (VDO.Ninja / WebRTC). Segue a mesma
+   identidade visual do resto do site: fundo azul-marinho profundo
+   (#0d1624 / #0b1320), dourado #c5a059, Cinzel nos títulos e Montserrat
+   no corpo — nada de paleta nova, só extensão do que já existe.
+*/
+
+.live-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 140px 20px 80px;
+  box-sizing: border-box;
+}
+
+.live-header {
+  text-align: center;
+  margin-bottom: 28px;
+  max-width: 700px;
+}
+
+/* 🎯 Badge com o pontinho vermelho pulsando — o único "toque de
+   assinatura" dessa página, remetendo ao indicador clássico de "AO VIVO"
+   sem sair do vocabulário visual do resto do site (chip arredondado). */
+.live-badge-realtime {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 60, 60, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  color: #ff8080;
+  font-family: "Montserrat", sans-serif;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: 50px;
+  margin-bottom: 16px;
+}
+
+.live-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff4d4d;
+  box-shadow: 0 0 6px #ff4d4d;
+  animation: live-pulse 1.4s infinite ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-badge-dot {
+    animation: none;
+  }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+.live-title {
+  font-family: "Cinzel", serif;
+  color: #f1ead4;
+  font-size: 26pt;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.live-title-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff4d4d;
+  box-shadow: 0 0 12px rgba(255, 77, 77, 0.7), 0 0 24px rgba(255, 77, 77, 0.35);
+  flex-shrink: 0;
+}
+
+.live-subtitle {
+  font-family: "Montserrat", sans-serif;
+  color: #a4b3c6;
+  font-size: 10.5pt;
+  margin: 0;
+}
+
+/* 🎯 Container 16:9 responsivo. aspect-ratio é a forma moderna e mais
+   robusta de travar a proporção — muito menos sujeita a ser derrubada por
+   alguma outra regra CSS carregada depois (diferente do velho truque de
+   padding-top em %, que depende só de um cálculo indireto). max-height é
+   uma rede de segurança extra: mesmo que algo dê errado, a caixa nunca
+   passa de 70% da altura da tela. */
+.live-player-frame {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 16 / 9;
+  max-height: 70vh;
+  background: #0d1624;
+  border-radius: 12px;
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(197, 160, 89, 0.08),
+    0 15px 45px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(197, 160, 89, 0.08);
+  overflow: hidden;
+}
+
+/* 🎯 Fallback só pra navegadores muito antigos sem suporte a aspect-ratio
+   (ex: Safari anterior a 2021). Praticamente não deve disparar hoje em dia. */
+@supports not (aspect-ratio: 16 / 9) {
+  .live-player-frame {
+    height: 0;
+    padding-top: 56.25%;
+  }
+}
+
+.live-player-frame:fullscreen,
+.live-player-frame:-webkit-full-screen {
+  max-width: 100%;
+  padding-top: 0;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.live-player-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.live-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.live-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(197, 160, 89, 0.08);
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  color: #f1ead4;
+  font-family: "Montserrat", sans-serif;
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 11px 22px;
+  border-radius: 50px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.live-action-btn:hover {
+  background: rgba(197, 160, 89, 0.18);
+  box-shadow: 0 0 16px rgba(197, 160, 89, 0.25);
+  transform: translateY(-1px);
+}
+
+.live-action-btn:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 2px;
+}
+
+.live-action-btn-discord {
+  border-color: rgba(88, 101, 242, 0.5);
+  color: #a3aefe;
+}
+
+.live-action-btn-discord:hover {
+  background: rgba(88, 101, 242, 0.12);
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.3);
+}
+
+.live-fallback-notice {
+  font-family: "Montserrat", sans-serif;
+  color: #a4b3c6;
+  font-size: 8.5pt;
+  text-align: center;
+  margin-top: 22px;
+  max-width: 480px;
+  opacity: 0.8;
+}
+
+@media (max-width: 640px) {
+  .live-page-container {
+    padding: 110px 16px 60px;
+  }
+  .live-title {
+    font-size: 19pt;
+  }
+  .live-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .live-action-btn {
+    justify-content: center;
+  }
+}

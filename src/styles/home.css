@@ -1,0 +1,450 @@
+/* ==========================================================================
+   ESTILIZAÇÃO GERAL E SEÇÕES DA HOME (OTIMIZADO)
+   ========================================================================== */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1600px;
+    margin: 100px auto 0 auto;
+    flex-grow: 1;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.hero-main-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.hero-left { flex: 1; max-width: 65%; }
+.hero-right { flex-shrink: 0; }
+
+.main-title {
+    font-family: 'Cinzel', serif;
+    font-size: 40pt;
+    line-height: 1.2;
+    font-weight: 800;
+    color: #f1ead4;
+    margin: 0 0 15px 0;
+    letter-spacing: 1px;
+}
+
+.main-title span {
+    font-family: 'Playfair Display', serif;
+    color: #c5a059;
+    display: block;
+    font-size: 44pt;
+    font-weight: 700;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+.subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.7;
+    font-weight: 400;
+    color: #a4b3c6;
+    max-width: 550px;
+    margin-bottom: 35px;
+}
+
+.stat-badge {
+    border-left: 4px solid #c5a059;
+    padding-left: 20px;
+}
+
+.stat-live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #c5a059;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.7);
+    animation: pulseGlow 2s infinite;
+    margin-right: 7px;
+    vertical-align: middle;
+}
+
+.stat-number {
+    font-size: 55pt;
+    font-weight: bold;
+    color: #c5a059;
+    line-height: 1;
+}
+
+.stat-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10pt;
+    color: #a4b3c6;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+.widgets-row {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.widget-card {
+    flex: 1;
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    will-change: transform;
+}
+
+.widget-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(197, 160, 89, 0.6);
+    box-shadow: 0 12px 28px rgba(197, 160, 89, 0.12);
+}
+
+.widget-icon-cell { font-size: 24pt; color: #c5a059; }
+.widget-title { font-family: 'Montserrat', sans-serif; font-size: 10.5pt; font-weight: bold; color: #f1ead4; margin: 0 0 4px 0; }
+.widget-desc { font-family: 'Montserrat', sans-serif; font-size: 9pt; color: #a4b3c6; margin: 0; }
+
+/* OTIMIZADO: Removido margin-left negativo perigoso que causava quebra horizontal */
+.advanced-calendar-section {
+    width: 100%;
+    background-color: #0b1320;
+    border-top: 1px solid rgba(197, 160, 89, 0.15);
+    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    padding: 100px 0;
+    box-sizing: border-box;
+}
+
+.calendar-section-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+.advanced-section-title { font-family: 'Cinzel', serif; font-size: 24pt; font-weight: 600; color: #c5a059; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px; text-align: center; display: inline-block; padding-bottom: 12px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); }
+.advanced-section-subtitle { font-family: 'Montserrat', sans-serif; font-size: 11pt; color: #a4b3c6; text-align: center; max-width: 800px; margin: 0 auto 60px auto; }
+
+.main-banner-container {
+    width: 100%;
+    overflow: hidden;
+    display: block;
+    border-radius: 16px;
+    margin-bottom: 40px;
+}
+.main-banner-img { width: 100%; height: auto; object-fit: cover; display: block; }
+
+.btn-scenario-item { font-family: 'Montserrat', sans-serif; }
+
+/* pulseGlow segue usado por .stat-live-dot (hero) e por .pulse-indicator
+   (sorteio.css) — não remover mesmo depois de tirar as seções antigas que
+   também usavam essa animação. */
+@keyframes pulseGlow { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(197, 160, 89, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(197, 160, 89, 0); } }
+
+/* ==========================================================================
+   SEÇÃO "O QUE É A PTR" — migrada do mockup mockup-home-ptr-v7.html.
+   Classes com prefixo "sobre-ptr-" (home.css é importado globalmente em
+   main.jsx, junto com o CSS de todas as outras páginas — nomes genéricos
+   tipo .card/.secao/.grade arriscariam colidir com alguma outra página).
+   ========================================================================== */
+.sobre-ptr-secao {
+    max-width: 1000px;
+    margin: 0 auto 100px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+.sobre-ptr-secao-abertura { margin-top: 60px; }
+
+.sobre-ptr-secao-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: #c5a059;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.sobre-ptr-secao-linha {
+    width: 80px; height: 2px; background: #c5a059;
+    margin: 0 auto 50px; box-shadow: 0 0 8px #c5a059;
+}
+
+/* Placeholder de imagem — troca pela arte de verdade quando o usuário mandar.
+   overflow:hidden + a regra ".sobre-ptr-placeholder img" abaixo garantem que
+   QUALQUER imagem colocada aqui dentro (não importa o tamanho original do
+   arquivo) respeita a caixa — sem isso a imagem "vaza" no tamanho nativo
+   dela e quebra o layout embaixo. */
+.sobre-ptr-placeholder {
+    background: repeating-linear-gradient(45deg, #131c2c, #131c2c 10px, #0d1420 10px, #0d1420 20px);
+    border: 2px dashed rgba(197, 160, 89, 0.4);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(197, 160, 89, 0.6);
+    text-align: center;
+    padding: 20px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+/* Assim que o slot tem uma <img> de verdade dentro, some com a moldura
+   tracejada e o fundo listrado — eles só fazem sentido como aviso visual
+   de "ainda falta imagem aqui". Automático: não precisa mexer em CSS de
+   novo a cada imagem nova que for adicionada em outro slot. */
+.sobre-ptr-placeholder:has(img) {
+    background: none;
+    border: none;
+    padding: 0;
+}
+.sobre-ptr-placeholder i { font-size: 22pt; margin-bottom: 8px; }
+.sobre-ptr-placeholder span { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
+/* object-fit: contain (não "cover") de propósito — são artes de cavalinha
+   com fundo transparente, cortar pedaço da arte ficaria pior do que sobrar
+   uma faixa vazia dos lados. */
+.sobre-ptr-placeholder img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+.sobre-ptr-placeholder-abertura { height: 320px; }
+.sobre-ptr-placeholder-fechamento { height: 220px; }
+.sobre-ptr-placeholder-fechamento img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.sobre-ptr-placeholder-norma { height: 160px; }
+
+/* Modificador pra um slot de norma específico preencher a caixa inteira
+   (cover, cortando as bordas se precisar) em vez do contain padrão — usar
+   só no(s) slot(s) onde isso for pedido, não na classe geral.
+   Altura maior que os 160px padrão (240px) — com cover, uma caixa baixa
+   corta mais da imagem pros lados/topo/base; aumentando a altura sobra
+   mais espaço vertical e o corte fica mais discreto. */
+.sobre-ptr-placeholder-norma-cover {
+    height: 240px;
+}
+.sobre-ptr-placeholder-norma-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Abertura: imagem + texto lado a lado */
+.sobre-ptr-abertura {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.sobre-ptr-abertura-texto p {
+    font-size: 12pt; line-height: 1.75; color: #f1ead4; margin: 0;
+}
+.sobre-ptr-abertura-rotulo, .sobre-ptr-card-titulo {
+    font-family: 'Cinzel', serif; font-size: 10.5pt; font-weight: 600;
+    color: #c5a059; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 14px 0;
+}
+.sobre-ptr-card-titulo { margin: 0; }
+
+/* Cronograma — linha do tempo */
+.sobre-ptr-timeline { position: relative; padding: 20px 0 10px; }
+.sobre-ptr-timeline-trilho {
+    /* top acompanha o centro vertical da bolinha: padding-top do
+       .sobre-ptr-timeline (20px) + metade da altura da bolinha (64px/2=32px) */
+    position: absolute; top: 52px; left: 5%; right: 5%; height: 2px;
+    background: linear-gradient(90deg, rgba(197,160,89,0.15), #c5a059, rgba(197,160,89,0.15));
+}
+.sobre-ptr-timeline-pontos {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; position: relative;
+}
+.sobre-ptr-ponto { text-align: center; }
+.sobre-ptr-ponto-bolinha {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: repeating-linear-gradient(45deg, #131c2c, #131c2c 6px, #0d1420 6px, #0d1420 12px);
+    border: 3px solid #c5a059;
+    margin: 0 auto 14px; position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    color: rgba(197, 160, 89, 0.6); font-size: 11pt;
+}
+/* Assim que a bolinha tem uma <img> de verdade (ícone), some com o ícone
+   genérico fa-image e o fundo listrado — mesma lógica dos outros slots.
+   cover (não contain) porque a bolinha é redonda e pequena (44px): um
+   ícone quadrado simples cobrindo o círculo todo fica melhor do que
+   sobrar cantinho vazio. */
+.sobre-ptr-ponto-bolinha:has(img) {
+    background: none;
+}
+.sobre-ptr-ponto-bolinha img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.sobre-ptr-ponto-quando {
+    font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1px;
+    color: #c5a059; margin: 0 0 6px 0; font-weight: 700;
+}
+.sobre-ptr-ponto-titulo {
+    font-family: 'Cinzel', serif; font-size: 10.5pt; font-weight: 600;
+    color: #f1ead4; margin: 0 0 6px 0;
+}
+.sobre-ptr-ponto-texto { font-size: 8.5pt; line-height: 1.5; color: #a4b3c6; margin: 0; }
+.sobre-ptr-cronograma-completo {
+    max-width: 720px; margin: 50px auto 0; padding-top: 30px;
+    border-top: 1px dashed rgba(197, 160, 89, 0.2);
+    font-size: 9.5pt; line-height: 1.75; color: #a4b3c6; text-align: center;
+}
+
+/* Frase de efeito (pull quote) — texto à esquerda + arte à direita (espelha
+   a seção de abertura lá em cima, que tem a arte à esquerda; dá uma
+   variação de ritmo visual descendo a página). */
+.sobre-ptr-frase-efeito {
+    max-width: 1000px; margin: 90px auto; padding: 0 20px;
+}
+.sobre-ptr-frase-conteudo {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 40px;
+    align-items: center;
+}
+.sobre-ptr-frase-texto { text-align: left; }
+.sobre-ptr-frase-efeito p {
+    font-family: '', serif; font-weight: 700; font-size: 16pt;
+    line-height: 1.5; color: #f1ead4; margin: 0;
+}
+.sobre-ptr-frase-efeito p span { color: #c5a059; }
+.sobre-ptr-frase-fonte {
+    font-family: 'Montserrat', sans-serif; font-size: 11.5pt; font-weight: 700; color: #c5a059;
+    margin-top: 16px; letter-spacing: 0.3px;
+}
+.sobre-ptr-placeholder-frase { height: 280px; }
+
+/* Grade de cards (Próxima edição / Conteúdos extras / Cavala é estratégia) */
+.sobre-ptr-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.sobre-ptr-card {
+    background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.25);
+    border-radius: 12px; padding: 24px;
+}
+.sobre-ptr-card-cabecalho { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.sobre-ptr-card-cabecalho i { font-size: 12pt; color: #c5a059; width: 22px; text-align: center; }
+.sobre-ptr-card-avatar-mini {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: repeating-linear-gradient(45deg, #131c2c, #131c2c 5px, #0d1420 5px, #0d1420 10px);
+    border: 2px dashed rgba(197, 160, 89, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(197, 160, 89, 0.6); font-size: 8pt;
+}
+.sobre-ptr-card-texto { font-size: 9.5pt; line-height: 1.7; color: #f1ead4; margin: 0; }
+
+/* Normas de convivência — destaque misto (imagem + texto) */
+.sobre-ptr-norma-destaque {
+    display: grid; grid-template-columns: 1fr 200px; gap: 30px; align-items: center;
+    background: #0b1320; border: 2px solid #ff4d4d; border-radius: 12px;
+    padding: 30px; margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(255, 77, 77, 0.1);
+}
+.sobre-ptr-norma-destaque:not(.sobre-ptr-norma-destaque-dourada) .sobre-ptr-placeholder-norma {
+    border-color: rgba(255,77,77,0.4); color: rgba(255,77,77,0.5);
+}
+.sobre-ptr-norma-destaque-dourada {
+    border-color: rgba(197, 160, 89, 0.4);
+    box-shadow: 0 10px 30px rgba(197, 160, 89, 0.08);
+}
+.sobre-ptr-norma-titulo-dourada {
+    font-family: 'Cinzel', serif; font-size: 13pt; font-weight: 700; color: #c5a059;
+    display: flex; align-items: center; gap: 10px; margin: 0 0 12px 0;
+}
+.sobre-ptr-norma-titulo {
+    font-family: 'Cinzel', serif; font-size: 13pt; font-weight: 700; color: #ff4d4d;
+    display: flex; align-items: center; gap: 10px; margin: 0 0 12px 0;
+}
+.sobre-ptr-norma-texto { font-size: 10pt; line-height: 1.75; color: #f1ead4; margin: 0; }
+
+/* ==========================================================================
+   RESPONSIVIDADE OFICIAL PARA CELULARES (MANDATÓRIO PARA TELAS PEQUENAS)
+   ========================================================================== */
+@media (max-width: 768px) {
+    
+    /* 1. Tranca a estrutura para não criar barra de rolagem lateral */
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Suaviza as margens do conteúdo no mobile para o menu não sumir */
+    .hero-content {
+        margin-top: 70px !important; /* Diminui o recuo do topo */
+        padding: 0 10px !important;   /* Diminui o espaçamento lateral */
+    }
+
+    /* 2.1 Empilha título + número da edição (senão fica espremido lado a
+       lado e estoura a largura da tela — era isso que cortava "N" e
+       "EDIÇÃO" na borda direita) */
+    .hero-main-row {
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+    .hero-left, .hero-right {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    .stat-number {
+        font-size: 36pt !important;
+    }
+
+    /* 2.2 Empilha os cards de widget (Agenda/Rank Geral/Resultados) —
+       senão ficam espremidos e cortados nas bordas */
+    .widgets-row {
+        flex-direction: column !important;
+    }
+
+    /* 5. Ajusta o tamanho da fonte dos títulos gigantes */
+    .main-title {
+        font-size: 24pt !important;
+    }
+    .advanced-section-title {
+        font-size: 16pt !important;
+    }
+
+    /* 7. Seção "O que é a PTR" (sobre-ptr-*) — empilha abertura (imagem+texto),
+       normas (imagem+texto) e os 4 pontos do cronograma, e some com o trilho
+       da timeline (não faz sentido com os pontos empilhados). */
+    .sobre-ptr-abertura,
+    .sobre-ptr-norma-destaque,
+    .sobre-ptr-frase-conteudo {
+        grid-template-columns: 1fr !important;
+    }
+    .sobre-ptr-frase-texto {
+        text-align: center !important;
+    }
+    .sobre-ptr-timeline-pontos {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+    .sobre-ptr-timeline-trilho {
+        display: none !important;
+    }
+    .sobre-ptr-secao-titulo {
+        font-size: 18pt !important;
+    }
+    .sobre-ptr-frase-efeito p {
+        font-size: 15pt !important;
+    }
+}

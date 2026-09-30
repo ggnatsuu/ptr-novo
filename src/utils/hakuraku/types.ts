@@ -1,0 +1,127 @@
+import { Chara } from "./data_pb";
+import { RaceSimulateHorseResultData } from "./race_data_pb";
+import { TrainedCharaData } from "./TrainedCharaData";
+import type { MaxAdjustedSpeedDebug } from "./analysisUtils";
+import type { SkillLotteryResult } from "./witLottery";
+import type {
+    DetailedHpSkillApplication,
+    DetailedLastSpurtDecision,
+} from "./DetailedRaceSimulation";
+
+export type SupportCardEntry = {
+    position: number;
+    id: number;
+    lb: number;
+    exp: number;
+};
+
+export type ParentEntry = {
+    positionId: number;
+    cardId: number;
+    rank: number;
+    factors: { id: number; level: number }[];
+};
+
+export type SkillEventData = {
+    skillId: number;
+    name: string;
+    time: number;
+    durationSecs: number;
+    startDistance: number;
+    endDistance: number;
+    isInstant: boolean;
+    iconId?: number;
+    isMode?: boolean;
+    segments?: { startDistance: number; endDistance: number }[];
+};
+
+export type HpDebuffHit = {
+    skillId: number;
+    skillName: string;
+    casterFrameOrder: number;
+    casterName: string;
+    time: number;
+    drainRatio: number;
+    estimatedHpDrain: number;
+    isSelfCost?: boolean;
+    isLateRace: boolean;
+};
+
+export type DebuffSpurtImpact = {
+    targetFrameOrder: number;
+    targetName: string;
+    estimatedHpDrain: number;
+};
+
+export type RushedEventData = {
+    name: string;
+    time: number;
+    duration: number;
+};
+
+export type CharaTableData = {
+    trainedChara: TrainedCharaData,
+    chara: Chara | undefined,
+    displayName?: string,
+    subLabel?: string,
+
+    frameOrder: number,
+    finishOrder: number,
+
+    horseResultData: RaceSimulateHorseResultData,
+
+    popularity: number,
+    popularityMarks: number[],
+    motivation: number,
+
+    activatedSkills: Set<number>,
+    activatedSkillCounts: Map<number, number>,
+    skillLotteryResults?: Map<number, SkillLotteryResult>,
+    skillEvents: SkillEventData[],
+    positionHistory?: { startDistance: number; endDistance: number; rank: number }[],
+
+    raceDistance: number,
+
+    deck: SupportCardEntry[],
+    parents: ParentEntry[],
+    modifiedInLobby: boolean,
+
+    totalSkillPoints: number;
+
+    startDelay?: number;
+    isLateStart?: boolean;
+    lastSpurtTargetSpeed?: number;
+    lastSpurtTargetSpeedTruncatedLateRaceBase?: number;
+    maxAdjustedSpeed?: number;
+    maxAdjustedSpeedTime?: number;
+    maxAdjustedSpeedDebug?: MaxAdjustedSpeedDebug;
+    hpOutcome?: { type: 'died'; distance: number; deficit: number; startHp: number } | { type: 'survived'; hp: number; startHp: number };
+    hpAtPhase3Start?: number;
+    requiredSpurtHp?: number;
+    detailedLastSpurtDecision?: DetailedLastSpurtDecision;
+    detailedLastSpurtDecisions?: DetailedLastSpurtDecision[];
+    detailedHpSkillApplications?: DetailedHpSkillApplication[];
+    hpDebuffHits?: HpDebuffHit[];
+    rushedDuration?: number;
+    rushedEvents?: RushedEventData[];
+    rushedPreventedByRestraint?: boolean;
+    debuffSpurtImpacts?: Map<number, DebuffSpurtImpact[]>;
+    duelingTime?: number;
+    downhillModeTime?: number;
+    downhillModeTimePreLate?: number;
+    downhillModeTimeLate?: number;
+    paceUpTime?: number;
+    paceDownTime?: number;
+    modeTimingsAreAuthoritative?: boolean;
+    finishDistanceToPrev?: number;
+    predictedWinProbability?: number;
+    predictionRank?: number;
+    worldTransformLossTotal?: number;
+    worldTransformLossIsAuthoritative?: boolean;
+};
+
+export type AggregatedFactor = {
+    id: number;
+    level: number;
+    nameOverride?: string;
+};

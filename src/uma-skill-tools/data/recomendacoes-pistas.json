@@ -1,0 +1,441 @@
+{
+  "_leiame": "Chave é 'Hipódromo-DistânciaEmMetros-Terreno' (ex: 'Sapporo-1200-Turf'). Cada item da lista é {'nome': 'Nome da Skill', 'herdada': true ou false} — sempre o nome da PRÓPRIA SKILL (não da cavalinha), já que isso identifica ela sem ambiguidade nenhuma, mesmo entre skins diferentes da mesma cavalinha. 'herdada':true busca a versão herdada dela; false busca a unique base. A cavalinha dona (pro ícone) é achada automaticamente — não precisa informar. Clicar no ícone é toggle: adiciona/marca na primeira vez, remove/desmarca se clicar de novo.",
+
+  "Sapporo-1200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true }
+  ],
+  "Sapporo-1500-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true }
+  ],
+  "Sapporo-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true }
+  ],
+  "Sapporo-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true }
+  ],
+  "Sapporo-2600-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Break It Down!", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Sapporo-1700-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Hakodate-1200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Hakodate-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Niigata-1000-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Niigata-1600-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Niigata-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Niigata-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Fukushima-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Fukushima-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Nakayama-1200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Nakayama-1600-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Nakayama-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Nakayama-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Nakayama-2200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Nakayama-2500-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victory Cheer!", "herdada": true }
+  ],
+  "Nakayama-3600-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Nakayama-1200-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Tokyo-1400-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Tokyo-1600-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Tokyo-1800-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Tokyo-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Tokyo-2400-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Tokyo-2500-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Tokyo-3400-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true }
+  ],
+  "Tokyo-1400-Dirt": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Tokyo-1600-Dirt": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Chukyo-1200-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Chukyo-1400-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Chukyo-1600-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Chukyo-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Chukyo-1400-Dirt": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Chukyo-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Kyoto-1200-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Kyoto-1400-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Kyoto-1600-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Kyoto-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Kyoto-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Kyoto-2200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kyoto-2400-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kyoto-3000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kyoto-3200-Turf": [
+    { "nome": "Break It Down!", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Kyoto-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Kyoto-1900-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Hanshin-1200-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Hanshin-1400-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Hanshin-1600-Turf": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true }
+  ],
+  "Hanshin-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Hanshin-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Hanshin-2200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Hanshin-2400-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Hanshin-3000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Hanshin-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Hanshin-2000-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Kokura-1200-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Kokura-1800-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kokura-2000-Turf": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Ooi-1200-Dirt": [
+    { "nome": "Louder! Tracen Cheer!", "herdada": true },
+    { "nome": "Victoria por plancha ☆", "herdada": true },
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true },
+    { "nome": "Give Mummy a Hug ♡", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Ooi-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Ooi-2000-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kawasaki-1600-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Kawasaki-2100-Dirt": [
+    { "nome": "Break It Down!", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Funabashi-1600-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Funabashi-1800-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ],
+  "Funabashi-2400-Dirt": [
+    { "nome": "Break It Down!", "herdada": true },
+    { "nome": "Victory Cheer!", "herdada": true },
+    { "nome": "Straightaway Spurt", "herdada": false }
+  ],
+  "Morioka-1200-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Shooting for Victory!", "herdada": true },
+    { "nome": "Budding Blossom", "herdada": true }
+  ],
+  "Morioka-1600-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true },
+    { "nome": "Red Shift/LP1211-M", "herdada": true }
+  ],
+  "Morioka-2000-Dirt": [
+    { "nome": "Let's Pump Some Iron!", "herdada": true },
+    { "nome": "Angling and Scheming", "herdada": true },
+    { "nome": "Moving Past, and Beyond", "herdada": true }
+  ]
+}

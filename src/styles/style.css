@@ -1,0 +1,222 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif; /* Substituído 'Times New Roman' por Montserrat */
+    background-color: #0e1726;
+    color: #f1ead4;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Container Principal */
+.hero-container {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(14,23,38,0.95) 30%, rgba(26,43,71,0.85) 100%);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Layout de Conteúdo */
+.hero-content {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    flex-grow: 1;
+}
+
+.hero-left {
+    flex: 1;
+    max-width: 65%;
+}
+
+.hero-right {
+    flex-shrink: 0;
+}
+
+/* Tipografia */
+.main-title {
+    font-size: 42pt;
+    line-height: 1.1;
+    font-weight: bold;
+    color: #f1ead4;
+    margin: 0 0 15px 0;
+    letter-spacing: -1px;
+}
+
+.main-title span {
+    color: #c5a059;
+    display: block;
+    font-size: 48pt;
+    margin-top: 5px;
+}
+
+.subtitle {
+    font-family: 'Arial', sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #a4b3c6;
+    max-width: 550px;
+    margin-bottom: 35px;
+}
+
+/* Contador Lateral */
+.stat-badge {
+    border-left: 4px solid #c5a059;
+    padding-left: 20px;
+}
+
+.stat-number {
+    font-size: 55pt;
+    font-weight: bold;
+    color: #c5a059;
+    line-height: 1;
+}
+
+.stat-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 10pt;
+    color: #a4b3c6;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+/* Cards Inferiores */
+.widgets-row {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.widget-card {
+    flex: 1;
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.widget-icon-cell {
+    font-size: 24pt;
+    color: #c5a059;
+}
+
+.widget-title {
+    font-family: 'Arial', sans-serif;
+    font-size: 10.5pt;
+    font-weight: bold;
+    color: #f1ead4;
+    margin: 0 0 4px 0;
+}
+
+.widget-desc {
+    font-family: 'Arial', sans-serif;
+    font-size: 9pt;
+    color: #a4b3c6;
+    margin: 0;
+}
+
+/* ==========================================================================
+   ESTILIZAÇÃO DO RODAPÉ (FOOTER COMPACTO CENTRALIZADO)
+   ========================================================================== */
+.main-footer {
+    width: 100%;
+    background-color: #0b1320; 
+    border-top: 1px solid rgba(197, 160, 89, 0.15); 
+    padding: 50px 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px; 
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap; 
+}
+
+.footer-item {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9.5pt;
+    font-weight: 500;
+    color: #a4b3c6; 
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-item:hover {
+    color: #c5a059; 
+}
+
+.footer-social {
+    margin: 5px 0;
+}
+
+.footer-discord-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9.5pt;
+    font-weight: bold;
+    color: #f1ead4;
+    text-decoration: none;
+    background-color: rgba(197, 160, 89, 0.05);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.footer-discord-btn:hover {
+    background-color: #c5a059;
+    color: #0b1320;
+    border-color: #c5a059;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+}
+
+.discord-icon {
+    font-size: 11pt;
+}
+
+.footer-credits {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8.5pt;
+    color: #5f758e; 
+    line-height: 1.5;
+}
+
+.footer-credits p {
+    margin: 0;
+}
+
+.jra-disclaimer {
+    font-size: 7.5pt;
+    font-style: italic;
+    opacity: 0.7;
+    margin-top: 4px !important;
+}
