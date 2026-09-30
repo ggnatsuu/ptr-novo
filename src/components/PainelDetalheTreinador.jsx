@@ -30,6 +30,38 @@ function iconeDaSkill(id) {
   return meta?.iconId ? `/assets/img/skills/utx_ico_skill_${meta.iconId}.png` : null;
 }
 
+// Nota do stat pelo valor (mesma regra do uma-tools / do jogo): até 400 a
+// letra sobe a cada 50 (G, G+, F...), de 400 a 1100 a cada 100 (C, C+...),
+// depois SS/SS+ e as notas U (UG, UG1...).
+function imagemDoStat(valor) {
+  if (!valor || valor < 1) return null;
+  let indice;
+  if (valor > 2000) indice = Math.min(98 + Math.floor((valor - 2001) / 125) * 25 + Math.floor(((valor - 1) % 125) / 5), 297);
+  else if (valor > 1200) indice = Math.min(18 + Math.floor((valor - 1200) / 100) * 10 + (Math.floor(valor / 10) % 10), 97);
+  else if (valor >= 1150) indice = 17;
+  else if (valor >= 1100) indice = 16;
+  else if (valor >= 400) indice = 8 + Math.floor((valor - 400) / 100);
+  else indice = Math.floor(valor / 50);
+  return `/assets/img/statusrank/utx_ico_statusrank_${String(indice).padStart(2, "0")}.png`;
+}
+
+const STATS = [
+  { campo: "speed", nome: "Speed", icone: "/assets/img/speed.png" },
+  { campo: "stamina", nome: "Stamina", icone: "/assets/img/stamina.png" },
+  { campo: "power", nome: "Power", icone: "/assets/img/power.png" },
+  { campo: "guts", nome: "Guts", icone: "/assets/img/guts.png" },
+  { campo: "wiz", nome: "Wit", icone: "/assets/img/wit.png" },
+];
+
+// Humor do jogo (motivation 1..5), nas cores dos selos do jogo.
+const HUMORES = {
+  5: { nome: "Great", seta: "↑", cor: "#ef5f91" },
+  4: { nome: "Good", seta: "↗", cor: "#f39a3d" },
+  3: { nome: "Normal", seta: "→", cor: "#e2b93b" },
+  2: { nome: "Bad", seta: "↘", cor: "#4f9bd9" },
+  1: { nome: "Awful", seta: "↓", cor: "#9b6bd6" },
+};
+
 function imagemDaNota(nota) {
   if (!nota || nota < 1 || nota > 8) return null;
   return `/assets/img/statusrank/utx_ico_statusrank_${String((nota - 1) * 2).padStart(2, "0")}.png`;
@@ -111,6 +143,33 @@ function PainelDetalheTreinador({ dados, children }) {
       </div>
 
       <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "24px" }}>
+        {/* STATS E HUMOR */}
+        {dados.stats && (
+          <div>
+            <p style={{ ...estiloTituloBloco, display: "flex", alignItems: "center", gap: "10px" }}>
+              Stats
+              {HUMORES[dados.humor] && (
+                <span style={{ background: HUMORES[dados.humor].cor, color: "#fff", borderRadius: "10px", padding: "1px 10px", fontSize: "8pt", letterSpacing: "0.5px" }}>
+                  {HUMORES[dados.humor].seta} {HUMORES[dados.humor].nome}
+                </span>
+              )}
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 64px))", gap: "8px" }}>
+              {STATS.map(({ campo, nome, icone }) => {
+                const valor = dados.stats[campo];
+                const nota = imagemDoStat(valor);
+                return (
+                  <div key={campo} title={nome} style={{ background: "#0d1624", border: "1px solid rgba(164, 179, 198, 0.12)", borderRadius: "6px", padding: "6px 4px", textAlign: "center" }}>
+                    <img src={icone} alt={nome} style={{ width: "20px", height: "20px", display: "block", margin: "0 auto 4px" }} />
+                    {nota && <img src={nota} alt="" style={{ height: "18px", display: "block", margin: "0 auto 2px" }} />}
+                    <span style={{ color: "#f1ead4", fontSize: "9.5pt", fontWeight: 700 }}>{valor ?? "-"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* APTIDÕES */}
         <div>
           <p style={estiloTituloBloco}>Aptitudes</p>

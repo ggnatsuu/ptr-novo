@@ -4,6 +4,7 @@ import { db } from "../config/firebase";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
+import CondicoesCorrida from "../components/CondicoesCorrida";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import SecaoReplayResultado from "../components/SecaoReplayResultado";
 
@@ -421,6 +422,10 @@ function Resultados() {
               <h3 style={{ textAlign: "center", fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "15pt", marginBottom: corridaSelecionada.linkReplay ? "14px" : "20px" }}>
                 {corridaSelecionada.grade} • {corridaSelecionada.pistaNome}{corridaSelecionada.grupo ? ` — Grupo ${corridaSelecionada.grupo}` : ""} — Resultados Detalhados
               </h3>
+
+              {corridaSelecionada.condicoesArquivo && (
+                <CondicoesCorrida condicoes={corridaSelecionada.condicoesArquivo} superficie={corridaSelecionada.terreno} />
+              )}
 
               {corridaSelecionada.linkReplay && (
                 <div style={{ textAlign: "center", marginBottom: "20px" }}>
