@@ -26,7 +26,7 @@ const BASE_PISTA = ALTURA - 50; // espaço abaixo pras faixas de curva/reta
 const RAIO = 25;
 // Modo "Chibis": tamanho do sprite (a imagem é quadrada, 256px, com o
 // boneco ocupando quase tudo) e o quanto a cabeça fica acima dos pés.
-const TAM_CHIBI = RAIO * 3.4;
+const TAM_CHIBI = RAIO * 4;
 const TOPO_CHIBI = TAM_CHIBI * 0.85;
 const CHAVE_MODO_VISUAL = "ptr-replay-visual";
 
@@ -137,12 +137,12 @@ function ReplayCorrida({ replay, titulo, aoFechar, pedidoSeguir }) {
   const [mostrarSkills, setMostrarSkills] = useState(true);
   const [mostrarEventos, setMostrarEventos] = useState(true);
   const [mostrarModos, setMostrarModos] = useState(true);
-  // "icones" (bolinhas com o ícone da roupa) ou "chibis" (bonequinhos).
+  // "chibis" (bonequinhos, padrão) ou "icones" (bolinhas com o ícone da roupa).
   const [modoVisual, setModoVisualEstado] = useState(() => {
     try {
-      return window.localStorage.getItem(CHAVE_MODO_VISUAL) === "chibis" ? "chibis" : "icones";
+      return window.localStorage.getItem(CHAVE_MODO_VISUAL) === "icones" ? "icones" : "chibis";
     } catch {
-      return "icones";
+      return "chibis";
     }
   });
   const setModoVisual = (modo) => {
