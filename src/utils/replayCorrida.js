@@ -31,7 +31,7 @@ export function prepararCorrida(raceData, replay) {
       raia: h.lanePosition,
       velocidade: h.speed / 100, // m/s
       hp: h.hp,
-      kakari: (h.temptationMode ?? 0) > 0,
+      rushed: (h.temptationMode ?? 0) > 0,
     })),
   }));
   const numCavalos = frames[0].cavalos.length;
@@ -127,7 +127,7 @@ export function estadoNoTempo(corrida, t) {
       raia: a.raia + (b.raia - a.raia) * s,
       velocidade: a.velocidade + (b.velocidade - a.velocidade) * s,
       hp: a.hp + (b.hp - a.hp) * s,
-      kakari: a.kakari,
+      rushed: a.rushed,
     };
   });
 }

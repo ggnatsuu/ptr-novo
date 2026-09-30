@@ -12,6 +12,7 @@
 import { useEffect, useMemo, useState } from "react";
 import courseData from "../uma-skill-tools/data/course_data.json";
 import { prepararCorrida, estadoNoTempo } from "../utils/replayCorrida";
+import MinimapaPista from "./MinimapaPista";
 
 // ---------------------------------------------------------------------
 // CONSTANTES DE DESENHO
@@ -56,7 +57,7 @@ const CORES_ROTULO = {
   skill: { fundo: "#c5a059", texto: "#0b1320" },
   duelo: { fundo: "#e67e22", texto: "#0b1320" },
   ponta: { fundo: "#3498db", texto: "#0b1320" },
-  kakari: { fundo: "#e04b37", texto: "#fff" },
+  rushed: { fundo: "#e04b37", texto: "#fff" },
   spurt: { fundo: "#1bd39e", texto: "#0b1320" },
 };
 
@@ -235,9 +236,9 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
   });
   if (mostrarEventos) {
     estado.forEach((e, i) => {
-      if (!e.kakari) return;
+      if (!e.rushed) return;
       if (!rotulosPorCavalo.has(i)) rotulosPorCavalo.set(i, []);
-      rotulosPorCavalo.get(i).push({ texto: "Kakari", tipo: "kakari" });
+      rotulosPorCavalo.get(i).push({ texto: "Rushed", tipo: "rushed" });
     });
   }
 
@@ -259,7 +260,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
   // Desenha quem está atrás primeiro, pra quem está na frente ficar por cima.
   const ordemDesenho = [...visiveis].sort((a, b) => estado[a.indice].distancia - estado[b.indice].distancia);
 
-  // Rótulos: eventos (duelo, kakari...) têm prioridade; depois quem vai na frente.
+  // Rótulos: eventos (duelo, rushed...) têm prioridade; depois quem vai na frente.
   const rotulosNaTela = posicionarRotulos(
     [...rotulosPorCavalo.entries()]
       .filter(([indice]) => visiveis.some((c) => c.indice === indice))
@@ -336,7 +337,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               const seguido = seguindo === c.indice;
               return (
                 <g key={c.indice} transform={`translate(${x}, ${y})`} opacity={c.npc ? 0.45 : 1} style={{ cursor: "pointer" }} onClick={() => trocarSeguir(c.indice)} onMouseEnter={() => setSobMouse(c.indice)} onMouseLeave={() => setSobMouse(null)}>
-                  <circle r={RAIO} fill="#1b2a3f" stroke={e.kakari ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.kakari || sobMouse === c.indice ? 3.5 : 2} />
+                  <circle r={RAIO} fill="#1b2a3f" stroke={e.rushed ? "#e04b37" : seguido || sobMouse === c.indice ? "#c5a059" : CORES_ESTILO[c.estilo] ?? "#a4b3c6"} strokeWidth={seguido || e.rushed || sobMouse === c.indice ? 3.5 : 2} />
                   {c.icone
                     ? <image href={c.icone} x={recorteIcone(RAIO - 1).x} y={recorteIcone(RAIO - 1).y} width={recorteIcone(RAIO - 1).tamanho} height={recorteIcone(RAIO - 1).tamanho} clipPath="url(#replay-clip-icone)" />
                     : <text y="5" textAnchor="middle" fill="#f1ead4" fontSize="14" fontWeight="700" fontFamily="Montserrat, sans-serif">{c.numero}</text>}
@@ -405,7 +406,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
           {/* OPÇÕES */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "10px", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", color: "#a4b3c6" }}>
             <Opcao ativo={mostrarSkills} aoTrocar={setMostrarSkills}>Skill labels</Opcao>
-            <Opcao ativo={mostrarEventos} aoTrocar={setMostrarEventos}>Duels / Kakari / Last spurt</Opcao>
+            <Opcao ativo={mostrarEventos} aoTrocar={setMostrarEventos}>Duels / Rushed / Last spurt</Opcao>
             <Opcao ativo={mostrarNpcs} aoTrocar={(v) => { setMostrarNpcs(v); if (!v && seguindo !== null && corrida.cavalos[seguindo].npc) setSeguindo(null); }}>Show NPCs</Opcao>
             {seguindo !== null && (
               <button type="button" onClick={() => setSeguindo(null)} style={{ ...estiloBotao(false), padding: "2px 10px", fontSize: "8.5pt" }}>
@@ -415,8 +416,25 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
           </div>
         </div>
 
+        <div style={{ flex: "0 1 360px", minWidth: "280px", display: "flex", flexDirection: "column", gap: "12px" }}>
+        {/* MINIMAPA */}
+        <div style={{ background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "8px" }}>
+          <MinimapaPista
+            courseId={replay.courseId}
+            trechoVisivel={camera}
+            marcadores={visiveis.map((c) => ({
+              indice: c.indice,
+              distancia: estado[c.indice].distancia,
+              raia: estado[c.indice].raia,
+              cor: CORES_ESTILO[c.estilo] ?? "#a4b3c6",
+              npc: c.npc,
+              destaque: c.indice === seguindo || c.indice === sobMouse,
+            }))}
+          />
+        </div>
+
         {/* PLACAR AO VIVO */}
-        <div style={{ flex: "0 1 360px", minWidth: "280px", background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "10px", maxHeight: "78vh", overflowY: "auto" }}>
+        <div style={{ background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "10px", maxHeight: "56vh", overflowY: "auto" }}>
           <p style={{ margin: "0 0 8px 0", fontFamily: "'Montserrat', sans-serif", fontSize: "8.5pt", fontWeight: 800, color: "#c5a059", textTransform: "uppercase", letterSpacing: "1px" }}>
             Posições — clique para seguir
           </p>
@@ -448,6 +466,7 @@ function ReplayCorrida({ replay, titulo, aoFechar }) {
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </Moldura>
