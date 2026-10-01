@@ -1,7 +1,7 @@
 import { Fragment, Suspense, lazy, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, getDocs, setDoc, deleteDoc, collection, onSnapshot, query, where, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, deleteField, collection, onSnapshot, query, where, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
@@ -367,6 +367,27 @@ function RankAdmin() {
       () => apagarResultadoPista(pista, grupo),
       "Apagar",
     );
+  }
+
+  // 🎯 Manutenção (uso único): apaga o campo "email" de todos os perfis em
+  // "treinadores". Essa coleção é pública e o e-mail não é usado pelo site
+  // (login e redefinição de senha usam o Firebase Authentication).
+  const [limpandoEmails, setLimpandoEmails] = useState(false);
+  async function removerEmailsDosPerfis() {
+    setLimpandoEmails(true);
+    try {
+      const perfis = await getDocs(collection(db, "treinadores"));
+      const comEmail = perfis.docs.filter((d) => d.data().email !== undefined);
+      for (const perfil of comEmail) {
+        await updateDoc(perfil.ref, { email: deleteField() });
+      }
+      abrirModalNotificacao("E-mails Removidos", `🔒 ${comEmail.length} ${comEmail.length === 1 ? "perfil teve" : "perfis tiveram"} o e-mail removido (de ${perfis.size} no total). O login e a redefinição de senha continuam funcionando normalmente.`, "sucesso");
+    } catch (erro) {
+      console.error("Erro ao remover e-mails dos perfis:", erro);
+      abrirModalNotificacao("Erro na Limpeza", "Não foi possível remover os e-mails. Confira se você está logado como admin e se as regras do Firestore permitem que o admin edite perfis.", "erro");
+    } finally {
+      setLimpandoEmails(false);
+    }
   }
 
   async function salvarResultadoPista(chave, pista, grupo) {
@@ -934,6 +955,26 @@ function RankAdmin() {
                 </button>
               </div>
             </form>
+          </div>
+
+          {/* MANUTENÇÃO: limpeza de dados (uso único) */}
+          <div className="lottery-card" style={{ width: "100%", padding: "25px 35px", background: "#0d1624", textAlign: "left", borderRadius: "12px", borderColor: "rgba(164, 179, 198, 0.2)" }}>
+            <h3 style={{ margin: "0 0 8px 0", color: "#f1ead4", fontSize: "12pt", fontFamily: "'Cinzel', serif" }}>
+              <i className="fa-solid fa-user-shield" style={{ color: "#c5a059" }}></i> Manutenção: privacidade dos perfis
+            </h3>
+            <p style={{ margin: "0 0 14px 0", color: "#a4b3c6", fontSize: "9.5pt", lineHeight: 1.6, fontFamily: "'Montserrat', sans-serif" }}>
+              Os perfis dos treinadores são públicos, e cadastros antigos guardavam o e-mail neles. Este botão apaga o e-mail de
+              todos os perfis. O login e o "esqueci minha senha" continuam funcionando, porque usam o cadastro do Firebase
+              Authentication. Basta usar uma vez.
+            </p>
+            <button
+              type="button"
+              disabled={limpandoEmails}
+              onClick={() => abrirModalNotificacao("Remover E-mails?", "O campo de e-mail será apagado de todos os perfis de treinador. Isso não afeta o login.", "erro", removerEmailsDosPerfis, "Remover")}
+              style={{ background: "transparent", border: "1px solid rgba(197, 160, 89, 0.5)", color: "#c5a059", borderRadius: "8px", padding: "10px 18px", cursor: limpandoEmails ? "wait" : "pointer", fontFamily: "'Montserrat', sans-serif", fontSize: "9pt", fontWeight: 700 }}
+            >
+              <i className={`fa-solid ${limpandoEmails ? "fa-spinner fa-spin" : "fa-eraser"}`}></i> Remover e-mails dos perfis
+            </button>
           </div>
         </div>
       </main>

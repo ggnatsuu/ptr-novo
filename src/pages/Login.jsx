@@ -129,10 +129,11 @@ function Login() {
       const credencial = await createUserWithEmailAndPassword(auth, email, regSenha);
       const usuario = credencial.user;
 
+      // 🎯 O e-mail NÃO vai pro perfil: a coleção "treinadores" é pública, e
+      // login/redefinição de senha usam o e-mail do Firebase Authentication.
       await setDoc(doc(db, "treinadores", usuario.uid), {
         usuarioID: username,
         nomeTreinador: nome,
-        email: email,
         criadoEm: new Date().toISOString(),
         nivelAcesso: "treinador",
         atletasInscritas: [],
