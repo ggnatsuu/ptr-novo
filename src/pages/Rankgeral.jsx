@@ -23,6 +23,57 @@ function obterUrlTrofeuCloudinary(nomeTrofeu) {
   return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${nomeSanitizado}.png`;
 }
 
+const numeroEdicao = (id) => Number(String(id ?? "").replace(/\D/g, "")) || 0;
+const ordemPadrao = (a, b) => b.prestigio - a.prestigio || b.primeiros - a.primeiros || b.segundos - a.segundos;
+
+// 🎯 Soma o ranking de uma lista de partidas (já filtrada pela modalidade).
+// Devolve ordenado pela regra padrão, com "rank" (posição real) e as
+// corridas de cada treinador (pra forma recente).
+function somarRanking(partidas) {
+  const mapa = {};
+  partidas.forEach((partida) => {
+    (partida.classificacao || []).forEach((linha) => {
+      const nomeOriginal = linha.treinador;
+      if (!nomeOriginal) return;
+
+      // 🎯 Agrupa por nome normalizado (minúsculo/sem espaço nas pontas) —
+      // um treinador que troca de nick (ex: "kirell" -> "Kirell") não pode
+      // virar 2 linhas separadas no ranking com pontos divididos. O nome
+      // exibido acompanha a grafia mais usada até agora.
+      const chave = nomeOriginal.toLowerCase().trim();
+      if (!mapa[chave]) {
+        mapa[chave] = { chave, nome: nomeOriginal, uid: linha.treinadorUid || "", primeiros: 0, segundos: 0, terceiros: 0, totalCorridas: 0, pontosDePosicao: 0, corridas: [], contagemGrafias: {} };
+      }
+      const grupo = mapa[chave];
+      grupo.contagemGrafias[nomeOriginal] = (grupo.contagemGrafias[nomeOriginal] || 0) + 1;
+      if (grupo.contagemGrafias[nomeOriginal] > (grupo.contagemGrafias[grupo.nome] || 0)) grupo.nome = nomeOriginal;
+
+      grupo.totalCorridas += 1;
+      const pos = parseInt(linha.posicao);
+      if (pos === 1) grupo.primeiros += 1;
+      else if (pos === 2) grupo.segundos += 1;
+      else if (pos === 3) grupo.terceiros += 1;
+      if (PONTOS_POR_POSICAO[pos] !== undefined) grupo.pontosDePosicao += PONTOS_POR_POSICAO[pos];
+      else if (pos >= 10 && pos <= 18) grupo.pontosDePosicao += 2;
+      grupo.corridas.push({ ordem: partida._ordem, pos, pista: partida.pistaNome, edicao: numeroEdicao(partida.edicaoId) });
+    });
+  });
+
+  // eslint-disable-next-line no-unused-vars -- "contagemGrafias" era só um contador auxiliar, descartado de propósito
+  return Object.values(mapa).map(({ contagemGrafias, ...t }) => ({ ...t, prestigio: t.totalCorridas * PONTOS_PARTICIPACAO + t.pontosDePosicao }))
+    .sort(ordemPadrao)
+    .map((t, i) => ({ ...t, rank: i + 1 }));
+}
+
+// Cor da bolinha da forma recente.
+function corDaForma(pos) {
+  if (pos === 1) return { fundo: "#c5a059", texto: "#0b1320" };
+  if (pos === 2) return { fundo: "#a4b3c6", texto: "#0b1320" };
+  if (pos === 3) return { fundo: "#cd7f32", texto: "#0b1320" };
+  if (pos <= 9) return { fundo: "rgba(164, 179, 198, 0.14)", texto: "#f1ead4" };
+  return { fundo: "transparent", texto: "#5f758e" };
+}
+
 const thStyle = {
   cursor: "pointer",
   textAlign: "center",
@@ -220,99 +271,49 @@ function RankGeral() {
     return () => pararDeObservar();
   }, []);
 
-  // 🎯 useMemo: só recalcula essa conta pesada quando "partidas" mudar de
-  // verdade (não a cada re-render). Equivalente ao antigo processarEMontarTabela().
-  const treinadores = useMemo(() => {
+  // 🎯 Ordem das pistas sorteadas de cada edição (pra saber qual corrida
+  // veio por último dentro de uma edição, na forma recente).
+  const [ordemPistas, setOrdemPistas] = useState({});
+  useEffect(() => {
+    getDocs(collection(db, "pistas_sorteadas"))
+      .then((snap) => setOrdemPistas(Object.fromEntries(snap.docs.map((d) => [d.id, (d.data().pistas ?? []).map((x) => x.nome)]))))
+      .catch((erro) => console.error("Erro ao ler a ordem das pistas:", erro));
+  }, []);
+
+  // 🎯 Ranking da modalidade + comparação com o ranking antes da última
+  // edição (variação de posição) + forma recente (últimas 5 corridas).
+  const ranking = useMemo(() => {
     const modoAtivo = CATEGORIAS_CICLO[categoriaIndex];
-    const mapa = {};
-
-    partidas.forEach((partida) => {
-      // 🎯 Se o filtro não é TOTAL, pula qualquer partida que não seja da grade selecionada
-      if (modoAtivo !== "TOTAL" && partida.grade !== modoAtivo) return;
-
-      (partida.classificacao || []).forEach((linha) => {
-        const nomeOriginal = linha.treinador;
-        if (!nomeOriginal) return;
-
-        // 🎯 Agrupa por nome normalizado (minúsculo/sem espaço nas pontas) —
-        // um treinador que troca de nick (ex: "kirell" -> "Kirell") não pode
-        // virar 2 linhas separadas no ranking com pontos divididos. O nome
-        // exibido acompanha a grafia mais usada até agora.
-        const chave = nomeOriginal.toLowerCase().trim();
-
-        if (!mapa[chave]) {
-          mapa[chave] = {
-            nome: nomeOriginal,
-            uid: linha.treinadorUid || "",
-            primeiros: 0,
-            segundos: 0,
-            terceiros: 0,
-            totalCorridas: 0,
-            prestigio: 0,
-            pontosDePosicao: 0,
-            contagemGrafias: {},
-          };
-        }
-        const grupo = mapa[chave];
-
-        grupo.contagemGrafias[nomeOriginal] = (grupo.contagemGrafias[nomeOriginal] || 0) + 1;
-        if (grupo.contagemGrafias[nomeOriginal] > (grupo.contagemGrafias[grupo.nome] || 0)) {
-          grupo.nome = nomeOriginal;
-        }
-
-        grupo.totalCorridas += 1;
-
-        const pos = parseInt(linha.posicao);
-        if (pos === 1) {
-          grupo.primeiros += 1;
-          grupo.pontosDePosicao += 12;
-        } else if (pos === 2) {
-          grupo.segundos += 1;
-          grupo.pontosDePosicao += 10;
-        } else if (pos === 3) {
-          grupo.terceiros += 1;
-          grupo.pontosDePosicao += 9;
-        } else if (PONTOS_POR_POSICAO[pos] !== undefined) {
-          grupo.pontosDePosicao += PONTOS_POR_POSICAO[pos];
-        } else if (pos >= 10 && pos <= 18) {
-          grupo.pontosDePosicao += 2;
-        }
-      });
-    });
-
-    // eslint-disable-next-line no-unused-vars -- "contagemGrafias" era só um contador auxiliar, descartado de propósito
-    const lista = Object.values(mapa).map(({ contagemGrafias, ...t }) => ({
+    const daModalidade = partidas
+      .filter((p) => modoAtivo === "TOTAL" || p.grade === modoAtivo)
+      .map((p) => ({ ...p, _ordem: numeroEdicao(p.edicaoId) * 100 + ((ordemPistas[p.edicaoId] ?? []).indexOf(p.pistaNome) + 1) }));
+    const ultima = Math.max(0, ...daModalidade.map((p) => numeroEdicao(p.edicaoId)));
+    const atual = somarRanking(daModalidade);
+    const anterior = new Map(somarRanking(daModalidade.filter((p) => numeroEdicao(p.edicaoId) !== ultima)).map((t) => [t.chave, t.rank]));
+    const lider = atual[0]?.prestigio ?? 0;
+    return atual.map((t) => ({
       ...t,
-      prestigio: t.totalCorridas * PONTOS_PARTICIPACAO + t.pontosDePosicao,
+      variacao: anterior.size === 0 ? null : anterior.has(t.chave) ? anterior.get(t.chave) - t.rank : "novo",
+      forma: [...t.corridas].sort((a, b) => a.ordem - b.ordem).slice(-5),
+      atrasLider: lider - t.prestigio,
     }));
+  }, [partidas, categoriaIndex, ordemPistas]);
 
-    // 🎯 Filtro de busca por nome, aplicado depois de já ter somado tudo
-    const listaFiltrada = termoBusca === ""
-      ? lista
-      : lista.filter((t) => t.nome.toLowerCase().includes(termoBusca));
-
-    // 🎯 Se o usuário clicou numa coluna, ordena por ela. Senão, usa a
-    // ordenação padrão (prestígio desc, depois 1º, depois 2º lugar).
+  // 🎯 Busca e ordenação por coluna em cima do ranking já calculado.
+  const treinadores = useMemo(() => {
+    const listaFiltrada = termoBusca === "" ? [...ranking] : ranking.filter((t) => t.nome.toLowerCase().includes(termoBusca));
     if (ordenacao.campo) {
       const campoAlvo = ordenacao.campo === "posicao" ? "prestigio" : ordenacao.campo;
       const crescente = ordenacao.crescente;
-
       listaFiltrada.sort((a, b) => {
         if (typeof a[campoAlvo] === "string") {
           return crescente ? a[campoAlvo].localeCompare(b[campoAlvo]) : b[campoAlvo].localeCompare(a[campoAlvo]);
         }
         return crescente ? a[campoAlvo] - b[campoAlvo] : b[campoAlvo] - a[campoAlvo];
       });
-    } else {
-      listaFiltrada.sort((a, b) => {
-        if (b.prestigio !== a.prestigio) return b.prestigio - a.prestigio;
-        if (b.primeiros !== a.primeiros) return b.primeiros - a.primeiros;
-        return b.segundos - a.segundos;
-      });
     }
-
     return listaFiltrada;
-  }, [partidas, categoriaIndex, termoBusca, ordenacao]);
+  }, [ranking, termoBusca, ordenacao]);
 
   return (
     <>
@@ -374,12 +375,13 @@ function RankGeral() {
         }}
       >
         <div className="ptr-table-responsive" style={{ width: "100%" }}>
-          <table id="tabelaRankGeral" style={{ width: "100%", borderCollapse: "collapse", margin: 0 }}>
+          <table id="tabelaRankGeral" style={{ width: "100%", borderCollapse: "collapse", margin: 0, fontVariantNumeric: "tabular-nums" }}>
             <thead>
               <tr style={{ background: "rgba(11, 19, 32, 0.8)", borderBottom: "2px solid rgba(197, 160, 89, 0.3)" }}>
                 <ThOrdenavel campo="posicao" texto="Posição" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="nome" texto="Treinador" ordenacao={ordenacao} aoClicar={alternarOrdenacao} alinhamento="left" />
                 <ThOrdenavel campo="prestigio" texto="Prestígio Total" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
+                <th style={{ ...thStyle, cursor: "default" }} title="Últimas 5 corridas (a mais recente à direita)">Forma</th>
                 <ThOrdenavel campo="primeiros" texto="1º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="segundos" texto="2º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="terceiros" texto="3º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
@@ -389,42 +391,59 @@ function RankGeral() {
             <tbody>
               {treinadores.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: "center", color: "#5f758e", padding: "40px", fontStyle: "italic" }}>
+                  <td colSpan={8} style={{ textAlign: "center", color: "#5f758e", padding: "40px", fontStyle: "italic" }}>
                     Nenhum registro encontrado.
                   </td>
                 </tr>
               ) : (
-                treinadores.map((t, index) => {
-                  const posicaoVisual = index + 1;
-                  let estiloMedalha = { color: "#f1ead4" };
-                  if (posicaoVisual === 1) {
-                    estiloMedalha = { color: "#c5a059", fontWeight: 800, textShadow: "0 0 10px rgba(197,160,89,0.4)" };
-                  } else if (posicaoVisual === 2) {
-                    estiloMedalha = { color: "#a4b3c6", fontWeight: 700 };
-                  } else if (posicaoVisual === 3) {
-                    estiloMedalha = { color: "#cd7f32", fontWeight: 700 };
-                  }
+                treinadores.map((t) => {
+                  const corPodio = { 1: "#c5a059", 2: "#a4b3c6", 3: "#cd7f32" }[t.rank];
+                  const celula = { textAlign: "center", padding: "8px 10px", height: "64px", boxSizing: "border-box", fontFamily: "'Montserrat'" };
 
                   return (
-                    <tr key={t.nome} style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)" }}>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", fontSize: "11pt", ...estiloMedalha }}>
-                        {posicaoVisual === 1 ? "👑 1" : posicaoVisual}
+                    <tr key={t.chave} style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)" }}>
+                      <td style={{ ...celula, boxShadow: corPodio ? `inset 3px 0 0 ${corPodio}` : undefined }}>
+                        <div style={{ fontSize: "12pt", fontWeight: corPodio ? 800 : 600, color: corPodio ?? "#f1ead4", textShadow: t.rank === 1 ? "0 0 10px rgba(197,160,89,0.4)" : undefined }}>
+                          {t.rank === 1 ? "👑 1" : t.rank}
+                        </div>
+                        {t.variacao !== null && (
+                          <div style={{ fontSize: "7.5pt", fontWeight: 700, marginTop: "2px", color: t.variacao === "novo" ? "#4f9bd9" : t.variacao > 0 ? "#1bd39e" : t.variacao < 0 ? "#e04b37" : "#5f758e" }} title="Em relação à edição anterior">
+                            {t.variacao === "novo" ? "NOVO" : t.variacao > 0 ? `▲ ${t.variacao}` : t.variacao < 0 ? `▼ ${-t.variacao}` : "–"}
+                          </div>
+                        )}
                       </td>
                       <td
                         onClick={() => abrirTrainerCard(t.nome, t.uid)}
-                        style={{ textAlign: "left", padding: "15px 15px", fontFamily: "'Montserrat'", fontWeight: 700, color: "#ffffff", cursor: "pointer" }}
+                        style={{ ...celula, textAlign: "left", padding: "8px 15px", fontWeight: 700, color: "#ffffff", cursor: "pointer" }}
                       >
                         <i className="fa-solid fa-address-card" style={{ color: "#c5a059", marginRight: "8px", fontSize: "9.5pt", opacity: 0.7 }}></i>
                         {t.nome}
                         <TituloTreinador nome={t.nome} estilo={{ paddingLeft: "22px", marginTop: "2px" }} />
                       </td>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", color: "#c5a059", fontWeight: 600, fontSize: "9.5pt" }}>
-                        {t.prestigio.toLocaleString("pt-BR")} pts
+                      <td style={celula}>
+                        <div style={{ color: "#c5a059", fontWeight: 800, fontSize: "12pt" }}>
+                          {t.prestigio.toLocaleString("pt-BR")} <span style={{ fontSize: "8pt", fontWeight: 600, opacity: 0.7 }}>pts</span>
+                        </div>
+                        {t.atrasLider > 0 && (
+                          <div style={{ color: "#5f758e", fontSize: "7.5pt", fontWeight: 600 }} title="Distância para o líder">−{t.atrasLider.toLocaleString("pt-BR")}</div>
+                        )}
                       </td>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", fontWeight: 600, color: "#1bd39e" }}>{t.primeiros}</td>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", color: "#f1ead4" }}>{t.segundos}</td>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", color: "#a4b3c6" }}>{t.terceiros}</td>
-                      <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", fontWeight: 600, color: "#c5a059" }}>{t.totalCorridas}</td>
+                      <td style={celula}>
+                        <div style={{ display: "inline-flex", gap: "4px" }}>
+                          {t.forma.map((c, i) => {
+                            const cor = corDaForma(c.pos);
+                            return (
+                              <span key={i} title={`Ed. ${c.edicao} · ${c.pista ?? ""}: ${c.pos}º`} style={{ width: "22px", height: "22px", borderRadius: "50%", background: cor.fundo, color: cor.texto, border: "1px solid rgba(164, 179, 198, 0.2)", fontSize: "8pt", fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                                {c.pos}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </td>
+                      <td style={{ ...celula, fontWeight: 700, color: "#f1ead4" }}>{t.primeiros}</td>
+                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.segundos}</td>
+                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.terceiros}</td>
+                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.totalCorridas}</td>
                     </tr>
                   );
                 })
