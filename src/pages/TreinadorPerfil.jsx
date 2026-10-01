@@ -13,12 +13,25 @@ import { obterUrlImagemPersonagem, obterUrlTrofeuCloudinary } from "../utils/clo
 import FotoTreinador from "../components/FotoTreinador";
 import TituloTreinador from "../components/TituloTreinador";
 import PainelConquistas from "../components/PainelConquistas";
+import { RARIDADES } from "../data/conquistas";
 
 const PONTOS_POR_POSICAO = { 1: 12, 2: 10, 3: 9, 4: 8, 5: 7, 6: 6, 7: 5, 8: 4, 9: 3 };
 const pontosDaPosicao = (pos) => PONTOS_POR_POSICAO[pos] ?? (pos >= 10 && pos <= 18 ? 2 : 0);
 const ESTRATEGIAS = { runner: "Front Runner", leader: "Pace Chaser", betweener: "Late Surger", chaser: "End Closer" };
 const NOME_NIVEL = { iniciante: "Iniciante", entusiasta: "Entusiasta", especialista: "Especialista", oshi: "Oshi" };
 const CORES_PODIO = { 1: "#c5a059", 2: "#a4b3c6", 3: "#cd7f32" };
+const COR_NIVEL = { iniciante: RARIDADES.bronze.cor, entusiasta: RARIDADES.prata.cor, especialista: RARIDADES.ouro.cor, oshi: RARIDADES.platina.cor };
+const EDICOES_VISIVEIS = 5;
+
+// Pílula da posição: cheia no pódio, contorno nas demais.
+function PilulaPosicao({ posicao, tamanho = "9pt" }) {
+  const cor = CORES_PODIO[posicao];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "34px", height: "24px", borderRadius: "6px", flexShrink: 0, fontSize: tamanho, fontWeight: 800, background: cor ?? "transparent", color: cor ? "#0b1320" : posicao <= 9 ? "#f1ead4" : "#5f758e", border: cor ? "none" : "1px solid rgba(164, 179, 198, 0.2)" }}>
+      {posicao}º
+    </span>
+  );
+}
 const numeroEdicao = (id) => Number(String(id ?? "").replace(/\D/g, "")) || 0;
 const chave = (nome) => String(nome ?? "").toLowerCase().trim();
 
@@ -144,6 +157,7 @@ function TreinadorPerfil() {
   const corridasCarregadas = useCorridas();
   const [perfil, setPerfil] = useState(null);
   const [docConquistas, setDocConquistas] = useState(null);
+  const [todasEdicoes, setTodasEdicoes] = useState(false);
 
   // Corridas dele, em ordem (edição, pista do sorteio).
   const dados = useMemo(() => {
@@ -263,17 +277,21 @@ function TreinadorPerfil() {
             {dados.trofeus.length > 0 && (
               <div style={estiloCaixa}>
                 <h2 style={estiloTitulo}>Troféus <span style={{ color: "#5f758e", fontFamily: "'Montserrat'", fontSize: "9pt" }}>({dados.vitorias})</span></h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "12px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "12px" }}>
                   {dados.trofeus.map((t) => {
                     const equipado = (perfil?.trofeusEquipados ?? []).some((e) => chave(e) === chave(t.pista));
                     return (
-                      <div key={t.pista} title={`Vencida nas edições ${t.edicoes.join(", ")}`} style={{ position: "relative", background: "#0b1320", border: `1px solid ${equipado ? "#c5a059" : "rgba(164, 179, 198, 0.12)"}`, borderRadius: "10px", padding: "12px 8px 10px", textAlign: "center" }}>
+                      <div key={t.pista} className="cartao-perfil" style={{ position: "relative", background: "radial-gradient(circle at 50% 38%, rgba(197, 160, 89, 0.16), #0b1320 68%)", border: `1px solid ${equipado ? "#c5a059" : "rgba(164, 179, 198, 0.12)"}`, borderRadius: "12px", padding: "16px 10px 12px", textAlign: "center" }}>
+                        {equipado && <i className="fa-solid fa-star" title="Em destaque no cartão" style={{ position: "absolute", top: "9px", left: "10px", color: "#c5a059", fontSize: "9pt" }}></i>}
                         {t.edicoes.length > 1 && (
-                          <span style={{ position: "absolute", top: "6px", right: "8px", color: "#c5a059", fontSize: "8.5pt", fontWeight: 800 }}>×{t.edicoes.length}</span>
+                          <span style={{ position: "absolute", top: "8px", right: "10px", color: "#c5a059", fontSize: "9pt", fontWeight: 800 }}>×{t.edicoes.length}</span>
                         )}
-                        <img src={obterUrlTrofeuCloudinary(t.pista)} alt="" style={{ height: "72px", width: "auto", maxWidth: "100%", objectFit: "contain" }} onError={(e) => { e.currentTarget.src = "https://placehold.co/72x72/0e1726/c5a059?text=%F0%9F%8F%86"; }} />
-                        <div style={{ color: "#f1ead4", fontSize: "8pt", fontWeight: 700, marginTop: "8px", lineHeight: 1.3 }}>{t.pista}</div>
-                        <div style={{ color: "#5f758e", fontSize: "7pt", fontWeight: 700, marginTop: "2px" }}>{equipado ? "EM DESTAQUE" : t.grade}</div>
+                        <img src={obterUrlTrofeuCloudinary(t.pista)} alt="" style={{ height: "86px", width: "auto", maxWidth: "100%", objectFit: "contain", filter: "drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5))" }} onError={(e) => { e.currentTarget.src = "https://placehold.co/86x86/0e1726/c5a059?text=%F0%9F%8F%86"; }} />
+                        <div style={{ color: "#f1ead4", fontSize: "8.5pt", fontWeight: 700, marginTop: "10px", lineHeight: 1.3 }}>{t.pista}</div>
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", marginTop: "6px" }}>
+                          {t.grade && <span style={{ border: "1px solid rgba(197, 160, 89, 0.4)", color: "#c5a059", borderRadius: "4px", padding: "1px 6px", fontSize: "7pt", fontWeight: 800 }}>{t.grade}</span>}
+                          <span style={{ color: "#5f758e", fontSize: "7.5pt", fontWeight: 600 }}>Ed. {t.edicoes.join(", ")}</span>
+                        </div>
                       </div>
                     );
                   })}
@@ -284,43 +302,70 @@ function TreinadorPerfil() {
             {/* PERSONAGENS */}
             <div style={estiloCaixa}>
               <h2 style={estiloTitulo}>Personagens</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "10px" }}>
-                {dados.personagens.map((p) => (
-                  <div key={p.nome} style={{ display: "flex", alignItems: "center", gap: "10px", background: "#0b1320", border: "1px solid rgba(164, 179, 198, 0.12)", borderRadius: "8px", padding: "8px 10px" }}>
-                    <img src={obterUrlImagemPersonagem(p.nome)} alt="" style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, background: "#0d1624" }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: "#f1ead4", fontWeight: 700, fontSize: "9pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.nome}</div>
-                      <div style={{ color: "#8193a8", fontSize: "7.5pt" }}>
-                        {p.corridas} corridas · {p.vitorias} vit. · {p.podios} pód.
-                        {niveis.get(p.nome) && <span style={{ color: "#c5a059", fontWeight: 700 }}> · {NOME_NIVEL[niveis.get(p.nome)]}</span>}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "10px" }}>
+                {dados.personagens.map((p) => {
+                  const nivel = niveis.get(p.nome);
+                  const corNivel = COR_NIVEL[nivel];
+                  return (
+                    <div key={p.nome} className="cartao-perfil" style={{ background: "#0b1320", border: "1px solid rgba(164, 179, 198, 0.12)", borderRadius: "10px", padding: "10px 12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <img src={obterUrlImagemPersonagem(p.nome)} alt="" style={{ width: "42px", height: "42px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, background: "#0d1624", border: `2px solid ${corNivel ?? "rgba(164, 179, 198, 0.2)"}` }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ color: "#f1ead4", fontWeight: 700, fontSize: "9.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.nome}</div>
+                          {nivel ? (
+                            <span style={{ color: corNivel, fontSize: "7.5pt", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>{NOME_NIVEL[nivel]}</span>
+                          ) : (
+                            <span style={{ color: "#5f758e", fontSize: "7.5pt" }}>{Math.round((p.corridas / dados.corridas) * 100)}% das corridas</span>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid rgba(164, 179, 198, 0.08)" }}>
+                        {[["Corridas", p.corridas, "#f1ead4"], ["Vitórias", p.vitorias, p.vitorias ? "#c5a059" : "#5f758e"], ["Pódios", p.podios, p.podios ? "#f1ead4" : "#5f758e"]].map(([rotulo, valor, cor]) => (
+                          <div key={rotulo} style={{ flex: 1, textAlign: "center" }}>
+                            <div style={{ color: cor, fontSize: "11pt", fontWeight: 800 }}>{valor}</div>
+                            <div style={{ color: "#5f758e", fontSize: "6.5pt", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>{rotulo}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* HISTÓRICO */}
             <div style={estiloCaixa}>
               <h2 style={estiloTitulo}>Histórico de corridas</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {dados.edicoes.map(({ edicao, lista }) => (
-                  <div key={edicao}>
-                    <div style={{ color: "#5f758e", fontSize: "8pt", fontWeight: 800, letterSpacing: "1px", marginBottom: "6px" }}>EDIÇÃO {edicao}</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                      {lista.map((m, i) => (
-                        <div key={i} title={`${m.pista ?? ""}${m.grupo ? ` (Grupo ${m.grupo})` : ""} · ${m.personagem ?? ""}`} style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0b1320", border: `1px solid ${CORES_PODIO[m.posicao] ?? "rgba(164, 179, 198, 0.12)"}`, borderRadius: "8px", padding: "5px 10px 5px 6px", flex: "1 1 220px", maxWidth: "320px", minWidth: 0 }}>
-                          <span style={{ width: "26px", textAlign: "center", fontWeight: 800, fontSize: "10pt", color: CORES_PODIO[m.posicao] ?? (m.posicao <= 9 ? "#f1ead4" : "#5f758e"), flexShrink: 0 }}>{m.posicao}º</span>
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ color: "#f1ead4", fontSize: "8.5pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.pista}{m.grade ? <span style={{ color: "#5f758e", fontWeight: 600 }}> · {m.grade}</span> : null}</div>
-                            <div style={{ color: "#8193a8", fontSize: "7.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.personagem}</div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {(todasEdicoes ? dados.edicoes : dados.edicoes.slice(0, EDICOES_VISIVEIS)).map(({ edicao, lista }, indice) => {
+                  const noRank = dados.evolucao.find((e) => e.edicao === edicao)?.posicao;
+                  return (
+                    <div key={edicao} style={{ display: "flex", flexWrap: "wrap", gap: "10px 16px", alignItems: "center", padding: "12px 0", borderTop: indice ? "1px solid rgba(164, 179, 198, 0.08)" : "none" }}>
+                      <div style={{ width: "86px", flexShrink: 0 }}>
+                        <div style={{ color: "#f1ead4", fontFamily: "'Cinzel', serif", fontWeight: 800, fontSize: "11pt" }}>Ed. {edicao}</div>
+                        {noRank && <div style={{ color: "#5f758e", fontSize: "7.5pt", fontWeight: 600 }}>{noRank}º no rank</div>}
+                      </div>
+                      <div style={{ flex: "1 1 400px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: "8px" }}>
+                        {lista.map((m, i) => (
+                          <div key={i} className="cartao-perfil" title={`${m.pista ?? ""}${m.grupo ? ` (Grupo ${m.grupo})` : ""}`} style={{ display: "flex", alignItems: "center", gap: "10px", background: "#0b1320", border: "1px solid rgba(164, 179, 198, 0.1)", borderRadius: "8px", padding: "6px 10px 6px 8px", minWidth: 0 }}>
+                            <PilulaPosicao posicao={m.posicao} />
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ color: "#f1ead4", fontSize: "8.5pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.pista}</div>
+                              <div style={{ color: "#8193a8", fontSize: "7.5pt", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.grade ? `${m.grade} · ` : ""}{m.personagem}</div>
+                            </div>
+                            {m.personagem && <img src={obterUrlImagemPersonagem(m.personagem)} alt="" style={{ width: "26px", height: "26px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, background: "#0d1624" }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />}
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+              {dados.edicoes.length > EDICOES_VISIVEIS && (
+                <button type="button" onClick={() => setTodasEdicoes((v) => !v)} style={{ display: "block", margin: "12px auto 0", background: "transparent", border: "1px solid rgba(197, 160, 89, 0.4)", color: "#c5a059", borderRadius: "50px", padding: "7px 18px", fontSize: "8.5pt", fontWeight: 700, cursor: "pointer", fontFamily: "'Montserrat'" }}>
+                  {todasEdicoes ? "Mostrar menos" : `Mostrar todas (${dados.edicoes.length} edições)`} <i className={`fa-solid fa-chevron-${todasEdicoes ? "up" : "down"}`}></i>
+                </button>
+              )}
             </div>
 
             {/* CONQUISTAS */}
