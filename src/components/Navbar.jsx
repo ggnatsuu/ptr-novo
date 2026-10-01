@@ -14,6 +14,7 @@ import {
   faToolbox,
   faMagnifyingGlass,
   faFilm,
+  faBookOpen,
   faShuffle,
   faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
@@ -76,8 +77,8 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const estaEmPaginaDeRank = location.pathname.startsWith("/rank");
-  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas") || location.pathname.startsWith("/replay");
-  const estaEmAdmin = location.pathname.startsWith("/sorteio") || location.pathname.startsWith("/rank-admin");
+  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas") || location.pathname.startsWith("/replay") || location.pathname.startsWith("/guia-meta");
+  const estaEmAdmin = location.pathname.startsWith("/sorteio") || location.pathname.startsWith("/rank-admin") || location.pathname.startsWith("/admin-guia-meta");
 
   const [menuAberto, setMenuAberto] = useState(false);
 
@@ -272,6 +273,9 @@ function Navbar() {
                   <Link to="/replay">
                     <FontAwesomeIcon icon={faFilm} /> Replay de Corrida
                   </Link>
+                  <Link to="/guia-meta">
+                    <FontAwesomeIcon icon={faBookOpen} /> Guia do Meta
+                  </Link>
                 </div>
               </div>
             )}
@@ -306,6 +310,9 @@ function Navbar() {
                   </Link>
                   <Link to="/rank-admin">
                     <FontAwesomeIcon icon={faScrewdriverWrench} /> Administração
+                  </Link>
+                  <Link to="/admin-guia-meta">
+                    <FontAwesomeIcon icon={faBookOpen} /> Editor do Guia
                   </Link>
                 </div>
               </div>
@@ -461,6 +468,9 @@ function Navbar() {
                   <Link to="/replay">
                     <FontAwesomeIcon icon={faFilm} /> Replay de Corrida
                   </Link>
+                  <Link to="/guia-meta">
+                    <FontAwesomeIcon icon={faBookOpen} /> Guia do Meta
+                  </Link>
                 </div>
               </div>
             )}
@@ -496,6 +506,9 @@ function Navbar() {
                   </Link>
                   <Link to="/rank-admin" id="link-rank-admin">
                     <FontAwesomeIcon icon={faScrewdriverWrench} /> Administração
+                  </Link>
+                  <Link to="/admin-guia-meta">
+                    <FontAwesomeIcon icon={faBookOpen} /> Editor do Guia
                   </Link>
                 </div>
               </div>

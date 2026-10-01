@@ -22,6 +22,8 @@ import BuscadorPistas from "./pages/BuscadorPistas";
 // porque traz o leitor do arquivo, o replay e os gráficos.
 const ReplayArquivo = lazy(() => import("./pages/ReplayArquivo"));
 const TreinadorPerfil = lazy(() => import("./pages/TreinadorPerfil"));
+const GuiaMeta = lazy(() => import("./pages/GuiaMeta"));
+const AdminGuiaMeta = lazy(() => import("./pages/AdminGuiaMeta"));
 
 // 🎯 Página provisória, só de "segurar a bandeira" enquanto a gente não
 // migra a página de verdade. Recebe um título diferente pra cada rota.
@@ -61,6 +63,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/team-trials" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><TeamTrials /></RotaRestrita>} />
           <Route path="/pistas" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><BuscadorPistas /></RotaRestrita>} />
+          <Route path="/admin-guia-meta" element={<RotaRestrita niveis={["admin"]}><Suspense fallback={null}><AdminGuiaMeta /></Suspense></RotaRestrita>} />
+          <Route path="/guia-meta" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><GuiaMeta /></Suspense></RotaRestrita>} />
           <Route path="/replay" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><ReplayArquivo /></Suspense></RotaRestrita>} />
           <Route path="/treinador/:nome" element={<Suspense fallback={null}><TreinadorPerfil /></Suspense>} />
           <Route path="*" element={<PaginaEmConstrucao titulo="Página não encontrada" />} />

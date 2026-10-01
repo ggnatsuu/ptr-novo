@@ -6,6 +6,7 @@
 
 import iconesRoupas from "../uma-skill-tools/data/icons.json";
 import chibisDisponiveis from "../data/chibis.json";
+import portraitsDisponiveis from "../data/portraits.json";
 
 export function iconeDaRoupa(cardId) {
   const entrada = cardId ? iconesRoupas[cardId] : null;
@@ -22,4 +23,14 @@ const comChibi = new Set(chibisDisponiveis);
 export function chibiDaRoupa(cardId, comemorando = false) {
   if (!cardId || !comChibi.has(String(cardId))) return null;
   return `/assets/img/chibi/${cardId}_${comemorando ? "0011" : "0010"}.png`;
+}
+
+// 🎯 Portrait da roupa (512x512). As imagens ficam em
+// public/assets/img/portrait/<card_id>.webp e a lista em data/portraits.json —
+// pra incluir roupas novas, copiar as imagens pra pasta e atualizar a lista.
+const comPortrait = new Set(portraitsDisponiveis);
+
+export function portraitDaRoupa(cardId) {
+  if (!cardId || !comPortrait.has(String(cardId))) return null;
+  return `/assets/img/portrait/${cardId}.webp`;
 }

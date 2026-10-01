@@ -19,3 +19,78 @@
 /* Cartões do perfil do treinador */
 .cartao-perfil { transition: transform 0.15s ease, border-color 0.15s ease; }
 .cartao-perfil:hover { transform: translateY(-2px); border-color: rgba(197, 160, 89, 0.45) !important; }
+
+/* 🎯 Barra de rolagem dourada (padrão dos modais do site) */
+.rolagem-dourada {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 160, 89, 0.5) rgba(255, 255, 255, 0.04);
+}
+.rolagem-dourada::-webkit-scrollbar {
+  width: 10px;
+}
+.rolagem-dourada::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+}
+.rolagem-dourada::-webkit-scrollbar-thumb {
+  background: rgba(197, 160, 89, 0.5);
+  border-radius: 10px;
+  border: 2px solid #0d1624;
+}
+.rolagem-dourada::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 160, 89, 0.75);
+}
+
+/* 🎯 Guia do Meta: itens que podem ser enviados ao painel "Minhas anotações" */
+.item-adicionavel {
+  cursor: pointer;
+  position: relative;
+}
+.item-adicionavel .sobreposicao-adicionar {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.item-adicionavel:hover .sobreposicao-adicionar {
+  opacity: 1;
+}
+
+/* 🎯 Moldura de raridade das cartas de suporte (SSR arco-íris, SR dourada, R prateada).
+   Desenhada por cima da arte com máscara, respeitando o arredondamento do card. */
+.moldura-raridade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--espessura-moldura, 2px);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+.moldura-ssr::after {
+  background: linear-gradient(135deg, #ff7eb3, #ffd36e, #7cf0a4, #6ec8ff, #b98bff, #ff7eb3);
+}
+.moldura-sr::after {
+  background: linear-gradient(135deg, #fff1b8, #d9a93f 45%, #fff1b8 70%, #b8862a);
+}
+.moldura-r::after {
+  background: linear-gradient(135deg, #f2f5f8, #9aa6b4 45%, #e3e8ee 70%, #7d8896);
+}
+.moldura-ssr {
+  box-shadow: 0 0 10px rgba(255, 190, 220, 0.25), 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* 🎯 Cartão flutuante de detalhe da skill (Guia do Meta): versão compacta
+   das classes bp-skill-* do Buscador de Pistas. */
+.detalhe-skill-compacto .bp-skill-condicoes { margin: 0 !important; padding: 0 !important; border: none !important; gap: 6px !important; }
+.detalhe-skill-compacto .bp-skill-condicao-bloco { padding: 8px !important; gap: 8px !important; }
+.detalhe-skill-compacto .bp-skill-secao { gap: 3px !important; }
+.detalhe-skill-compacto .bp-skill-secao-titulo { font-size: 8pt !important; }
+.detalhe-skill-compacto .bp-skill-secao-subtitulo { font-size: 7.5pt !important; }
+.detalhe-skill-compacto .bp-skill-secao-grupo { gap: 3px !important; }
+.detalhe-skill-compacto .bp-skill-secao-linha { font-size: 7.5pt !important; padding: 2px 6px !important; }
+.detalhe-skill-compacto .bp-skill-efeito-linha { gap: 10px !important; font-size: 8pt !important; padding: 0 !important; }
+.detalhe-skill-compacto .bp-skill-efeito-nome { font-size: 7.5pt !important; padding: 2px 7px !important; }
+.detalhe-skill-compacto .bp-skill-efeito-valor { font-size: 8pt !important; }
+.detalhe-skill-compacto .bp-skill-secao-valor-inline { font-size: 8pt !important; }
