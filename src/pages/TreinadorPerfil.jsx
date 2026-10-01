@@ -49,7 +49,8 @@ function evolucaoNoRank(corridas, alvo) {
   return pontos;
 }
 
-function GraficoEvolucao({ pontos }) {
+function GraficoEvolucao({ pontos, corridasPorEdicao = {} }) {
+  const [foco, setFoco] = useState(null);
   if (pontos.length < 2) return <p style={{ color: "#5f758e", fontSize: "9pt", margin: 0 }}>Precisa de pelo menos 2 edições para mostrar a evolução.</p>;
   const L = 720, A = 240, m = { e: 40, d: 24, t: 30, b: 34 };
   const pior = Math.max(...pontos.map((p) => p.posicao), 5);
@@ -58,7 +59,11 @@ function GraficoEvolucao({ pontos }) {
   const linha = pontos.map((p, i) => `${x(i)},${y(p.posicao)}`).join(" ");
   const area = `${x(0)},${A - m.b} ${linha} ${x(pontos.length - 1)},${A - m.b}`;
   const posicoes = Array.from({ length: pior }, (_, i) => i + 1);
+  const p = foco !== null ? pontos[foco] : null;
+  const anterior = foco > 0 ? pontos[foco - 1] : null;
+  const variacao = p && anterior ? anterior.posicao - p.posicao : 0;
   return (
+    <div style={{ position: "relative" }} onMouseLeave={() => setFoco(null)}>
     <svg viewBox={`0 0 ${L} ${A}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Posição no Rank Geral por edição">
       <defs>
         <linearGradient id="evolucaoArea" x1="0" y1="0" x2="0" y2="1">
@@ -72,26 +77,55 @@ function GraficoEvolucao({ pontos }) {
       {posicoes.map((pos) => (
         <g key={pos}>
           <line x1={m.e} x2={L - m.d} y1={y(pos)} y2={y(pos)} stroke="rgba(164, 179, 198, 0.07)" />
-          {(pos === 1 || pos === pior || pos % 3 === 0) && (
+          {(pos === 1 || pos === pior || (pos % 3 === 0 && pior - pos >= 2)) && (
             <text x={m.e - 12} y={y(pos) + 4} textAnchor="end" fill="#5f758e" fontSize="10" fontFamily="Montserrat">{pos}º</text>
           )}
         </g>
       ))}
       <polygon points={area} fill="url(#evolucaoArea)" />
+      {p && <line x1={x(foco)} x2={x(foco)} y1={m.t - 12} y2={A - m.b} stroke="rgba(197, 160, 89, 0.35)" strokeDasharray="3 4" />}
       <polyline points={linha} fill="none" stroke="#c5a059" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      {pontos.map((p, i) => {
-        const cor = CORES_PODIO[p.posicao];
+      {pontos.map((ponto, i) => {
+        const cor = CORES_PODIO[ponto.posicao];
+        const pt = ponto;
         return (
-          <g key={p.edicao}>
-            <title>{`Edição ${p.edicao}: ${p.posicao}º de ${p.total}`}</title>
-            <circle cx={x(i)} cy={y(p.posicao)} r="11" fill={cor ?? "#0d1624"} stroke={cor ?? "#c5a059"} strokeWidth="2" />
-            <text x={x(i)} y={y(p.posicao) + 3.5} textAnchor="middle" fill={cor ? "#0b1320" : "#f1ead4"} fontSize="10" fontWeight="800" fontFamily="Montserrat">{p.posicao}</text>
-            <text x={x(i)} y={A - 10} textAnchor="middle" fill="#5f758e" fontSize="10" fontFamily="Montserrat">{p.edicao}</text>
+          <g key={pt.edicao}>
+            {i === foco && <circle cx={x(i)} cy={y(pt.posicao)} r="16" fill="none" stroke={cor ?? "#c5a059"} strokeOpacity="0.4" strokeWidth="2" />}
+            <circle cx={x(i)} cy={y(pt.posicao)} r="11" fill={cor ?? "#0d1624"} stroke={cor ?? "#c5a059"} strokeWidth="2" />
+            <text x={x(i)} y={y(pt.posicao) + 3.5} textAnchor="middle" fill={cor ? "#0b1320" : "#f1ead4"} fontSize="10" fontWeight="800" fontFamily="Montserrat">{pt.posicao}</text>
+            <text x={x(i)} y={A - 10} textAnchor="middle" fill={i === foco ? "#c5a059" : "#5f758e"} fontSize="10" fontWeight={i === foco ? 800 : 400} fontFamily="Montserrat">{pt.edicao}</text>
+            {/* área de hover: a coluna inteira da edição */}
+            <rect x={x(i) - (L - m.e - m.d) / (pontos.length - 1) / 2} y={0} width={(L - m.e - m.d) / (pontos.length - 1)} height={A} fill="transparent" onMouseEnter={() => setFoco(i)} onClick={() => setFoco(i)} />
           </g>
         );
       })}
       <text x={m.e - 12} y={A - 10} textAnchor="end" fill="#5f758e" fontSize="9" fontFamily="Montserrat">Ed.</text>
     </svg>
+    {p && (
+      <div style={{
+        position: "absolute", pointerEvents: "none", zIndex: 2,
+        left: `${(x(foco) / L) * 100}%`, top: `${(y(p.posicao) / A) * 100}%`,
+        transform: `translate(${foco > pontos.length / 2 ? "calc(-100% - 22px)" : "22px"}, -50%)`,
+        background: "rgba(11, 19, 32, 0.96)", border: `1px solid ${CORES_PODIO[p.posicao] ?? "rgba(197, 160, 89, 0.45)"}`, borderRadius: "10px",
+        padding: "10px 12px", minWidth: "170px", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)", fontFamily: "'Montserrat', sans-serif",
+      }}>
+        <div style={{ color: "#5f758e", fontSize: "7.5pt", fontWeight: 800, letterSpacing: "1px" }}>EDIÇÃO {p.edicao}</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "2px 0 6px" }}>
+          <span style={{ color: CORES_PODIO[p.posicao] ?? "#f1ead4", fontSize: "16pt", fontWeight: 800 }}>{p.posicao}º</span>
+          <span style={{ color: "#8193a8", fontSize: "8pt" }}>de {p.total}</span>
+          {anterior && variacao !== 0 && (
+            <span style={{ marginLeft: "auto", color: variacao > 0 ? "#1bd39e" : "#e04b37", fontSize: "8.5pt", fontWeight: 800 }}>{variacao > 0 ? `▲${variacao}` : `▼${-variacao}`}</span>
+          )}
+        </div>
+        {(corridasPorEdicao[p.edicao] ?? []).map((c, i) => (
+          <div key={i} style={{ display: "flex", gap: "8px", fontSize: "8pt", color: "#a4b3c6", lineHeight: 1.6 }}>
+            <span style={{ width: "24px", fontWeight: 800, color: CORES_PODIO[c.posicao] ?? "#f1ead4" }}>{c.posicao}º</span>
+            <span style={{ whiteSpace: "nowrap" }}>{c.pista}</span>
+          </div>
+        ))}
+      </div>
+    )}
+    </div>
   );
 }
 
@@ -222,7 +256,7 @@ function TreinadorPerfil() {
                   Atual <strong style={{ color: CORES_PODIO[dados.rank] ?? "#f1ead4" }}>{dados.rank}º</strong> · Melhor <strong style={{ color: CORES_PODIO[dados.melhor] ?? "#f1ead4" }}>{dados.melhor}º</strong>
                 </span>
               </div>
-              <GraficoEvolucao pontos={dados.evolucao} />
+              <GraficoEvolucao pontos={dados.evolucao} corridasPorEdicao={Object.fromEntries(dados.edicoes.map((e) => [e.edicao, e.lista]))} />
             </div>
 
             {/* TROFÉUS */}
