@@ -12,7 +12,8 @@ import { resolverTitulo } from "../utils/conquistas/titulos";
 
 const NOME_NIVEL = { iniciante: "Iniciante", entusiasta: "Entusiasta", especialista: "Especialista", oshi: "Oshi" };
 
-function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar }) {
+// somenteObtidas: esconde as bloqueadas (perfil público); semPersonagens: esconde o bloco de personagens.
+function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar, somenteObtidas = false, semPersonagens = false }) {
   const [selecionado, setSelecionado] = useState(null);
   const [salvando, setSalvando] = useState(false);
   const obtidas = new Map((docConquistas?.conquistas ?? []).map((q) => [q.tag, q]));
@@ -64,7 +65,7 @@ function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar }) {
         </div>
       )}
 
-      {personagens.length > 0 && (
+      {!semPersonagens && personagens.length > 0 && (
         <div>
           <p style={{ margin: "0 0 10px 0", color: "#c5a059", fontWeight: 800, fontSize: "9pt", letterSpacing: "1px", textTransform: "uppercase" }}>Personagens</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: "8px" }}>
@@ -102,13 +103,15 @@ function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar }) {
 
       {Object.entries(CATEGORIAS).map(([chave, categoria]) => {
         const itens = CONQUISTAS.filter((c) => c.categoria === chave);
+        const visiveis = somenteObtidas ? itens.filter((c) => obtidas.has(c.tag)) : itens;
+        if (visiveis.length === 0) return null;
         return (
           <div key={chave}>
             <p style={{ margin: "0 0 10px 0", color: "#c5a059", fontWeight: 800, fontSize: "9pt", letterSpacing: "1px", textTransform: "uppercase" }}>
               <i className={`fa-solid fa-${categoria.icone}`}></i> {categoria.nome} ({itens.filter((c) => obtidas.has(c.tag)).length}/{itens.length})
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "8px" }}>
-              {itens.map((c) => {
+              {visiveis.map((c) => {
                 const q = obtidas.get(c.tag);
                 const cor = RARIDADES[c.raridade].cor;
                 const id = `c:${c.tag}`;

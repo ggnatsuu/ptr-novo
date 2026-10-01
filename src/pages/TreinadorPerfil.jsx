@@ -9,7 +9,7 @@ import { collection, doc, getDoc, getDocs, query, where } from "firebase/firesto
 import { db } from "../config/firebase";
 import { useCorridas } from "../utils/resumoCorridas";
 import { idConquistas } from "../utils/conquistas/leve";
-import { obterUrlImagemPersonagem } from "../utils/cloudinary";
+import { obterUrlImagemPersonagem, obterUrlTrofeuCloudinary } from "../utils/cloudinary";
 import FotoTreinador from "../components/FotoTreinador";
 import TituloTreinador from "../components/TituloTreinador";
 import PainelConquistas from "../components/PainelConquistas";
@@ -51,28 +51,46 @@ function evolucaoNoRank(corridas, alvo) {
 
 function GraficoEvolucao({ pontos }) {
   if (pontos.length < 2) return <p style={{ color: "#5f758e", fontSize: "9pt", margin: 0 }}>Precisa de pelo menos 2 edições para mostrar a evolução.</p>;
-  const L = 640, A = 200, m = { e: 34, d: 14, t: 14, b: 26 };
-  const pior = Math.max(...pontos.map((p) => p.posicao), 3);
+  const L = 720, A = 240, m = { e: 40, d: 24, t: 30, b: 34 };
+  const pior = Math.max(...pontos.map((p) => p.posicao), 5);
   const x = (i) => m.e + (i / (pontos.length - 1)) * (L - m.e - m.d);
   const y = (pos) => m.t + ((pos - 1) / (pior - 1)) * (A - m.t - m.b);
-  const marcas = [...new Set([1, Math.ceil(pior / 2), pior])];
+  const linha = pontos.map((p, i) => `${x(i)},${y(p.posicao)}`).join(" ");
+  const area = `${x(0)},${A - m.b} ${linha} ${x(pontos.length - 1)},${A - m.b}`;
+  const posicoes = Array.from({ length: pior }, (_, i) => i + 1);
   return (
     <svg viewBox={`0 0 ${L} ${A}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Posição no Rank Geral por edição">
-      {marcas.map((pos) => (
+      <defs>
+        <linearGradient id="evolucaoArea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#c5a059" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#c5a059" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* faixa do pódio */}
+      <rect x={m.e} y={y(1) - 10} width={L - m.e - m.d} height={y(3) - y(1) + 20} fill="rgba(197, 160, 89, 0.05)" rx="6" />
+      <text x={L - m.d} y={y(1) - 14} textAnchor="end" fill="rgba(197, 160, 89, 0.55)" fontSize="9" fontWeight="700" fontFamily="Montserrat" letterSpacing="1">PÓDIO</text>
+      {posicoes.map((pos) => (
         <g key={pos}>
-          <line x1={m.e} x2={L - m.d} y1={y(pos)} y2={y(pos)} stroke="rgba(164, 179, 198, 0.12)" />
-          <text x={m.e - 8} y={y(pos) + 4} textAnchor="end" fill="#5f758e" fontSize="11" fontFamily="Montserrat">{pos}º</text>
+          <line x1={m.e} x2={L - m.d} y1={y(pos)} y2={y(pos)} stroke="rgba(164, 179, 198, 0.07)" />
+          {(pos === 1 || pos === pior || pos % 3 === 0) && (
+            <text x={m.e - 12} y={y(pos) + 4} textAnchor="end" fill="#5f758e" fontSize="10" fontFamily="Montserrat">{pos}º</text>
+          )}
         </g>
       ))}
-      <polyline points={pontos.map((p, i) => `${x(i)},${y(p.posicao)}`).join(" ")} fill="none" stroke="#c5a059" strokeWidth="2.5" strokeLinejoin="round" />
-      {pontos.map((p, i) => (
-        <g key={p.edicao}>
-          <circle cx={x(i)} cy={y(p.posicao)} r="4.5" fill={CORES_PODIO[p.posicao] ?? "#0d1624"} stroke="#c5a059" strokeWidth="2">
+      <polygon points={area} fill="url(#evolucaoArea)" />
+      <polyline points={linha} fill="none" stroke="#c5a059" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      {pontos.map((p, i) => {
+        const cor = CORES_PODIO[p.posicao];
+        return (
+          <g key={p.edicao}>
             <title>{`Edição ${p.edicao}: ${p.posicao}º de ${p.total}`}</title>
-          </circle>
-          <text x={x(i)} y={A - 6} textAnchor="middle" fill="#5f758e" fontSize="10" fontFamily="Montserrat">Ed.{p.edicao}</text>
-        </g>
-      ))}
+            <circle cx={x(i)} cy={y(p.posicao)} r="11" fill={cor ?? "#0d1624"} stroke={cor ?? "#c5a059"} strokeWidth="2" />
+            <text x={x(i)} y={y(p.posicao) + 3.5} textAnchor="middle" fill={cor ? "#0b1320" : "#f1ead4"} fontSize="10" fontWeight="800" fontFamily="Montserrat">{p.posicao}</text>
+            <text x={x(i)} y={A - 10} textAnchor="middle" fill="#5f758e" fontSize="10" fontFamily="Montserrat">{p.edicao}</text>
+          </g>
+        );
+      })}
+      <text x={m.e - 12} y={A - 10} textAnchor="end" fill="#5f758e" fontSize="9" fontFamily="Montserrat">Ed.</text>
     </svg>
   );
 }
@@ -117,6 +135,11 @@ function TreinadorPerfil() {
       if (m.posicao === 1) p.vitorias++;
       if (m.posicao <= 3) p.podios++;
     });
+    const trofeus = {};
+    minhas.filter((m) => m.posicao === 1 && m.pista).forEach((m) => {
+      const t = (trofeus[m.pista] ??= { pista: m.pista, grade: m.grade, edicoes: [] });
+      t.edicoes.push(m.edicao);
+    });
     const porEdicao = {};
     minhas.forEach((m) => { (porEdicao[m.edicao] ??= []).push(m); });
 
@@ -129,6 +152,8 @@ function TreinadorPerfil() {
       prestigio: minhas.reduce((s, m) => s + 300 + pontosDaPosicao(m.posicao), 0),
       rank: evolucao.at(-1)?.posicao,
       evolucao,
+      melhor: evolucao.length ? Math.min(...evolucao.map((p) => p.posicao)) : null,
+      trofeus: Object.values(trofeus).sort((a, b) => b.edicoes.length - a.edicoes.length || Math.max(...b.edicoes) - Math.max(...a.edicoes)),
       personagens: Object.values(porPersonagem).sort((a, b) => b.corridas - a.corridas || b.vitorias - a.vitorias),
       edicoes: Object.entries(porEdicao).map(([ed, lista]) => ({ edicao: Number(ed), lista })).sort((a, b) => b.edicao - a.edicao),
     };
@@ -191,9 +216,36 @@ function TreinadorPerfil() {
 
             {/* EVOLUÇÃO */}
             <div style={estiloCaixa}>
-              <h2 style={estiloTitulo}>Posição no Rank Geral por edição</h2>
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "baseline", gap: "6px 16px", marginBottom: "6px" }}>
+                <h2 style={{ ...estiloTitulo, margin: 0 }}>Posição no Rank Geral por edição</h2>
+                <span style={{ color: "#8193a8", fontSize: "8.5pt" }}>
+                  Atual <strong style={{ color: CORES_PODIO[dados.rank] ?? "#f1ead4" }}>{dados.rank}º</strong> · Melhor <strong style={{ color: CORES_PODIO[dados.melhor] ?? "#f1ead4" }}>{dados.melhor}º</strong>
+                </span>
+              </div>
               <GraficoEvolucao pontos={dados.evolucao} />
             </div>
+
+            {/* TROFÉUS */}
+            {dados.trofeus.length > 0 && (
+              <div style={estiloCaixa}>
+                <h2 style={estiloTitulo}>Troféus <span style={{ color: "#5f758e", fontFamily: "'Montserrat'", fontSize: "9pt" }}>({dados.vitorias})</span></h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "12px" }}>
+                  {dados.trofeus.map((t) => {
+                    const equipado = (perfil?.trofeusEquipados ?? []).some((e) => chave(e) === chave(t.pista));
+                    return (
+                      <div key={t.pista} title={`Vencida nas edições ${t.edicoes.join(", ")}`} style={{ position: "relative", background: "#0b1320", border: `1px solid ${equipado ? "#c5a059" : "rgba(164, 179, 198, 0.12)"}`, borderRadius: "10px", padding: "12px 8px 10px", textAlign: "center" }}>
+                        {t.edicoes.length > 1 && (
+                          <span style={{ position: "absolute", top: "6px", right: "8px", color: "#c5a059", fontSize: "8.5pt", fontWeight: 800 }}>×{t.edicoes.length}</span>
+                        )}
+                        <img src={obterUrlTrofeuCloudinary(t.pista)} alt="" style={{ height: "72px", width: "auto", maxWidth: "100%", objectFit: "contain" }} onError={(e) => { e.currentTarget.src = "https://placehold.co/72x72/0e1726/c5a059?text=%F0%9F%8F%86"; }} />
+                        <div style={{ color: "#f1ead4", fontSize: "8pt", fontWeight: 700, marginTop: "8px", lineHeight: 1.3 }}>{t.pista}</div>
+                        <div style={{ color: "#5f758e", fontSize: "7pt", fontWeight: 700, marginTop: "2px" }}>{equipado ? "EM DESTAQUE" : t.grade}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* PERSONAGENS */}
             <div style={estiloCaixa}>
@@ -240,7 +292,7 @@ function TreinadorPerfil() {
             {/* CONQUISTAS */}
             <div style={estiloCaixa}>
               <h2 style={estiloTitulo}>Conquistas</h2>
-              <PainelConquistas docConquistas={docConquistas} />
+              <PainelConquistas docConquistas={docConquistas} somenteObtidas semPersonagens />
             </div>
           </>
         )}

@@ -24,3 +24,9 @@ export function obterUrlImagemPersonagem(nomePersonagem) {
   const encontrado = listaAvatares.find((a) => a.nome === nomePersonagem);
   return encontrado ? obterUrlAvatarCloudinary(encontrado.arquivo) : "";
 }
+// 🎯 Imagem do troféu de uma pista (mesma regra do cartão do treinador).
+export function obterUrlTrofeuCloudinary(nomeTrofeu) {
+  if (!nomeTrofeu || nomeTrofeu === "Bloqueado") return "";
+  const nomeSanitizado = nomeTrofeu.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${nomeSanitizado}.png`;
+}
