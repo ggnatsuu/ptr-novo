@@ -2,6 +2,8 @@ import { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import RotaRestrita from "./components/RotaRestrita";
+import { NIVEIS_FERRAMENTAS } from "./utils/nivelAcesso";
 import Agenda from "./pages/Agenda";
 import Regulamento from "./pages/Regulamento";
 import Creditos from "./pages/Creditos";
@@ -57,9 +59,9 @@ function App() {
           <Route path="/rank-personagens" element={<RankPersonagens />} />
           <Route path="/rank-admin" element={<RankAdmin />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/team-trials" element={<TeamTrials />} />
-          <Route path="/pistas" element={<BuscadorPistas />} />
-          <Route path="/replay" element={<Suspense fallback={null}><ReplayArquivo /></Suspense>} />
+          <Route path="/team-trials" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><TeamTrials /></RotaRestrita>} />
+          <Route path="/pistas" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><BuscadorPistas /></RotaRestrita>} />
+          <Route path="/replay" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><ReplayArquivo /></Suspense></RotaRestrita>} />
           <Route path="/treinador/:nome" element={<Suspense fallback={null}><TreinadorPerfil /></Suspense>} />
           <Route path="*" element={<PaginaEmConstrucao titulo="Página não encontrada" />} />
         </Routes>

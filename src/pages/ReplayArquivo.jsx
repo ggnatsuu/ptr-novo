@@ -24,7 +24,7 @@ import GraficoComparativo from "../components/GraficoComparativo";
 
 // 🔒 Enquanto estiver em testes, só admin usa. Pra liberar pra todo mundo
 // (inclusive sem login), é só trocar pra false.
-const SOMENTE_ADMIN = true;
+const SOMENTE_ADMIN = false; // acesso controlado pela rota (RotaRestrita)
 
 const estiloCaixa = {
   width: "100%",

@@ -413,6 +413,26 @@ function RankAdmin() {
     abrirModalNotificacao("Conquistas", texto.trim(), texto.includes("⚠️") ? "erro" : "sucesso");
   }
 
+  // 🔑 Níveis de acesso: o admin define quem é "pocolord" (vê as Ferramentas).
+  const [treinadoresNivel, setTreinadoresNivel] = useState([]);
+  const [nivelUid, setNivelUid] = useState("");
+  useEffect(() => onSnapshot(collection(db, "treinadores"), (snap) => {
+    setTreinadoresNivel(snap.docs
+      .map((d) => ({ uid: d.id, nome: d.data().nomeTreinador || d.data().usuarioID || d.id, nivel: d.data().nivelAcesso ?? "treinador" }))
+      .sort((a, b) => a.nome.localeCompare(b.nome)));
+  }, (erro) => console.error("Erro ao observar treinadores:", erro)), []);
+  async function alterarNivel(nivel) {
+    const alvo = treinadoresNivel.find((t) => t.uid === nivelUid);
+    if (!alvo || alvo.nivel === "admin") return;
+    try {
+      await updateDoc(doc(db, "treinadores", alvo.uid), { nivelAcesso: nivel });
+      abrirModalNotificacao("Nível de Acesso", nivel === "pocolord" ? `🔑 ${alvo.nome} agora é Pocolord.` : `${alvo.nome} voltou a ser treinador.`, "sucesso");
+    } catch (erro) {
+      console.error("Erro ao alterar o nível de acesso:", erro);
+      abrirModalNotificacao("Erro", "Não foi possível alterar o nível de acesso.", "erro");
+    }
+  }
+
   // Conquistas manuais (concedidas pelo admin): ficam em conquistas/{id}.manuais.{tag}.
   const MANUAIS = CONQUISTAS.filter((c) => c.verificacao === "manual");
   const [treinadoresConquistas, setTreinadoresConquistas] = useState([]);
@@ -999,6 +1019,31 @@ function RankAdmin() {
                 </button>
               </div>
             </form>
+          </div>
+
+          {/* NÍVEIS DE ACESSO */}
+          <div className="lottery-card" style={{ width: "100%", padding: "25px 35px", background: "#0d1624", textAlign: "left", borderRadius: "12px", borderColor: "rgba(197, 160, 89, 0.3)", fontFamily: "'Montserrat', sans-serif" }}>
+            <h3 style={{ margin: "0 0 8px 0", color: "#f1ead4", fontSize: "12pt", fontFamily: "'Cinzel', serif" }}>
+              <i className="fa-solid fa-key" style={{ color: "#c5a059" }}></i> Níveis de Acesso
+            </h3>
+            <p style={{ margin: "0 0 14px 0", color: "#a4b3c6", fontSize: "9.5pt", lineHeight: 1.6 }}>
+              Pocolords veem o menu Ferramentas (Team Trials, Buscador de Pistas e Replay de Corrida).
+              {" "}Atuais: <strong style={{ color: "#c5a059" }}>{treinadoresNivel.filter((t) => t.nivel === "pocolord").map((t) => t.nome).join(", ") || "nenhum"}</strong>
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", fontSize: "9pt" }}>
+              <select value={nivelUid} onChange={(e) => setNivelUid(e.target.value)} style={{ background: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "6px", padding: "6px 8px" }}>
+                <option value="">Treinador...</option>
+                {treinadoresNivel.filter((t) => t.nivel !== "admin").map((t) => <option key={t.uid} value={t.uid}>{t.nome}{t.nivel === "pocolord" ? " (Pocolord)" : ""}</option>)}
+              </select>
+              {(() => {
+                const ehPocolord = treinadoresNivel.find((t) => t.uid === nivelUid)?.nivel === "pocolord";
+                return (
+                  <button type="button" disabled={!nivelUid} onClick={() => alterarNivel(ehPocolord ? "treinador" : "pocolord")} style={{ background: ehPocolord ? "transparent" : "rgba(197, 160, 89, 0.15)", border: `1px solid ${ehPocolord ? "rgba(224, 75, 55, 0.5)" : "#c5a059"}`, color: ehPocolord ? "#e04b37" : "#c5a059", borderRadius: "6px", padding: "6px 14px", cursor: nivelUid ? "pointer" : "not-allowed", fontWeight: 700 }}>
+                    {ehPocolord ? "Remover Pocolord" : "Tornar Pocolord"}
+                  </button>
+                );
+              })()}
+            </div>
           </div>
 
           {/* CONQUISTAS */}

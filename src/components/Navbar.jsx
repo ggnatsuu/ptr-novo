@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import { NIVEIS_FERRAMENTAS } from "../utils/nivelAcesso";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -90,6 +91,9 @@ function Navbar() {
   // React, é bem mais simples: só um if no JSX controlado por esse estado.
   const [rankDropdownAberto, setRankDropdownAberto] = useState(false);
   const [ferramentasDropdownAberto, setFerramentasDropdownAberto] = useState(false);
+  // Ferramentas: só admin e "pocolord" (ver utils/nivelAcesso.js).
+  const [nivelAcesso, setNivelAcesso] = useState(null);
+  const podeVerFerramentas = NIVEIS_FERRAMENTAS.includes(nivelAcesso);
   const [adminDropdownAberto, setAdminDropdownAberto] = useState(false);
   const [janelaCheckin, setJanelaCheckin] = useState(calcularJanelaCheckin());
   const [userDropdownAberto, setUserDropdownAberto] = useState(false);
@@ -139,6 +143,7 @@ function Navbar() {
             const dadosUsuario = docSnap.data();
             setNomeTreinador(dadosUsuario.usuarioID);
             setIsAdmin(dadosUsuario.nivelAcesso === "admin");
+            setNivelAcesso(dadosUsuario.nivelAcesso ?? "treinador");
           }
         } catch (error) {
           console.error(error);
@@ -146,6 +151,7 @@ function Navbar() {
       } else {
         // Ninguém logado: reseta tudo pro estado "visitante"
         setIsAdmin(false);
+        setNivelAcesso(null);
         setNomeTreinador("Carregando...");
       }
     });
@@ -232,7 +238,7 @@ function Navbar() {
               </div>
             </div>
 
-            {isAdmin && (
+            {podeVerFerramentas && (
               <div
                 className={`user-dropdown${ferramentasDropdownAberto ? " open" : ""}`}
                 id="ferramentas-dropdown-menu-desktop"
@@ -420,7 +426,7 @@ function Navbar() {
               </div>
             </div>
 
-            {isAdmin && (
+            {podeVerFerramentas && (
               <div
                 className={`user-dropdown${ferramentasDropdownAberto ? " open" : ""}`}
                 id="ferramentas-dropdown-menu"
