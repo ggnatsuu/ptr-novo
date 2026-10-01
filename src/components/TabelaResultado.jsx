@@ -9,6 +9,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
 import { iconeDaRoupa } from "../utils/iconeRoupa";
 import { useTelaEstreita } from "../utils/useTelaEstreita";
+import TituloTreinador from "./TituloTreinador";
 
 // Estilo base de toda célula — cada coluna sobrescreve só o que precisa.
 const estiloCelulaBase = {
@@ -145,6 +146,7 @@ function TabelaResultado({ classificacao, dadosTreinadores, chave, montarPainel 
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontWeight: 700, color: "#f1ead4", fontSize: estreito ? "9.5pt" : "11pt", ...(estreito ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } : {}) }}>{linha.personagem}</div>
                           <div style={{ fontSize: estreito ? "8pt" : "9pt", color: npc ? "#5f758e" : "#c5a059", ...(estreito ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } : {}) }}>[{linha.treinador ?? "NPC"}]</div>
+                          {!npc && <TituloTreinador nome={linha.treinador} tamanho={estreito ? "7pt" : "7.5pt"} />}
                         </div>
                       </div>
                     </td>

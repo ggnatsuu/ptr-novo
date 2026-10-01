@@ -41,7 +41,7 @@ const FERRAMENTAS = [
     autor: "gametora.com",
     links: [{ texto: "gametora.com", url: "https://gametora.com/umamusume" }],
     licenca: null,
-    uso: ["Chibis das personagens usados no replay"],
+    uso: ["Imagens das personagens usados no replay"],
     icone: "fa-images",
   },
 ];

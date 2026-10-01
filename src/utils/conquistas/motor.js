@@ -10,6 +10,7 @@
 
 import { CONQUISTAS } from "../../data/conquistas";
 import { bancoCorridas, bancoG1 } from "../../data/bancos-corridas";
+import { NIVEIS_PERSONAGEM } from "./leve";
 
 // Nomes antigos que ficaram gravados em resultados antes da correção do banco.
 const APELIDOS_PISTA = { "Sprinter Stakes": "Sprinters Stakes" };
@@ -488,12 +489,7 @@ export const TAGS_COM_REGRA = Object.keys(REGRAS);
 // TÍTULOS POR PERSONAGEM (contam EDIÇÕES com a mesma personagem)
 // ---------------------------------------------------------------------
 
-export const NIVEIS_PERSONAGEM = [
-  { nivel: "oshi", edicoes: 10, titulo: (p) => `Oshi da ${p}` },
-  { nivel: "especialista", edicoes: 7, titulo: (p) => `Especialista em ${p}` },
-  { nivel: "entusiasta", edicoes: 4, titulo: (p) => `Entusiasta de ${p}` },
-  { nivel: "iniciante", edicoes: 2, titulo: (p) => `Iniciante de ${p}` },
-];
+export { NIVEIS_PERSONAGEM };
 
 // Map(chave do treinador → [{ personagem, edicoes, nivel }]) — só quem já
 // chegou ao menos no nível Iniciante.

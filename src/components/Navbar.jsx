@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import TituloTreinador from "./TituloTreinador";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -327,6 +328,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faChevronDown} className="dropdown-arrow" />
                 </button>
                 <div className="dropdown-content">
+                  <TituloTreinador nome={nomeTreinador} estilo={{ padding: "8px 16px 4px" }} />
                   <a
                     href="#"
                     onClick={(e) => {
@@ -519,6 +521,7 @@ function Navbar() {
                   <FontAwesomeIcon icon={faChevronDown} className="dropdown-arrow" />
                 </button>
                 <div className="dropdown-content">
+                  <TituloTreinador nome={nomeTreinador} estilo={{ padding: "8px 16px 4px" }} />
                   <a
                     href="#"
                     id="btn-perfil-nav"

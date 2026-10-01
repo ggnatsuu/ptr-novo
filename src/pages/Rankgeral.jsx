@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { collection, onSnapshot, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
+import TituloTreinador from "../components/TituloTreinador";
 
 // 🎯 Tabela de pontos por posição, idêntica à regra oficial do rankGeral.js
 const PONTOS_POR_POSICAO = { 1: 12, 2: 10, 3: 9, 4: 8, 5: 7, 6: 6, 7: 5, 8: 4, 9: 3 };
@@ -418,6 +419,7 @@ function RankGeral() {
                       >
                         <i className="fa-solid fa-address-card" style={{ color: "#c5a059", marginRight: "8px", fontSize: "9.5pt", opacity: 0.7 }}></i>
                         {t.nome}
+                        <TituloTreinador nome={t.nome} estilo={{ paddingLeft: "22px", marginTop: "2px" }} />
                       </td>
                       <td style={{ textAlign: "center", padding: "15px 10px", fontFamily: "'Montserrat'", color: "#c5a059", fontWeight: 600, fontSize: "9.5pt" }}>
                         {t.prestigio.toLocaleString("pt-BR")} pts
@@ -479,6 +481,7 @@ function RankGeral() {
                           ID: #{dadosCard.trainerId}
                         </span>
                       </div>
+                      <TituloTreinador nome={dadosCard.nomeTreinador} tamanho="10pt" estilo={{ marginBottom: "4px" }} />
                       <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
                         CLASSE: <span style={{ color: "#c5a059", fontWeight: 700 }}>{dadosCard.classeTreinador}</span>
                       </div>

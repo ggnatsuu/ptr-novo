@@ -14,6 +14,7 @@ import courseData from "../uma-skill-tools/data/course_data.json";
 import { prepararCorrida, estadoNoTempo } from "../utils/replayCorrida";
 import { decodificarReplay } from "../utils/replayCompartilhado";
 import MinimapaPista from "./MinimapaPista";
+import TituloTreinador from "./TituloTreinador";
 import { useTelaEstreita } from "../utils/useTelaEstreita";
 
 // ---------------------------------------------------------------------
@@ -789,6 +790,7 @@ function FichaCavalo({ c, e, r, tempo, posicao, atrasLider, hpInicial, skills, b
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: "#f1ead4", fontWeight: 800, fontSize: "13.5pt" }}>{c.personagem}</div>
           <div style={{ color: c.treinador ? "#c5a059" : "#5f758e", fontSize: "11pt", fontWeight: 600 }}>{c.treinador ?? "NPC"}{c.estilo ? ` • ${c.estilo}` : ""}</div>
+          {c.treinador && <TituloTreinador nome={c.treinador} />}
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontWeight: 900, fontSize: "24pt", lineHeight: 1 }}>{chegou ? r.posicaoFinal : posicao}º</div>

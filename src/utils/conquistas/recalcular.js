@@ -8,10 +8,9 @@ import { collection, doc, getDoc, getDocs, writeBatch, serverTimestamp } from "f
 import { db } from "../../config/firebase";
 import { montarHistorico, calcularConquistas, calcularPersonagens } from "./motor";
 import { metricasConquistas } from "./metricasArquivo";
+import { idConquistas } from "./leve";
 
-// Id do documento: o nome do treinador em minúsculas (sem "/", que o
-// Firestore não aceita em ids).
-export const idConquistas = (nome) => String(nome ?? "").toLowerCase().trim().replace(/\//g, "_");
+export { idConquistas };
 
 export async function recalcularConquistas() {
   const resultados = (await getDocs(collection(db, "resultados_partidas"))).docs.map((d) => ({ id: d.id, ...d.data() }));
