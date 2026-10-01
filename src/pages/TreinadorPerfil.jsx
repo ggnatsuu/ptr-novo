@@ -13,7 +13,7 @@ import { obterUrlImagemPersonagem, obterUrlTrofeuCloudinary } from "../utils/clo
 import FotoTreinador from "../components/FotoTreinador";
 import TituloTreinador from "../components/TituloTreinador";
 import PainelConquistas from "../components/PainelConquistas";
-import { RARIDADES } from "../data/conquistas";
+import { CONQUISTAS, RARIDADES } from "../data/conquistas";
 
 const PONTOS_POR_POSICAO = { 1: 12, 2: 10, 3: 9, 4: 8, 5: 7, 6: 6, 7: 5, 8: 4, 9: 3 };
 const pontosDaPosicao = (pos) => PONTOS_POR_POSICAO[pos] ?? (pos >= 10 && pos <= 18 ? 2 : 0);
@@ -22,6 +22,12 @@ const NOME_NIVEL = { iniciante: "Iniciante", entusiasta: "Entusiasta", especiali
 const CORES_PODIO = { 1: "#c5a059", 2: "#a4b3c6", 3: "#cd7f32" };
 const COR_NIVEL = { iniciante: RARIDADES.bronze.cor, entusiasta: RARIDADES.prata.cor, especialista: RARIDADES.ouro.cor, oshi: RARIDADES.platina.cor };
 const EDICOES_VISIVEIS = 5;
+
+// Maior raridade entre as conquistas dele (automáticas + manuais), ou null.
+function maiorRaridade(docConquistas) {
+  const tags = new Set([...(docConquistas?.conquistas ?? []).map((q) => q.tag), ...Object.keys(docConquistas?.manuais ?? {})]);
+  return CONQUISTAS.filter((c) => tags.has(c.tag)).map((c) => RARIDADES[c.raridade]).sort((a, b) => b.ordem - a.ordem)[0] ?? null;
+}
 
 // Pílula da posição: cheia no pódio, contorno nas demais.
 function PilulaPosicao({ posicao, tamanho = "9pt" }) {
@@ -245,7 +251,14 @@ function TreinadorPerfil() {
               return (
                 <div style={{ ...estiloCaixa, padding: 0, overflow: "hidden", background: "linear-gradient(135deg, rgba(197, 160, 89, 0.12), #0d1624 55%)" }}>
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "22px", padding: "24px 26px" }}>
-                    <FotoTreinador nome={dados.nome} tamanho={104} corBorda={CORES_PODIO[dados.rank] ?? "#c5a059"} />
+                    {(() => {
+                      const raridade = maiorRaridade(docConquistas);
+                      return (
+                        <div title={raridade ? `Maior conquista: ${raridade.nome}` : undefined} style={{ borderRadius: "50%", flexShrink: 0, boxShadow: raridade && raridade.ordem >= 4 ? `0 0 18px ${raridade.cor}66` : "none" }}>
+                          <FotoTreinador nome={dados.nome} tamanho={104} corBorda={raridade?.cor ?? "rgba(164, 179, 198, 0.3)"} />
+                        </div>
+                      );
+                    })()}
                     <div style={{ flex: "1 1 260px", minWidth: 0 }}>
                       <h1 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "24pt", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis" }}>{dados.nome}</h1>
                       <TituloTreinador nome={dados.nome} tamanho="10.5pt" estilo={{ margin: "2px 0 10px" }} />
