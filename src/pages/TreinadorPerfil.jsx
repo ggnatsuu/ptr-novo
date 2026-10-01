@@ -279,10 +279,11 @@ function TreinadorPerfil() {
                 <h2 style={estiloTitulo}>Troféus <span style={{ color: "#5f758e", fontFamily: "'Montserrat'", fontSize: "9pt" }}>({dados.vitorias})</span></h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "12px" }}>
                   {dados.trofeus.map((t) => {
-                    const equipado = (perfil?.trofeusEquipados ?? []).some((e) => chave(e) === chave(t.pista));
+                    // Só o troféu de destaque do cartão (o primeiro slot válido entre as pistas vencidas).
+                    const equipado = chave((perfil?.trofeusEquipados ?? []).find((e) => e && e !== "Bloqueado" && dados.trofeus.some((x) => chave(x.pista) === chave(e)))) === chave(t.pista);
                     return (
                       <div key={t.pista} className="cartao-perfil" style={{ position: "relative", background: "radial-gradient(circle at 50% 38%, rgba(197, 160, 89, 0.16), #0b1320 68%)", border: `1px solid ${equipado ? "#c5a059" : "rgba(164, 179, 198, 0.12)"}`, borderRadius: "12px", padding: "16px 10px 12px", textAlign: "center" }}>
-                        {equipado && <i className="fa-solid fa-star" title="Em destaque no cartão" style={{ position: "absolute", top: "9px", left: "10px", color: "#c5a059", fontSize: "9pt" }}></i>}
+                        {equipado && <i className="fa-solid fa-star" title="Troféu de destaque do cartão" style={{ position: "absolute", top: "9px", left: "10px", color: "#c5a059", fontSize: "9pt" }}></i>}
                         {t.edicoes.length > 1 && (
                           <span style={{ position: "absolute", top: "8px", right: "10px", color: "#c5a059", fontSize: "9pt", fontWeight: 800 }}>×{t.edicoes.length}</span>
                         )}
