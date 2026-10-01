@@ -4,6 +4,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, deleteField, collection, onSnapshot, query, where, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { lerArquivoCorrida } from "../utils/arquivoCorrida";
+import { recalcularConquistas } from "../utils/conquistas/recalcular";
+import { CONQUISTAS } from "../data/conquistas";
 import PainelDetalheTreinador from "../components/PainelDetalheTreinador";
 import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
 import SecaoAnaliseTreinador from "../components/SecaoAnaliseTreinador";
@@ -352,7 +354,8 @@ function RankAdmin() {
       // que não existe não dá erro.
       await deleteDoc(doc(db, "replays_partidas", id));
       await deleteDoc(doc(db, "detalhes_partidas", id)).catch((erro) => console.error("Erro ao apagar detalhes dos treinadores:", erro));
-      abrirModalNotificacao("Resultado Apagado", `🗑️ O resultado de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} foi removido do site, junto com o replay.`, "sucesso");
+      const avisoConquistas = await textoRecalculo();
+      abrirModalNotificacao("Resultado Apagado", `🗑️ O resultado de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} foi removido do site, junto com o replay.${avisoConquistas}`, "sucesso");
     } catch (erro) {
       console.error("Erro ao apagar resultado:", erro);
       abrirModalNotificacao("Erro ao Apagar", "Não foi possível apagar o resultado. Confira as regras do Firestore (permissão de escrita para admin).", "erro");
@@ -387,6 +390,45 @@ function RankAdmin() {
       abrirModalNotificacao("Erro na Limpeza", "Não foi possível remover os e-mails. Confira se você está logado como admin e se as regras do Firestore permitem que o admin edite perfis.", "erro");
     } finally {
       setLimpandoEmails(false);
+    }
+  }
+
+  // 🏅 Conquistas: recalcula tudo a partir dos resultados (motor em
+  // utils/conquistas). Chamado ao salvar/apagar placar e pelo botão.
+  const [recalculando, setRecalculando] = useState(false);
+  async function textoRecalculo() {
+    try {
+      const { novas } = await recalcularConquistas();
+      return novas ? ` 🏅 ${novas} conquista(s) nova(s) desbloqueada(s).` : " 🏅 Conquistas atualizadas.";
+    } catch (erro) {
+      console.error("Erro ao recalcular conquistas:", erro);
+      return " ⚠️ As conquistas não puderam ser recalculadas (confira as regras da coleção conquistas).";
+    }
+  }
+  async function recalcularManual() {
+    setRecalculando(true);
+    const texto = await textoRecalculo();
+    setRecalculando(false);
+    abrirModalNotificacao("Conquistas", texto.trim(), texto.includes("⚠️") ? "erro" : "sucesso");
+  }
+
+  // Conquistas manuais (concedidas pelo admin): ficam em conquistas/{id}.manuais.{tag}.
+  const MANUAIS = CONQUISTAS.filter((c) => c.verificacao === "manual");
+  const [treinadoresConquistas, setTreinadoresConquistas] = useState([]);
+  const [manualTreinador, setManualTreinador] = useState("");
+  const [manualTag, setManualTag] = useState(MANUAIS[0]?.tag ?? "");
+  useEffect(() => onSnapshot(collection(db, "conquistas"), (snap) => {
+    setTreinadoresConquistas(snap.docs.map((d) => ({ id: d.id, nome: d.data().nome ?? d.id, manuais: d.data().manuais ?? {} })).sort((a, b) => a.nome.localeCompare(b.nome)));
+  }, (erro) => console.error("Erro ao observar conquistas:", erro)), []);
+  async function alterarManual(conceder) {
+    if (!manualTreinador || !manualTag) return;
+    try {
+      await updateDoc(doc(db, "conquistas", manualTreinador), { [`manuais.${manualTag}`]: conceder ? { concedidaEm: new Date().toISOString() } : deleteField() });
+      const nome = CONQUISTAS.find((c) => c.tag === manualTag)?.nome;
+      abrirModalNotificacao("Conquista Manual", conceder ? `🏅 "${nome}" concedida.` : `"${nome}" removida.`, "sucesso");
+    } catch (erro) {
+      console.error("Erro ao alterar conquista manual:", erro);
+      abrirModalNotificacao("Erro", "Não foi possível alterar a conquista (confira as regras da coleção conquistas).", "erro");
     }
   }
 
@@ -517,7 +559,8 @@ function RankAdmin() {
         }
       }
 
-      abrirModalNotificacao("Placar Computado", `🛰️ Resultados de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} salvos com sucesso no banco de dados global!${avisoDetalhes}${avisoReplay}`, "sucesso");
+      const avisoConquistas = await textoRecalculo();
+      abrirModalNotificacao("Placar Computado", `🛰️ Resultados de "${pista.nome}"${grupo ? ` (Grupo ${grupo})` : ""} salvos com sucesso no banco de dados global!${avisoDetalhes}${avisoReplay}${avisoConquistas}`, "sucesso");
       setTextareaValores((v) => ({ ...v, [chave]: "" }));
       setLinksReplay((v) => ({ ...v, [chave]: "" }));
       removerArquivoCorrida(chave);
@@ -955,6 +998,37 @@ function RankAdmin() {
                 </button>
               </div>
             </form>
+          </div>
+
+          {/* CONQUISTAS */}
+          <div className="lottery-card" style={{ width: "100%", padding: "25px 35px", background: "#0d1624", textAlign: "left", borderRadius: "12px", borderColor: "rgba(197, 160, 89, 0.3)", fontFamily: "'Montserrat', sans-serif" }}>
+            <h3 style={{ margin: "0 0 8px 0", color: "#f1ead4", fontSize: "12pt", fontFamily: "'Cinzel', serif" }}>
+              <i className="fa-solid fa-medal" style={{ color: "#c5a059" }}></i> Conquistas
+            </h3>
+            <p style={{ margin: "0 0 14px 0", color: "#a4b3c6", fontSize: "9.5pt", lineHeight: 1.6 }}>
+              Recalculadas sozinhas ao computar ou apagar um placar. Use o botão se precisar forçar.
+            </p>
+            <button type="button" disabled={recalculando} onClick={recalcularManual} style={{ background: "transparent", border: "1px solid rgba(197, 160, 89, 0.5)", color: "#c5a059", borderRadius: "8px", padding: "10px 18px", cursor: recalculando ? "wait" : "pointer", fontSize: "9pt", fontWeight: 700, marginBottom: "18px" }}>
+              <i className={`fa-solid ${recalculando ? "fa-spinner fa-spin" : "fa-rotate"}`}></i> Recalcular conquistas
+            </button>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", fontSize: "9pt" }}>
+              <span style={{ color: "#a4b3c6", fontWeight: 700 }}>Conceder manual:</span>
+              <select value={manualTreinador} onChange={(e) => setManualTreinador(e.target.value)} style={{ background: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "6px", padding: "6px 8px" }}>
+                <option value="">Treinador...</option>
+                {treinadoresConquistas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+              </select>
+              <select value={manualTag} onChange={(e) => setManualTag(e.target.value)} style={{ background: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197, 160, 89, 0.3)", borderRadius: "6px", padding: "6px 8px" }}>
+                {MANUAIS.map((c) => <option key={c.tag} value={c.tag}>{c.nome}</option>)}
+              </select>
+              {(() => {
+                const tem = Boolean(treinadoresConquistas.find((t) => t.id === manualTreinador)?.manuais?.[manualTag]);
+                return (
+                  <button type="button" disabled={!manualTreinador} onClick={() => alterarManual(!tem)} style={{ background: tem ? "transparent" : "rgba(197, 160, 89, 0.15)", border: `1px solid ${tem ? "rgba(224, 75, 55, 0.5)" : "#c5a059"}`, color: tem ? "#e04b37" : "#c5a059", borderRadius: "6px", padding: "6px 14px", cursor: manualTreinador ? "pointer" : "not-allowed", fontWeight: 700 }}>
+                    {tem ? "Remover" : "Conceder"}
+                  </button>
+                );
+              })()}
+            </div>
           </div>
 
           {/* MANUTENÇÃO: limpeza de dados (uso único) */}

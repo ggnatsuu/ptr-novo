@@ -483,3 +483,35 @@ export function calcularConquistas(historico) {
 
 // Tags que o motor sabe calcular (pra conferir o catálogo).
 export const TAGS_COM_REGRA = Object.keys(REGRAS);
+
+// ---------------------------------------------------------------------
+// TÍTULOS POR PERSONAGEM (contam EDIÇÕES com a mesma personagem)
+// ---------------------------------------------------------------------
+
+export const NIVEIS_PERSONAGEM = [
+  { nivel: "oshi", edicoes: 10, titulo: (p) => `Oshi da ${p}` },
+  { nivel: "especialista", edicoes: 7, titulo: (p) => `Especialista em ${p}` },
+  { nivel: "entusiasta", edicoes: 4, titulo: (p) => `Entusiasta de ${p}` },
+  { nivel: "iniciante", edicoes: 2, titulo: (p) => `Iniciante de ${p}` },
+];
+
+// Map(chave do treinador → [{ personagem, edicoes, nivel }]) — só quem já
+// chegou ao menos no nível Iniciante.
+export function calcularPersonagens(historico) {
+  const resultado = new Map();
+  historico.treinadores.forEach((t) => {
+    const edicoesPorPersonagem = new Map();
+    t.corridas.forEach((c) => {
+      const p = c.linha.personagem;
+      if (!p) return;
+      if (!edicoesPorPersonagem.has(p)) edicoesPorPersonagem.set(p, new Set());
+      edicoesPorPersonagem.get(p).add(c.edicaoId);
+    });
+    const lista = [...edicoesPorPersonagem.entries()]
+      .map(([personagem, eds]) => ({ personagem, edicoes: eds.size, nivel: NIVEIS_PERSONAGEM.find((n) => eds.size >= n.edicoes)?.nivel ?? null }))
+      .filter((x) => x.nivel)
+      .sort((a, b) => b.edicoes - a.edicoes);
+    resultado.set(t.chave, lista);
+  });
+  return resultado;
+}

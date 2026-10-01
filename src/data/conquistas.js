@@ -117,7 +117,7 @@ export const CONQUISTAS = [
   // 📅 Carreira & Longevidade
   c("carreira", "platina", "lenda_viva_pocolords", "Lenda Viva da PocoLords", "Pilar da Academia", "monument", "Disputar 25 edições"),
   c("carreira", "ouro", "clube_dos_15000", "Clube dos 15.000", "Magnata do Prestígio", "sack-dollar", "Mais de 15.000 pontos no Rank Geral"),
-  c("carreira", "ouro", "fidelidade_de_sangue", "Fidelidade de Sangue", "Amor Incondicional", "heart", "10 edições com a mesma Uma base"),
+  c("carreira", "ouro", "fidelidade_de_sangue", "Fidelidade de Sangue", "Amor Incondicional", "heart", "10 edições com a mesma Uma base (dá o título de Oshi dela)"),
   c("carreira", "ouro", "maestria", "Maestria", "Dupla Perfeita", "infinity", "5 vitórias com a mesma personagem"),
   c("carreira", "prata", "veterano_de_guerra", "Veterano de Guerra", "Calejado do Turf", "shield-heart", "Disputar 15 edições"),
   c("carreira", "prata", "retorno_triunfal", "O Retorno Triunfal", "O Bom Filho à Casa Torna", "rotate-left", "Voltar após 2 ou mais edições fora e vencer na edição de volta"),
