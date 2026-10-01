@@ -2,9 +2,8 @@
 // Créditos das ferramentas, dados e imagens que o PTR usa — e o aviso de
 // licença do código do site (GPL-3.0, por incluir o uma-skill-tools).
 
-// Link do código-fonte do PTR no GitHub (preencher quando o repositório
-// público for criado).
-const REPOSITORIO_PTR = null;
+// Link do código-fonte do PTR no GitHub.
+const REPOSITORIO_PTR = "https://github.com/ggnatsuu/ptr-novo";
 
 const FERRAMENTAS = [
   {
