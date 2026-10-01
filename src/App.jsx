@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -14,6 +15,10 @@ import Resultados from "./pages/Resultados";
 import RankPersonagens from "./pages/RankPersonagens";
 import TeamTrials from "./pages/TeamTrials";
 import BuscadorPistas from "./pages/BuscadorPistas";
+
+// 🎯 Replay de Corrida (ferramenta): carregado só quando alguém abre a página,
+// porque traz o leitor do arquivo, o replay e os gráficos.
+const ReplayArquivo = lazy(() => import("./pages/ReplayArquivo"));
 
 // 🎯 Página provisória, só de "segurar a bandeira" enquanto a gente não
 // migra a página de verdade. Recebe um título diferente pra cada rota.
@@ -53,6 +58,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/team-trials" element={<TeamTrials />} />
           <Route path="/pistas" element={<BuscadorPistas />} />
+          <Route path="/replay" element={<Suspense fallback={null}><ReplayArquivo /></Suspense>} />
           <Route path="*" element={<PaginaEmConstrucao titulo="Página não encontrada" />} />
         </Routes>
       </div>

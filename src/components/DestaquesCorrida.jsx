@@ -79,7 +79,7 @@ function DestaquesCorrida({ corrida }) {
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ color: "#c5a059", fontSize: "7.5pt", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px" }}>{d.titulo}</div>
-              <div style={{ color: "#f1ead4", fontSize: "10pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.linha.treinador}</div>
+              <div style={{ color: "#f1ead4", fontSize: "10pt", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.linha.treinador ?? "NPC"}</div>
               <div style={{ color: "#a4b3c6", fontSize: "8.5pt" }}>
                 {d.linha.personagem} • <span style={{ color: d.negativo ? "#e04b37" : "#1bd39e", fontWeight: 700 }}>{d.formato(d.valor)}</span>
               </div>

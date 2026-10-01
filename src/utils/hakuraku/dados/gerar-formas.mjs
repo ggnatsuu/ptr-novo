@@ -9,7 +9,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const pasta = path.dirname(fileURLToPath(import.meta.url));
-const { courseShapes } = JSON.parse(fs.readFileSync(path.join(pasta, "pistas.json"), "utf8"));
+const { courseShapes, racetracks } = JSON.parse(fs.readFileSync(path.join(pasta, "pistas.json"), "utf8"));
+
+// Nome de cada percurso (ex.: "Sapporo 1200 m・Turf"), usado como título na
+// ferramenta Replay de Corrida.
+const rotulos = Object.fromEntries((racetracks?.pageProps?.racetrackFilterData ?? []).map((r) => [r.id, r.label]));
+fs.writeFileSync(path.join(pasta, "rotulos-pistas.json"), JSON.stringify(rotulos));
+console.log(`${Object.keys(rotulos).length} nomes de percurso`);
 const destino = path.join(pasta, "formas");
 fs.mkdirSync(destino, { recursive: true });
 

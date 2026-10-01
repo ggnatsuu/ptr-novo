@@ -12,6 +12,7 @@ import {
   faHorseHead,
   faToolbox,
   faMagnifyingGlass,
+  faFilm,
   faShuffle,
   faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
@@ -74,7 +75,7 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const estaEmPaginaDeRank = location.pathname.startsWith("/rank");
-  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas");
+  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas") || location.pathname.startsWith("/replay");
   const estaEmAdmin = location.pathname.startsWith("/sorteio") || location.pathname.startsWith("/rank-admin");
 
   const [menuAberto, setMenuAberto] = useState(false);
@@ -262,6 +263,9 @@ function Navbar() {
                   <Link to="/pistas">
                     <FontAwesomeIcon icon={faMagnifyingGlass} /> Buscador de Pistas
                   </Link>
+                  <Link to="/replay">
+                    <FontAwesomeIcon icon={faFilm} /> Replay de Corrida
+                  </Link>
                 </div>
               </div>
             )}
@@ -447,6 +451,9 @@ function Navbar() {
                   </Link>
                   <Link to="/pistas">
                     <FontAwesomeIcon icon={faMagnifyingGlass} /> Buscador de Pistas
+                  </Link>
+                  <Link to="/replay">
+                    <FontAwesomeIcon icon={faFilm} /> Replay de Corrida
                   </Link>
                 </div>
               </div>

@@ -187,7 +187,9 @@ function campo(obj, nome) {
   return obj?.[nome] ?? obj?.[`<${nome.charAt(0).toUpperCase()}${nome.slice(1)}>k__BackingField`];
 }
 
-export async function lerArquivoCorrida(textoArquivo) {
+// "incluirNpcs": na PTR os NPCs ficam fora da classificação (senão
+// entrariam nos rankings); na ferramenta Replay de Corrida eles aparecem.
+export async function lerArquivoCorrida(textoArquivo, { incluirNpcs = false } = {}) {
   let json;
   try {
     json = JSON.parse(textoArquivo);
@@ -283,14 +285,14 @@ export async function lerArquivoCorrida(textoArquivo) {
   // 🎯 NPCs vêm sem treinador no arquivo. Ficam fora da classificação
   // (senão entrariam no Rank de Personagens), mas as posições dos
   // treinadores continuam as reais da corrida.
-  const classificacao = todasAsLinhas.filter((l) => l.treinador);
+  const classificacao = incluirNpcs ? todasAsLinhas : todasAsLinhas.filter((l) => l.treinador);
   const npcsIgnorados = todasAsLinhas.length - classificacao.length;
 
   const posicaoPorIndice = new Map(todasAsLinhas.map((l) => [l.numero - 1, l.posicao]));
   const terrenoDaPista = pistaDoArquivo.ground === 2 ? 2 : 1;
   const categoriaDaPista = categoriaDistancia(distanciaPista);
   const dadosTreinadores = cavalos
-    .filter((c) => c.trainerName)
+    .filter((c) => incluirNpcs || c.trainerName)
     .map((c) => {
       const dados = c.responseHorseData ?? {};
       const deck = c.trainedCharaData?.supportCardArray ?? [];

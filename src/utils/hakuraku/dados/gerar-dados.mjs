@@ -10,8 +10,10 @@ const w = (n, o) => { fs.writeFileSync(D + n, JSON.stringify(o)); console.log(n,
 w('skills.json', U.skill);
 w('charas.json', U.chara.map(c => ({ id: c.id, name: c.name })));
 w('skillNeedPoints.json', Object.fromEntries(U.singleModeSkillNeedPoint.map(e => [e.id, e.needSkillPoint])));
+// Traçados de TODAS as pistas do jogo (não só as da PTR): a ferramenta Replay
+// de Corrida aceita arquivos de qualquer corrida, e o WT precisa do traçado.
 const ids = new Set([...bancoCorridas, ...bancoG1].map(p => String(p.courseId)));
-const shapes = Object.fromEntries(Object.entries(G['tracks/course_shapes']).filter(([k]) => ids.has(k)));
-const ratios = Object.fromEntries(Object.entries(G['tracks/course_base_ratios']).filter(([k]) => ids.has(k)));
-console.log('formas de pista', Object.keys(shapes).length, 'de', ids.size);
+const shapes = G['tracks/course_shapes'];
+const ratios = G['tracks/course_base_ratios'];
+console.log('formas de pista', Object.keys(shapes).length, '(PTR usa', ids.size + ')');
 w('pistas.json', { courseData: G['tracks/course_data'], racetracks: G['tracks/racetracks'], courseShapes: shapes, courseBaseRatios: ratios });
