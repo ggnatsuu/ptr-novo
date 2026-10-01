@@ -40,6 +40,7 @@ function Footer() {
           <Link to="/jornal" className="footer-item">Jornal PTR</Link>
           <Link to="/agenda" className="footer-item">Agenda</Link>
           <Link to="/regulamento" className="footer-item">Regulamento</Link>
+          <Link to="/creditos" className="footer-item">Créditos</Link>
           {isAdmin && (
             <Link to="/sorteio" className="footer-item">Sorteio</Link>
           )}

@@ -1350,6 +1350,9 @@ function ModalTestePista({ pista, aoFechar }) {
         <p className="bp-modal-subtitulo">
           {pista.hipodromo} · {pista.distanciaNumero}m ({pista.distanciaCategoria}) · {pista.terrenoCurto} · {traduzirDirecao(pista.direcao)}
         </p>
+        <p style={{ margin: "-4px 0 10px 0", fontSize: "8.5pt", color: "#5f758e", fontFamily: "'Montserrat', sans-serif" }}>
+          Simulação feita com o <a href="https://github.com/alpha123/uma-skill-tools" target="_blank" rel="noopener noreferrer" style={{ color: "#c5a059" }}>uma-skill-tools</a>, de alpha123 · <a href="/creditos" style={{ color: "#c5a059" }}>créditos</a>
+        </p>
 
         {dadosCorrida ? (
           <div className="bp-modal-split">

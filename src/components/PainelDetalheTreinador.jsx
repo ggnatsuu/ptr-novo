@@ -232,7 +232,12 @@ function PainelDetalheTreinador({ dados, children, aoSeguirNoReplay, lateral }) 
       {/* GRÁFICO DE DESEMPENHO */}
       {children && (
         <div style={{ flex: "1 1 100%", minWidth: 0 }}>
-          <p style={estiloTituloBloco}>Performance</p>
+          <p style={estiloTituloBloco}>
+            Performance
+            <span style={{ marginLeft: "10px", fontSize: "7.5pt", fontWeight: 500, color: "#5f758e", textTransform: "none", letterSpacing: 0 }}>
+              baseado no <a href="https://hakuraku.moe/" target="_blank" rel="noopener noreferrer" style={{ color: "#c5a059" }}>Hakuraku</a>
+            </span>
+          </p>
           {children}
         </div>
       )}

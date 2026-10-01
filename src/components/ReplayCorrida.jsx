@@ -863,6 +863,7 @@ function Moldura({ titulo, aoFechar, children }) {
       <div style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", padding: "18px", boxSizing: "border-box", boxShadow: "0 8px 25px rgba(0,0,0,0.5)" }}>
         <h3 style={{ margin: "0 0 14px 0", fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "13pt" }}>
           <i className="fa-solid fa-film"></i> Replay{titulo ? ` — ${titulo}` : ""}
+          <span style={{ marginLeft: "12px", fontFamily: "'Montserrat', sans-serif", fontSize: "8pt", fontWeight: 500, color: "#5f758e" }}>baseado no <a href="https://hakuraku.moe/" target="_blank" rel="noopener noreferrer" style={{ color: "#c5a059" }}>Hakuraku</a> · <a href="/creditos" style={{ color: "#c5a059" }}>créditos</a></span>
         </h3>
         {children}
       </div>
@@ -880,6 +881,7 @@ function Moldura({ titulo, aoFechar, children }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
           <h3 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#c5a059", fontSize: "14pt" }}>
             <i className="fa-solid fa-film"></i> Replay{titulo ? ` — ${titulo}` : ""}
+          <span style={{ marginLeft: "12px", fontFamily: "'Montserrat', sans-serif", fontSize: "8pt", fontWeight: 500, color: "#5f758e" }}>baseado no <a href="https://hakuraku.moe/" target="_blank" rel="noopener noreferrer" style={{ color: "#c5a059" }}>Hakuraku</a> · <a href="/creditos" style={{ color: "#c5a059" }}>créditos</a></span>
           </h3>
           <button type="button" onClick={aoFechar} style={{ background: "transparent", border: "none", color: "#a4b3c6", fontSize: "18pt", cursor: "pointer", lineHeight: 1 }} title="Fechar (Esc)">
             ×

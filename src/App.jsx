@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Agenda from "./pages/Agenda";
 import Regulamento from "./pages/Regulamento";
+import Creditos from "./pages/Creditos";
 import RankGeral from "./pages/RankGeral";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -43,6 +44,7 @@ function App() {
           <Route path="/jornal" element={<Jornal />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/regulamento" element={<Regulamento />} />
+          <Route path="/creditos" element={<Creditos />} />
           <Route path="/sorteio" element={<Sorteio />} />
           <Route path="/resultados" element={<Resultados />} />
           <Route path="/rank" element={<RankGeral />} />
