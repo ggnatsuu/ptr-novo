@@ -5,7 +5,7 @@ import { listaAvatares } from "../data/avatares";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
 import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
 import { idConquistas } from "../utils/conquistas/leve";
-import { titulosDoTreinador, recarregarTitulos } from "../utils/conquistas/titulos";
+import { resolverTitulo, recarregarTitulos } from "../utils/conquistas/titulos";
 import PainelConquistas from "./PainelConquistas";
 
 // 🎯 Lista única de todas as pistas (G1 + G2/G3), sem duplicatas, em ordem
@@ -286,30 +286,16 @@ function TrainerCardModal({ aberto, onFechar }) {
                       </span>
                     </div>
                     {(() => {
-                      const titulos = titulosDoTreinador(dados.docConquistas);
-                      const cor = titulos.find((x) => x.id === dados.tituloEquipado)?.cor ?? "#5f758e";
+                      const titulo = resolverTitulo(dados.tituloEquipado, dados.docConquistas);
                       return (
-                        <select
-                          className="ptr-strategy-inline-select"
-                          value={titulos.some((x) => x.id === dados.tituloEquipado) ? dados.tituloEquipado : ""}
-                          disabled={titulos.length === 0}
-                          onChange={async (e) => {
-                            const tituloEquipado = e.target.value;
-                            setDados((d) => ({ ...d, tituloEquipado }));
-                            await salvarDadosTreinador({ tituloEquipado });
-                            recarregarTitulos();
-                          }}
-                          title="Título exibido abaixo do seu nome no site"
-                          style={{ fontSize: "9.5pt", fontWeight: 700, fontStyle: "italic", color: cor, marginBottom: "4px", maxWidth: "100%" }}
-                        >
-                          <option value="">{titulos.length ? "Sem título" : "Nenhum título ainda"}</option>
-                          {titulos.map((x) => <option key={x.id} value={x.id} style={{ color: x.cor }}>{x.texto}</option>)}
-                        </select>
+                        <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
+                          TÍTULO:{" "}
+                          {titulo
+                            ? <span style={{ color: titulo.cor, fontWeight: 700, fontStyle: "italic" }}>{titulo.texto}</span>
+                            : <span onClick={() => setTela("conquistas")} style={{ color: "#5f758e", fontWeight: 700, cursor: "pointer", textDecoration: "underline dotted" }}>nenhum equipado</span>}
+                        </div>
                       );
                     })()}
-                    <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
-                      CLASSE: <span style={{ color: "#c5a059", fontWeight: 700 }}>{dados.classeTreinador}</span>
-                    </div>
                     <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
                       HIPÓDROMO FAVORITO: <span style={{ color: "#c5a059", fontWeight: 700 }}>{dados.hipodromoFavorito}</span>
                     </div>
@@ -337,7 +323,7 @@ function TrainerCardModal({ aberto, onFechar }) {
                       onClick={() => setTela("conquistas")}
                       style={{ marginTop: "8px", background: "transparent", border: "1px solid rgba(197, 160, 89, 0.5)", color: "#c5a059", borderRadius: "6px", padding: "5px 12px", cursor: "pointer", fontSize: "8.5pt", fontWeight: 700, fontFamily: "'Montserrat', sans-serif", textTransform: "uppercase", letterSpacing: "0.5px" }}
                     >
-                      <i className="fa-solid fa-medal"></i> Conquistas
+                      <i className="fa-solid fa-medal"></i> Conquistas e títulos
                     </button>
                   </div>
                 </div>
@@ -424,7 +410,15 @@ function TrainerCardModal({ aberto, onFechar }) {
 
           {!carregando && !erro && dados && tela === "conquistas" && (
             <div style={{ padding: "5px 15px", boxSizing: "border-box", width: "100%", maxHeight: "70vh", overflowY: "auto" }}>
-              <PainelConquistas docConquistas={dados.docConquistas} />
+              <PainelConquistas
+                docConquistas={dados.docConquistas}
+                tituloEquipado={dados.tituloEquipado}
+                aoEquipar={async (tituloEquipado) => {
+                  setDados((d) => ({ ...d, tituloEquipado }));
+                  await salvarDadosTreinador({ tituloEquipado });
+                  recarregarTitulos();
+                }}
+              />
               <button
                 onClick={() => setTela("principal")}
                 style={{ marginTop: "20px", backgroundColor: "#0b1320", color: "#f1ead4", border: "2px solid #c5a059", borderRadius: "50px", padding: "11px 24px", fontFamily: "'Montserrat', sans-serif", fontSize: "10.5pt", fontWeight: 700, textTransform: "uppercase", cursor: "pointer" }}
@@ -571,4 +565,4 @@ function TrainerCardModal({ aberto, onFechar }) {
   );
 }
 
-export default TrainerCardModal;
+export default TrainerCardModal;
