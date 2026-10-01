@@ -63,7 +63,10 @@ function Footer() {
         </div>
 
         <div className="footer-credits">
-          <p>&copy; {anoAtual} PocoLord's Twinkles Road. Todos os direitos reservados.</p>
+          <p>
+            &copy; {anoAtual} PocoLord's Twinkles Road ·{" "}
+            <Link to="/creditos" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "2px" }}>código aberto sob GPL-3.0</Link>
+          </p>
           <p className="jra-disclaimer">Inspirado na estrutura oficial da Japan Racing Association (JRA).</p>
           <p className="jra-disclaimer">
             Projeto de fãs sem fins lucrativos, não afiliado à Cygames. Todos os materiais do jogo
