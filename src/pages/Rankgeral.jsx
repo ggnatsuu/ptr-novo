@@ -3,6 +3,7 @@ import { collection, onSnapshot, doc, getDoc, query, where, getDocs } from "fire
 import { db } from "../config/firebase";
 import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
 import TituloTreinador from "../components/TituloTreinador";
+import FotoTreinador from "../components/FotoTreinador";
 
 // 🎯 Tabela de pontos por posição, idêntica à regra oficial do rankGeral.js
 const PONTOS_POR_POSICAO = { 1: 12, 2: 10, 3: 9, 4: 8, 5: 7, 6: 6, 7: 5, 8: 4, 9: 3 };
@@ -417,9 +418,13 @@ function RankGeral() {
                         onClick={() => abrirTrainerCard(t.nome, t.uid)}
                         style={{ ...celula, textAlign: "left", padding: "8px 15px", fontWeight: 700, color: "#ffffff", cursor: "pointer" }}
                       >
-                        <i className="fa-solid fa-address-card" style={{ color: "#c5a059", marginRight: "8px", fontSize: "9.5pt", opacity: 0.7 }}></i>
-                        {t.nome}
-                        <TituloTreinador nome={t.nome} estilo={{ paddingLeft: "22px", marginTop: "2px" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <FotoTreinador nome={t.nome} corBorda={corPodio} />
+                          <div style={{ minWidth: 0 }}>
+                            {t.nome}
+                            <TituloTreinador nome={t.nome} estilo={{ marginTop: "2px" }} />
+                          </div>
+                        </div>
                       </td>
                       <td style={{ ...celula, whiteSpace: "nowrap" }} title={t.atrasLider > 0 ? `${t.atrasLider.toLocaleString("pt-BR")} pts atrás do líder` : "Líder"}>
                         <span style={{ color: "#c5a059", fontWeight: 800, fontSize: "11.5pt" }}>{t.prestigio.toLocaleString("pt-BR")}</span>

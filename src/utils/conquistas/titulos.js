@@ -35,7 +35,7 @@ export function resolverTitulo(idTitulo, docConquistas) {
   return titulosDoTreinador(docConquistas).find((t) => t.id === idTitulo) ?? null;
 }
 
-// ---- Título equipado de todos (carregado uma vez por sessão) ----
+// ---- Título equipado e foto de todos (carregados uma vez por sessão) ----
 
 let promessa = null;
 const ouvintes = new Set();
@@ -47,25 +47,26 @@ function carregarMapa() {
       .then(([conquistas, treinadores]) => {
         const docs = new Map(conquistas.docs.map((d) => [d.id, d.data()]));
         const mapa = new Map();
+        const fotos = new Map();
         treinadores.docs.forEach((d) => {
-          const { nomeTreinador, tituloEquipado } = d.data();
+          const { nomeTreinador, tituloEquipado, fotoPerfil } = d.data();
+          if (nomeTreinador && fotoPerfil) fotos.set(chave(nomeTreinador), fotoPerfil);
           if (!nomeTreinador || !tituloEquipado) return;
           const titulo = resolverTitulo(tituloEquipado, docs.get(idConquistas(nomeTreinador)));
           if (titulo) mapa.set(chave(nomeTreinador), titulo);
         });
-        return mapa;
+        return { titulos: mapa, fotos };
       })
       .catch((erro) => {
         console.error("Erro ao carregar títulos:", erro);
         promessa = null;
-        return new Map();
+        return { titulos: new Map(), fotos: new Map() };
       });
   }
   return promessa;
 }
 
-// Título equipado de um treinador (pelo nome), ou null.
-export function useTituloDe(nome) {
+function useMapas() {
   const [mapa, setMapa] = useState(null);
   useEffect(() => {
     let vivo = true;
@@ -74,7 +75,19 @@ export function useTituloDe(nome) {
     ouvintes.add(ouvir);
     return () => { vivo = false; ouvintes.delete(ouvir); };
   }, []);
-  return nome && mapa ? mapa.get(chave(nome)) ?? null : null;
+  return mapa;
+}
+
+// Título equipado de um treinador (pelo nome), ou null.
+export function useTituloDe(nome) {
+  const mapas = useMapas();
+  return nome && mapas ? mapas.titulos.get(chave(nome)) ?? null : null;
+}
+
+// Arquivo da foto de perfil de um treinador (pelo nome), ou null.
+export function useFotoDe(nome) {
+  const mapas = useMapas();
+  return nome && mapas ? mapas.fotos.get(chave(nome)) ?? null : null;
 }
 
 // Depois de trocar o título: recarrega e avisa quem está mostrando.

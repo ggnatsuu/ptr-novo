@@ -203,6 +203,7 @@ function TrainerCardModal({ aberto, onFechar }) {
     setDados((d) => ({ ...d, fotoInicial: arquivo }));
     setTela("principal");
     await salvarDadosTreinador({ fotoPerfil: arquivo });
+    recarregarTitulos();
   }
 
   // 🎯 Equivalente ao clique num troféu do inventário original: sempre
