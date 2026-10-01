@@ -233,7 +233,7 @@ function TrainerCardModal({ aberto, onFechar }) {
           : undefined
         }
       >
-        <button className="ptr-modal-close-corner" onClick={onFechar}>
+        <button className="ptr-modal-close-corner" onClick={() => (tela === "principal" ? onFechar() : setTela("principal"))}>
           <i className="fa-solid fa-xmark"></i>
         </button>
         <div className="ptr-profile-header">
