@@ -242,7 +242,6 @@ function TreinadorPerfil() {
             {/* CABEÇALHO + NÚMEROS */}
             {(() => {
               const destaque = (perfil?.trofeusEquipados ?? []).find((e) => e && e !== "Bloqueado" && dados.trofeus.some((x) => chave(x.pista) === chave(e)));
-              const status = perfil?.status?.trim();
               return (
                 <div style={{ ...estiloCaixa, padding: 0, overflow: "hidden", background: "linear-gradient(135deg, rgba(197, 160, 89, 0.12), #0d1624 55%)" }}>
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "22px", padding: "24px 26px" }}>
@@ -265,9 +264,6 @@ function TreinadorPerfil() {
                           </span>
                         )}
                       </div>
-                      {status && status !== "Nenhum status definido por este treinador." && (
-                        <p style={{ margin: "12px 0 0", color: "#8193a8", fontSize: "9pt", fontStyle: "italic", lineHeight: 1.5 }}>“{status}”</p>
-                      )}
                     </div>
                     {destaque && (
                       <div style={{ flex: "0 0 auto", textAlign: "center", padding: "10px 18px", borderLeft: "1px solid rgba(164, 179, 198, 0.1)" }} title="Troféu de destaque">
