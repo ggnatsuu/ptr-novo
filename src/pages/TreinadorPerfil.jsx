@@ -239,28 +239,54 @@ function TreinadorPerfil() {
           <p style={{ color: "#a4b3c6", textAlign: "center", padding: "60px 0" }}>Nenhuma corrida encontrada para esse treinador.</p>
         ) : (
           <>
-            {/* CABEÇALHO */}
-            <div style={{ ...estiloCaixa, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "22px" }}>
-              <FotoTreinador nome={dados.nome} tamanho={96} corBorda={CORES_PODIO[dados.rank] ?? "#c5a059"} />
-              <div style={{ flex: "1 1 240px", minWidth: 0 }}>
-                <h1 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "22pt", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis" }}>{dados.nome}</h1>
-                <TituloTreinador nome={dados.nome} tamanho="10.5pt" estilo={{ margin: "2px 0 8px" }} />
-                <div style={{ color: "#a4b3c6", fontSize: "9.5pt", fontWeight: 600 }}>
-                  {dados.rank && <><span style={{ color: CORES_PODIO[dados.rank] ?? "#c5a059", fontWeight: 800 }}>{dados.rank}º</span> no Rank Geral · </>}
-                  <span style={{ color: "#c5a059", fontWeight: 800 }}>{dados.prestigio.toLocaleString("pt-BR")}</span> pts
-                  {perfil?.estrategia && <> · {ESTRATEGIAS[perfil.estrategia]}</>}
+            {/* CABEÇALHO + NÚMEROS */}
+            {(() => {
+              const destaque = (perfil?.trofeusEquipados ?? []).find((e) => e && e !== "Bloqueado" && dados.trofeus.some((x) => chave(x.pista) === chave(e)));
+              const status = perfil?.status?.trim();
+              return (
+                <div style={{ ...estiloCaixa, padding: 0, overflow: "hidden", background: "linear-gradient(135deg, rgba(197, 160, 89, 0.12), #0d1624 55%)" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "22px", padding: "24px 26px" }}>
+                    <FotoTreinador nome={dados.nome} tamanho={104} corBorda={CORES_PODIO[dados.rank] ?? "#c5a059"} />
+                    <div style={{ flex: "1 1 260px", minWidth: 0 }}>
+                      <h1 style={{ margin: 0, fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "24pt", fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis" }}>{dados.nome}</h1>
+                      <TituloTreinador nome={dados.nome} tamanho="10.5pt" estilo={{ margin: "2px 0 10px" }} />
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                        {dados.rank && (
+                          <span style={{ background: `${CORES_PODIO[dados.rank] ?? "#c5a059"}22`, border: `1px solid ${CORES_PODIO[dados.rank] ?? "rgba(197, 160, 89, 0.4)"}`, color: CORES_PODIO[dados.rank] ?? "#c5a059", borderRadius: "50px", padding: "3px 12px", fontSize: "8.5pt", fontWeight: 800 }}>
+                            <i className="fa-solid fa-ranking-star"></i> {dados.rank}º no Rank Geral
+                          </span>
+                        )}
+                        <span style={{ border: "1px solid rgba(197, 160, 89, 0.3)", color: "#c5a059", borderRadius: "50px", padding: "3px 12px", fontSize: "8.5pt", fontWeight: 800 }}>
+                          {dados.prestigio.toLocaleString("pt-BR")} pts
+                        </span>
+                        {perfil?.estrategia && (
+                          <span style={{ border: "1px solid rgba(164, 179, 198, 0.2)", color: "#a4b3c6", borderRadius: "50px", padding: "3px 12px", fontSize: "8.5pt", fontWeight: 700 }}>
+                            <i className="fa-solid fa-flag-checkered"></i> {ESTRATEGIAS[perfil.estrategia]}
+                          </span>
+                        )}
+                      </div>
+                      {status && status !== "Nenhum status definido por este treinador." && (
+                        <p style={{ margin: "12px 0 0", color: "#8193a8", fontSize: "9pt", fontStyle: "italic", lineHeight: 1.5 }}>“{status}”</p>
+                      )}
+                    </div>
+                    {destaque && (
+                      <div style={{ flex: "0 0 auto", textAlign: "center", padding: "10px 18px", borderLeft: "1px solid rgba(164, 179, 198, 0.1)" }} title="Troféu de destaque">
+                        <img src={obterUrlTrofeuCloudinary(destaque)} alt="" style={{ height: "84px", width: "auto", objectFit: "contain", filter: "drop-shadow(0 6px 12px rgba(197, 160, 89, 0.25))" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                        <div style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontSize: "7pt", fontWeight: 700, letterSpacing: "1px", marginTop: "6px" }}>TROFÉU DE DESTAQUE</div>
+                        <div style={{ color: "#f1ead4", fontSize: "8.5pt", fontWeight: 700 }}>{destaque}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 8px", justifyContent: "space-around", padding: "16px 20px", borderTop: "1px solid rgba(164, 179, 198, 0.1)", background: "rgba(11, 19, 32, 0.55)" }}>
+                    <Numero valor={dados.corridas} rotulo="Corridas" />
+                    <Numero valor={dados.vitorias} rotulo="Vitórias" cor="#c5a059" />
+                    <Numero valor={dados.podios} rotulo="Pódios" />
+                    <Numero valor={`${Math.round((dados.vitorias / dados.corridas) * 100)}%`} rotulo="Win rate" />
+                    <Numero valor={dados.posMedia.toLocaleString("pt-BR")} rotulo="Posição média" />
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* NÚMEROS */}
-            <div style={{ ...estiloCaixa, display: "flex", flexWrap: "wrap", gap: "16px 8px", justifyContent: "space-around" }}>
-              <Numero valor={dados.corridas} rotulo="Corridas" />
-              <Numero valor={dados.vitorias} rotulo="Vitórias" cor="#c5a059" />
-              <Numero valor={dados.podios} rotulo="Pódios" />
-              <Numero valor={`${Math.round((dados.vitorias / dados.corridas) * 100)}%`} rotulo="Win rate" />
-              <Numero valor={dados.posMedia.toLocaleString("pt-BR")} rotulo="Posição média" />
-            </div>
+              );
+            })()}
 
             {/* EVOLUÇÃO */}
             <div style={estiloCaixa}>
