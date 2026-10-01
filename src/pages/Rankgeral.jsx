@@ -4,6 +4,7 @@ import { db } from "../config/firebase";
 import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
 import TituloTreinador from "../components/TituloTreinador";
 import { useCorridas } from "../utils/resumoCorridas";
+import { Link } from "react-router-dom";
 import FotoTreinador from "../components/FotoTreinador";
 
 // 🎯 Tabela de pontos por posição, idêntica à regra oficial do rankGeral.js
@@ -501,6 +502,9 @@ function RankGeral() {
                       <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
                         ESTRATEGIA: <span style={{ color: "#c5a059", fontWeight: 700 }}>{ESTRATEGIAS[dadosCard.estrategiaReal] || "Front Runner"}</span>
                       </div>
+                      <Link to={`/treinador/${encodeURIComponent(dadosCard.nomeTreinador)}`} style={{ display: "inline-block", marginTop: "8px", border: "1px solid rgba(197, 160, 89, 0.5)", color: "#c5a059", borderRadius: "6px", padding: "5px 12px", fontSize: "8.5pt", fontWeight: 700, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        <i className="fa-solid fa-user"></i> Ver perfil completo
+                      </Link>
                     </div>
                   </div>
 

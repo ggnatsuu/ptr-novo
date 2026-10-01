@@ -19,6 +19,7 @@ import BuscadorPistas from "./pages/BuscadorPistas";
 // 🎯 Replay de Corrida (ferramenta): carregado só quando alguém abre a página,
 // porque traz o leitor do arquivo, o replay e os gráficos.
 const ReplayArquivo = lazy(() => import("./pages/ReplayArquivo"));
+const TreinadorPerfil = lazy(() => import("./pages/TreinadorPerfil"));
 
 // 🎯 Página provisória, só de "segurar a bandeira" enquanto a gente não
 // migra a página de verdade. Recebe um título diferente pra cada rota.
@@ -59,6 +60,7 @@ function App() {
           <Route path="/team-trials" element={<TeamTrials />} />
           <Route path="/pistas" element={<BuscadorPistas />} />
           <Route path="/replay" element={<Suspense fallback={null}><ReplayArquivo /></Suspense>} />
+          <Route path="/treinador/:nome" element={<Suspense fallback={null}><TreinadorPerfil /></Suspense>} />
           <Route path="*" element={<PaginaEmConstrucao titulo="Página não encontrada" />} />
         </Routes>
       </div>
