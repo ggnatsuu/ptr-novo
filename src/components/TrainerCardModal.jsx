@@ -85,7 +85,6 @@ function TrainerCardModal({ aberto, onFechar }) {
         if (d.fotoPerfil) fotoInicial = d.fotoPerfil;
         if (d.estrategia) estrategiaInicial = d.estrategia;
         if (d.trofeusEquipados && Array.isArray(d.trofeusEquipados)) trofeusEquipados = d.trofeusEquipados;
-        if (d.inventarioTrofeus && Array.isArray(d.inventarioTrofeus)) inventarioTrofeus = d.inventarioTrofeus;
         if (d.tituloEquipado) tituloEquipado = d.tituloEquipado;
       }
 
@@ -125,8 +124,11 @@ function TrainerCardModal({ aberto, onFechar }) {
         if (linha.personagem) contadorCavalos[linha.personagem] = (contadorCavalos[linha.personagem] || 0) + 1;
       });
 
-      // 🎯 Salva de volta o inventário atualizado (igual o original fazia)
-      await setDoc(doc(db, "treinadores", usuario.uid), { inventarioTrofeus }, { merge: true });
+      // 🎯 Os troféus (pistas vencidas) são sempre calculados a partir dos
+      // resultados — nada é lido nem gravado pelo próprio jogador. O troféu
+      // equipado só aparece se estiver entre as pistas vencidas.
+      const venceu = (pista) => inventarioTrofeus.some((v) => v.toLowerCase().trim() === String(pista).toLowerCase().trim());
+      trofeusEquipados = trofeusEquipados.map((t) => (t && t !== "Bloqueado" && venceu(t) ? t : "Bloqueado"));
 
       let cavaloMaisUsado = "Nenhum Registrado";
       let maiorUso = 0;

@@ -163,6 +163,7 @@ function RankGeral() {
     let totaisGerais = { primeiros: 0, segundos: 0, terceiros: 0, total: 0, pontosColocacao: 0 };
     let contadorCavalos = {};
     let contadorHipodromosVitoria = {};
+    const pistasVencidas = new Set();
 
     partidas.forEach((partida) => {
       const inlineTr = (partida.classificacao || []).find(
@@ -178,6 +179,7 @@ function RankGeral() {
 
       if (pos === 1) {
         totaisGerais.primeiros++;
+        if (partida.pistaNome) pistasVencidas.add(partida.pistaNome.toLowerCase().trim());
         if (partida.hipodromo) {
           const h = partida.hipodromo.trim();
           contadorHipodromosVitoria[h] = (contadorHipodromosVitoria[h] || 0) + 1;
@@ -211,6 +213,9 @@ function RankGeral() {
     });
 
     const prestigioCalculado = totaisGerais.total * PONTOS_PARTICIPACAO + totaisGerais.pontosColocacao;
+
+    // 🎯 Troféu equipado só aparece se ele realmente venceu aquela pista.
+    trofeusEquipados = trofeusEquipados.map((t) => (t && t !== "Bloqueado" && pistasVencidas.has(t.toLowerCase().trim()) ? t : "Bloqueado"));
 
     setDadosCard({
       nomeTreinador,
