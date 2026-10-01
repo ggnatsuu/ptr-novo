@@ -158,7 +158,7 @@ function RankGeral() {
       }
     });
 
-      prestigioCalculado >= 6000 ? "Mestre de G1" : prestigioCalculado >= 3000 ? "Especialista do Turf" : "Treinador Licenciado";
+    const prestigioCalculado = totaisGerais.total * PONTOS_PARTICIPACAO + totaisGerais.pontosColocacao;
 
     setDadosCard({
       nomeTreinador,
@@ -167,7 +167,6 @@ function RankGeral() {
       statusReal,
       estrategiaReal,
       trofeusEquipados,
-      classeTreinador,
       hipodromoFavorito,
       prestigioCalculado,
       totaisGerais,
