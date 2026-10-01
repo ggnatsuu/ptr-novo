@@ -83,6 +83,7 @@ const thStyle = {
   color: "#c5a059",
   fontWeight: 700,
   userSelect: "none",
+  whiteSpace: "nowrap",
 };
 
 // 🎯 Cabeçalho clicável reutilizável: mostra a seta neutra (fa-sort) quando
@@ -381,7 +382,7 @@ function RankGeral() {
                 <ThOrdenavel campo="posicao" texto="Posição" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="nome" texto="Treinador" ordenacao={ordenacao} aoClicar={alternarOrdenacao} alinhamento="left" />
                 <ThOrdenavel campo="prestigio" texto="Prestígio Total" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
-                <th style={{ ...thStyle, cursor: "default" }} title="Últimas 5 corridas (a mais recente à direita)">Forma</th>
+                <th style={{ ...thStyle, cursor: "default" }} title="A mais recente à direita">Últimas 5</th>
                 <ThOrdenavel campo="primeiros" texto="1º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="segundos" texto="2º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                 <ThOrdenavel campo="terceiros" texto="3º Lugar" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
