@@ -135,22 +135,17 @@ function Creditos() {
           </div>
         </div>
 
-        {/* Código do site */}
-        <div style={{ ...estiloCartao, borderColor: "rgba(27, 211, 158, 0.35)" }}>
-          <h3 style={{ margin: "0 0 8px 0", fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "13pt" }}>
-            <i className="fa-solid fa-code" style={{ color: "#1bd39e" }}></i> Código do PTR
-          </h3>
-          <p style={{ margin: "0 0 10px 0", color: "#d9d2bd", fontSize: "10pt", lineHeight: 1.6 }}>
-            Por incluir o uma-skill-tools, o código do site é aberto sob a licença GPL-3.0: qualquer pessoa pode ver,
-            estudar e reaproveitar, desde que mantenha a mesma licença. As imagens e materiais do jogo continuam sendo da
-            Cygames e não fazem parte dessa licença.
-          </p>
+        {/* Código do site (discreto: só um link de texto) */}
+        <p style={{ margin: "4px 0 0 0", color: "#8193a8", fontSize: "9pt", lineHeight: 1.6, fontFamily: "'Montserrat', sans-serif", textAlign: "center" }}>
+          Por incluir o uma-skill-tools, o código do site é aberto sob a licença GPL-3.0. As imagens e materiais do jogo
+          continuam sendo da Cygames e não fazem parte dessa licença.
           {REPOSITORIO_PTR && (
-            <a href={REPOSITORIO_PTR} target="_blank" rel="noopener noreferrer" style={estiloLink}>
-              <i className="fa-brands fa-github"></i> Ver o código no GitHub
-            </a>
+            <>
+              {" "}
+              <a href={REPOSITORIO_PTR} target="_blank" rel="noopener noreferrer" style={{ color: "#c5a059" }}>GitHub</a>
+            </>
           )}
-        </div>
+        </p>
       </div>
     </main>
   );
