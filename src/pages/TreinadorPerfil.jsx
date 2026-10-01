@@ -28,7 +28,7 @@ function PilulaPosicao({ posicao, tamanho = "9pt" }) {
   const cor = CORES_PODIO[posicao];
   return (
     <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "34px", height: "24px", borderRadius: "6px", flexShrink: 0, fontSize: tamanho, fontWeight: 800, background: cor ?? "transparent", color: cor ? "#0b1320" : posicao <= 9 ? "#f1ead4" : "#5f758e", border: cor ? "none" : "1px solid rgba(164, 179, 198, 0.2)" }}>
-      {posicao}º
+      {Number.isFinite(posicao) ? `${posicao}º` : "–"}
     </span>
   );
 }
@@ -49,7 +49,7 @@ function evolucaoNoRank(corridas, alvo) {
         if (!l.treinador) return;
         const k = chave(l.treinador);
         const t = (totais[k] ??= { prestigio: 0, primeiros: 0, segundos: 0 });
-        const pos = Number(l.posicao);
+        const pos = parseInt(l.posicao);
         t.prestigio += 300 + pontosDaPosicao(pos);
         if (pos === 1) t.primeiros++;
         if (pos === 2) t.segundos++;
@@ -165,7 +165,7 @@ function TreinadorPerfil() {
     const minhas = corridasCarregadas
       .map((c) => ({ c, linha: (c.classificacao ?? []).find((l) => chave(l.treinador) === alvo) }))
       .filter((x) => x.linha)
-      .map(({ c, linha }) => ({ edicao: numeroEdicao(c.edicaoId), ordem: c.ordemPista ?? 0, pista: c.pistaNome, grade: c.grade, grupo: c.grupo, personagem: linha.personagem, posicao: Number(linha.posicao), nome: linha.treinador }))
+      .map(({ c, linha }) => ({ edicao: numeroEdicao(c.edicaoId), ordem: c.ordemPista ?? 0, pista: c.pistaNome, grade: c.grade, grupo: c.grupo, personagem: linha.personagem, posicao: parseInt(linha.posicao), nome: linha.treinador }))
       .sort((a, b) => a.edicao - b.edicao || a.ordem - b.ordem);
     if (minhas.length === 0) return { vazio: true };
 
@@ -196,7 +196,7 @@ function TreinadorPerfil() {
       corridas: minhas.length,
       vitorias: minhas.filter((m) => m.posicao === 1).length,
       podios: minhas.filter((m) => m.posicao <= 3).length,
-      posMedia: Math.round((minhas.reduce((s, m) => s + m.posicao, 0) / minhas.length) * 10) / 10,
+      posMedia: (() => { const v = minhas.filter((m) => Number.isFinite(m.posicao)); return v.length ? Math.round((v.reduce((s, m) => s + m.posicao, 0) / v.length) * 10) / 10 : 0; })(),
       prestigio: minhas.reduce((s, m) => s + 300 + pontosDaPosicao(m.posicao), 0),
       rank: evolucao.at(-1)?.posicao,
       evolucao,

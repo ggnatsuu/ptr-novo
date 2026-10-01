@@ -76,7 +76,7 @@ function agregarPersonagens(corridas) {
       if (!nome) return;
       if (!mapaPersonagens[nome]) mapaPersonagens[nome] = novo(nome);
       const p = mapaPersonagens[nome];
-      const posicao = Number(linha.posicao);
+      const posicao = parseInt(linha.posicao);
       p.corridas++;
       p.somaPosicoes += posicao || 0;
       p.corridasComEla.add(indiceCorrida);
