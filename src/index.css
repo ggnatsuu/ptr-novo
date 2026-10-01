@@ -13,3 +13,5 @@
   display: flex;
   flex-direction: column;
 }
+/* Linha de tabela clicável (Ranking de Personagens) */
+.linha-clicavel:hover { background: rgba(197, 160, 89, 0.06); }

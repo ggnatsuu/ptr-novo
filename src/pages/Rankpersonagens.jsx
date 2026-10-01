@@ -12,6 +12,7 @@ const thStyle = {
   color: "#c5a059",
   fontWeight: 700,
   userSelect: "none",
+  whiteSpace: "nowrap",
 };
 
 function ThOrdenavel({ campo, texto, ordenacao, aoClicar, alinhamento = "center" }) {
@@ -47,129 +48,124 @@ function corWinRateTreinador(valor) {
   return "#5a6e85";
 }
 
+// 🎯 Abaixo disso o win rate fica em cinza: amostra pequena demais pra comparar.
+const AMOSTRA_MINIMA = 15;
+const NOMES_CAMPO = { vitorias: "vitórias", podios: "pódios", corridas: "corridas", winRate: "win rate", pickRate: "pick rate", posMedia: "posição média" };
+const tipoDistancia = (texto) => String(texto ?? "").split(" (")[0].trim();
+
+// 🎯 Agrega por personagem as corridas recebidas (já filtradas). Cada linha
+// de cada classificação vira um "voto" pra estatística daquela cavalinha.
+function agregarPersonagens(corridas) {
+  const mapaPersonagens = {};
+  const novo = (nome) => ({ nome, corridas: 0, vitorias: 0, podios: 0, somaPosicoes: 0, corridasComEla: new Set(), porTreinador: {}, historicoVitorias: [] });
+
+  corridas.forEach((corrida, indiceCorrida) => {
+    // 🎯 Registra essa corrida no histórico de vitórias da cavalinha vencedora.
+    if (corrida.cavaloVencedor) {
+      const nomeVencedor = corrida.cavaloVencedor;
+      if (!mapaPersonagens[nomeVencedor]) mapaPersonagens[nomeVencedor] = novo(nomeVencedor);
+      mapaPersonagens[nomeVencedor].historicoVitorias.push({
+        edicaoId: corrida.edicaoId || "",
+        pistaNome: corrida.pistaNome || "",
+        treinador: corrida.treinadorVencedor || "",
+        dataRegistro: corrida.dataRegistro || "",
+      });
+    }
+
+    (corrida.classificacao || []).forEach((linha) => {
+      const nome = linha.personagem;
+      if (!nome) return;
+      if (!mapaPersonagens[nome]) mapaPersonagens[nome] = novo(nome);
+      const p = mapaPersonagens[nome];
+      const posicao = Number(linha.posicao);
+      p.corridas++;
+      p.somaPosicoes += posicao || 0;
+      p.corridasComEla.add(indiceCorrida);
+      if (posicao === 1) p.vitorias++;
+      if (posicao <= 3) p.podios++;
+
+      // 🎯 Estatística por treinador (alimenta o modal de Detalhes). Mesma
+      // normalização do Rank Geral: agrupa por nome minúsculo/sem espaço nas
+      // pontas, senão uma troca de nick separa as vitórias em 2 linhas.
+      if (linha.treinador) {
+        const chaveTreinador = linha.treinador.toLowerCase().trim();
+        if (!p.porTreinador[chaveTreinador]) {
+          p.porTreinador[chaveTreinador] = { treinador: linha.treinador, corridas: 0, vitorias: 0, podios: 0, contagemGrafias: {} };
+        }
+        const t = p.porTreinador[chaveTreinador];
+        t.contagemGrafias[linha.treinador] = (t.contagemGrafias[linha.treinador] || 0) + 1;
+        if (t.contagemGrafias[linha.treinador] > (t.contagemGrafias[t.treinador] || 0)) t.treinador = linha.treinador;
+        t.corridas++;
+        if (posicao === 1) t.vitorias++;
+        if (posicao <= 3) t.podios++;
+      }
+    });
+  });
+
+  return Object.values(mapaPersonagens).map((p) => {
+    const detalhesPorTreinador = Object.values(p.porTreinador)
+      // eslint-disable-next-line no-unused-vars -- "contagemGrafias" era só um contador auxiliar, descartado de propósito
+      .map(({ contagemGrafias, ...t }) => ({ ...t, winRate: t.corridas > 0 ? Math.round((t.vitorias / t.corridas) * 100) : 0 }))
+      .sort((a, b) => b.vitorias - a.vitorias || b.podios - a.podios || b.winRate - a.winRate || a.corridas - b.corridas);
+
+    // 🎯 Última vitória (mais recente pela data de registro) — vai no rodapé do modal.
+    const ultimaVitoria = [...p.historicoVitorias]
+      .sort((a, b) => {
+        const dataA = parseDataRegistro(a.dataRegistro);
+        const dataB = parseDataRegistro(b.dataRegistro);
+        if (!dataA || !dataB) return 0;
+        return dataB - dataA;
+      })[0] || null;
+
+    return {
+      nome: p.nome,
+      corridas: p.corridas,
+      vitorias: p.vitorias,
+      podios: p.podios,
+      winRate: p.corridas > 0 ? Math.round((p.vitorias / p.corridas) * 100) : 0,
+      // 🎯 Pick rate = % das corridas em que pelo menos um treinador usou
+      // ela (antes contava cada uso, e passava de 100% quando duas pessoas
+      // escolhiam a mesma na mesma corrida).
+      pickRate: corridas.length > 0 ? Math.round((p.corridasComEla.size / corridas.length) * 100) : 0,
+      posMedia: p.corridas > 0 ? Math.round((p.somaPosicoes / p.corridas) * 10) / 10 : 0,
+      detalhesPorTreinador,
+      ultimaVitoria,
+    };
+  });
+}
+
 function RankPersonagens() {
   const [carregando, setCarregando] = useState(true);
-  const [listaPersonagens, setListaPersonagens] = useState([]);
+  const [corridas, setCorridas] = useState([]);
   const [busca, setBusca] = useState("");
   const [ordenacao, setOrdenacao] = useState({ campo: "vitorias", crescente: false });
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
+  const [filtros, setFiltros] = useState({ grade: "", distancia: "", terreno: "" });
 
-  // 🎯 Busca TODAS as corridas já registradas (de todas as edições, o
-  // torneio inteiro) e agrega por personagem — cada linha de cada
-  // classificação vira um "voto" pra estatística daquela cavalinha.
+  // 🎯 Busca TODAS as corridas já registradas uma vez; os filtros e a
+  // agregação rodam em cima disso, sem nova leitura no banco.
   useEffect(() => {
-    async function carregarDados() {
-      try {
-        const snapshot = await getDocs(collection(db, "resultados_partidas"));
-        const mapaPersonagens = {};
-        let totalCorridasRegistradas = 0;
-
-        snapshot.forEach((docSnap) => {
-          const corrida = docSnap.data();
-          totalCorridasRegistradas++;
-
-          // 🎯 Registra essa corrida no histórico de vitórias da cavalinha
-          // vencedora — o documento já vem com cavaloVencedor/treinadorVencedor
-          // prontos (calculados na hora do lançamento do resultado), então
-          // não precisa reprocessar a classificação inteira de novo.
-          if (corrida.cavaloVencedor) {
-            const nomeVencedor = corrida.cavaloVencedor;
-            if (!mapaPersonagens[nomeVencedor]) {
-              mapaPersonagens[nomeVencedor] = { nome: nomeVencedor, corridas: 0, vitorias: 0, podios: 0, porTreinador: {}, historicoVitorias: [] };
-            }
-            mapaPersonagens[nomeVencedor].historicoVitorias.push({
-              edicaoId: corrida.edicaoId || "",
-              pistaNome: corrida.pistaNome || "",
-              treinador: corrida.treinadorVencedor || "",
-              dataRegistro: corrida.dataRegistro || "",
-            });
-          }
-
-          (corrida.classificacao || []).forEach((linha) => {
-            const nome = linha.personagem;
-            if (!nome) return;
-
-            if (!mapaPersonagens[nome]) {
-              mapaPersonagens[nome] = { nome, corridas: 0, vitorias: 0, podios: 0, porTreinador: {}, historicoVitorias: [] };
-            }
-            const p = mapaPersonagens[nome];
-            p.corridas++;
-            if (linha.posicao === 1) p.vitorias++;
-            if (linha.posicao <= 3) p.podios++;
-
-            // 🎯 Estatística detalhada por treinador, guardada dentro da
-            // própria cavalinha — é o que vai alimentar o modal de
-            // Detalhes ao clicar em cada linha.
-            if (linha.treinador) {
-              // 🎯 Mesma normalização do Rank Geral: agrupa por nome
-              // minúsculo/sem espaço nas pontas, senão uma troca de nick
-              // (ex: "kirell" -> "Kirell") separa as vitórias em 2 linhas.
-              const chaveTreinador = linha.treinador.toLowerCase().trim();
-              if (!p.porTreinador[chaveTreinador]) {
-                p.porTreinador[chaveTreinador] = { treinador: linha.treinador, corridas: 0, vitorias: 0, podios: 0, contagemGrafias: {} };
-              }
-              const t = p.porTreinador[chaveTreinador];
-              t.contagemGrafias[linha.treinador] = (t.contagemGrafias[linha.treinador] || 0) + 1;
-              if (t.contagemGrafias[linha.treinador] > (t.contagemGrafias[t.treinador] || 0)) {
-                t.treinador = linha.treinador;
-              }
-              t.corridas++;
-              if (linha.posicao === 1) t.vitorias++;
-              if (linha.posicao <= 3) t.podios++;
-            }
-          });
-        });
-
-        const lista = Object.values(mapaPersonagens).map((p) => {
-          const detalhesPorTreinador = Object.values(p.porTreinador)
-            // eslint-disable-next-line no-unused-vars -- "contagemGrafias" era só um contador auxiliar, descartado de propósito
-            .map(({ contagemGrafias, ...t }) => ({ ...t, winRate: t.corridas > 0 ? Math.round((t.vitorias / t.corridas) * 100) : 0 }))
-            .sort((a, b) => {
-              if (b.vitorias !== a.vitorias) return b.vitorias - a.vitorias;
-              if (b.podios !== a.podios) return b.podios - a.podios;
-              if (b.winRate !== a.winRate) return b.winRate - a.winRate;
-              return a.corridas - b.corridas;
-            });
-
-          // 🎯 Ordena o histórico de vitórias por data (mais recente
-          // primeiro) e guarda só a última — é o que o rodapé do modal exibe.
-          const ultimaVitoria = [...p.historicoVitorias]
-            .sort((a, b) => {
-              const dataA = parseDataRegistro(a.dataRegistro);
-              const dataB = parseDataRegistro(b.dataRegistro);
-              if (!dataA || !dataB) return 0;
-              return dataB - dataA;
-            })[0] || null;
-
-          return {
-            nome: p.nome,
-            corridas: p.corridas,
-            vitorias: p.vitorias,
-            podios: p.podios,
-            winRate: p.corridas > 0 ? Math.round((p.vitorias / p.corridas) * 100) : 0,
-            pickRate: totalCorridasRegistradas > 0 ? Math.round((p.corridas / totalCorridasRegistradas) * 100) : 0,
-            detalhesPorTreinador,
-            ultimaVitoria,
-          };
-        });
-
-        // 🎯 Ordenado por vitórias (valor absoluto), não por %, pra não
-        // deixar uma cavalinha com 1 corrida e 1 vitória (100%) aparecer
-        // na frente de outra com 20 corridas e 10 vitórias (50%, bem
-        // mais consistente).
-        lista.sort((a, b) => b.vitorias - a.vitorias || b.podios - a.podios);
-        setListaPersonagens(lista);
-      } catch (erro) {
-        console.error("Erro ao carregar ranking de personagens:", erro);
-      } finally {
-        setCarregando(false);
-      }
-    }
-    carregarDados();
+    getDocs(collection(db, "resultados_partidas"))
+      .then((snapshot) => setCorridas(snapshot.docs.map((d) => d.data())))
+      .catch((erro) => console.error("Erro ao carregar ranking de personagens:", erro))
+      .finally(() => setCarregando(false));
   }, []);
 
+  // Opções dos filtros a partir das corridas que existem.
+  const opcoes = useMemo(() => {
+    const unicos = (f) => [...new Set(corridas.map(f).filter(Boolean))].sort();
+    return { grade: unicos((c) => c.grade), distancia: unicos((c) => tipoDistancia(c.distancia)), terreno: unicos((c) => c.terreno) };
+  }, [corridas]);
+
+  const filtrado = Boolean(filtros.grade || filtros.distancia || filtros.terreno);
+  const listaPersonagens = useMemo(() => agregarPersonagens(corridas.filter((c) =>
+    (!filtros.grade || c.grade === filtros.grade)
+    && (!filtros.distancia || tipoDistancia(c.distancia) === filtros.distancia)
+    && (!filtros.terreno || c.terreno === filtros.terreno))), [corridas, filtros]);
+
   function alternarOrdenacao(campo) {
-    setOrdenacao((o) => (o.campo === campo ? { campo, crescente: !o.crescente } : { campo, crescente: false }));
+    // Posição média: menor é melhor, então começa crescente.
+    setOrdenacao((o) => (o.campo === campo ? { campo, crescente: !o.crescente } : { campo, crescente: campo === "posMedia" }));
   }
 
   // 🎯 Uma lista só, ordenada + filtrada pela busca — tanto o pódio
@@ -206,13 +202,33 @@ function RankPersonagens() {
         <div style={{ textAlign: "center", padding: "60px 20px", color: "#c5a059" }}>
           <i className="fa-solid fa-circle-notch fa-spin"></i> Carregando estatísticas...
         </div>
-      ) : listaPersonagens.length === 0 ? (
+      ) : corridas.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px 20px", color: "#a4b3c6" }}>
           <div style={{ fontSize: "28pt", marginBottom: "15px" }}>🏆</div>
           Nenhum resultado de corrida registrado ainda.
         </div>
       ) : (
         <>
+          {/* BUSCA + FILTROS */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center", maxWidth: "1100px", margin: "0 auto 12px auto" }}>
+            <input
+              type="text"
+              placeholder="Buscar cavalinha por nome..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              style={{ flex: "1 1 240px", maxWidth: "320px", backgroundColor: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197,160,89,0.3)", borderRadius: "8px", padding: "11px 12px", fontFamily: "'Montserrat'", fontSize: "9.5pt" }}
+            />
+            {[["grade", "Todos os graus"], ["distancia", "Todas as distâncias"], ["terreno", "Todos os terrenos"]].map(([campo, rotulo]) => (
+              <select key={campo} value={filtros[campo]} onChange={(e) => setFiltros((f) => ({ ...f, [campo]: e.target.value }))} style={{ backgroundColor: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197,160,89,0.3)", borderRadius: "8px", padding: "11px 12px", fontFamily: "'Montserrat'", fontSize: "9.5pt" }}>
+                <option value="">{rotulo}</option>
+                {opcoes[campo].map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ))}
+          </div>
+          <p style={{ textAlign: "center", color: "#5f758e", fontSize: "8.5pt", fontFamily: "'Montserrat'", margin: "0 0 40px 0" }}>
+            Ordenado por <strong style={{ color: "#c5a059" }}>{NOMES_CAMPO[ordenacao.campo]}</strong> · clique nas colunas da tabela para mudar
+          </p>
+
           {/* PÓDIO DOS 3 PRIMEIROS */}
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-end", gap: "24px", maxWidth: "1100px", margin: "0 auto 50px auto" }}>
             {[top3[1], top3[0], top3[2]].map((p, indice) => {
@@ -225,6 +241,8 @@ function RankPersonagens() {
               return (
                 <div
                   key={p.nome}
+                  onClick={() => setPersonagemSelecionado(p)}
+                  title="Ver detalhes"
                   style={{
                     flex: ehPrimeiro ? "1 1 300px" : "1 1 240px",
                     maxWidth: ehPrimeiro ? "340px" : "270px",
@@ -236,6 +254,7 @@ function RankPersonagens() {
                     boxShadow: ehPrimeiro ? `0 0 30px ${cor}55` : "0 8px 20px rgba(0,0,0,0.4)",
                     transform: ehPrimeiro ? "translateY(-10px)" : "none",
                     order: posicao === 1 ? 2 : posicao === 2 ? 1 : 3,
+                    cursor: "pointer",
                   }}
                 >
                   <div style={{ fontFamily: "'Cinzel', serif", fontWeight: 900, fontSize: ehPrimeiro ? "24pt" : "18pt", color: cor, marginBottom: "10px" }}>
@@ -252,43 +271,26 @@ function RankPersonagens() {
 
                   <h3 style={{ fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: ehPrimeiro ? "15pt" : "12.5pt", margin: "0 0 4px 0" }}>{p.nome}</h3>
 
-                  {ehPrimeiro && (
-                    <div style={{ display: "inline-block", background: `${cor}22`, border: `1px solid ${cor}`, color: cor, fontSize: "8pt", fontWeight: 700, borderRadius: "50px", padding: "4px 14px", margin: "6px 0 14px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {ehPrimeiro && ordenacao.campo === "vitorias" && !filtrado && (
+                    <div style={{ display: "inline-block", background: `${cor}22`, border: `1px solid ${cor}`, color: cor, fontSize: "8pt", fontWeight: 700, borderRadius: "50px", padding: "4px 14px", margin: "6px 0 4px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                       👑 Campeã Geral
                     </div>
                   )}
 
-                  <div style={{ marginTop: ehPrimeiro ? "6px" : "10px" }}>
-                    <span style={{ display: "block", color: "#5f758e", fontSize: "8pt", textTransform: "uppercase", letterSpacing: "0.5px" }}>Win Rate</span>
-                    <span style={{ fontFamily: "'Montserrat'", fontWeight: 800, fontSize: ehPrimeiro ? "20pt" : "15pt", color: "#1bd39e" }}>{p.winRate}%</span>
+                  <div style={{ marginTop: "14px", fontFamily: "'Montserrat'", fontVariantNumeric: "tabular-nums" }}>
+                    <div style={{ fontSize: ehPrimeiro ? "30pt" : "24pt", fontWeight: 800, color: cor, lineHeight: 1 }}>{p[ordenacao.campo]}{["winRate", "pickRate"].includes(ordenacao.campo) ? "%" : ""}</div>
+                    <div style={{ fontSize: "8pt", color: "#5f758e", textTransform: "uppercase", letterSpacing: "1px", marginTop: "6px" }}>{NOMES_CAMPO[ordenacao.campo]}</div>
                   </div>
 
-                  {/* Vitórias em destaque, separado e maior que o resto */}
-                  <div style={{ marginTop: "12px", display: "flex", justifyContent: "center" }}>
-                    <span style={{ background: `${cor}20`, border: `1.5px solid ${cor}`, borderRadius: "6px", padding: "6px 18px", fontSize: "11pt", color: cor, fontWeight: 800, letterSpacing: "0.3px" }}>
-                      🏆 {p.vitorias} {p.vitorias === 1 ? "VITÓRIA" : "VITÓRIAS"}
-                    </span>
+                  <div style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px solid rgba(164, 179, 198, 0.1)", fontFamily: "'Montserrat'", fontSize: "9pt", color: "#a4b3c6", fontVariantNumeric: "tabular-nums" }}>
+                    {[
+                      ordenacao.campo !== "vitorias" && `${p.vitorias} vitórias`,
+                      ordenacao.campo !== "corridas" && `${p.corridas} corridas`,
+                      ordenacao.campo !== "podios" && `${p.podios} pódios`,
+                      ordenacao.campo !== "winRate" && `${p.winRate}% WR`,
+                      ordenacao.campo !== "posMedia" && `pos. média ${p.posMedia}`,
+                    ].filter(Boolean).join(" · ")}
                   </div>
-
-                  <div style={{ marginTop: "10px", display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <span style={{ background: "rgba(197,160,89,0.08)", border: "1px solid rgba(197,160,89,0.2)", borderRadius: "4px", padding: "5px 12px", fontSize: "9.5pt", color: "#a4b3c6" }}>
-                      🏁 {p.corridas} corridas
-                    </span>
-                    <span style={{ background: "rgba(197,160,89,0.08)", border: "1px solid rgba(197,160,89,0.2)", borderRadius: "4px", padding: "5px 12px", fontSize: "9.5pt", color: "#a4b3c6" }}>
-                      🥉 {p.podios} pódios
-                    </span>
-                    <span style={{ background: "rgba(197,160,89,0.08)", border: "1px solid rgba(197,160,89,0.2)", borderRadius: "4px", padding: "5px 12px", fontSize: "9.5pt", color: "#a4b3c6" }}>
-                      🎯 Pick {p.pickRate}%
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setPersonagemSelecionado(p)}
-                    style={{ marginTop: "16px", background: "transparent", border: `1px solid ${cor}`, color: cor, borderRadius: "50px", padding: "7px 20px", fontSize: "8.5pt", fontWeight: 700, cursor: "pointer", fontFamily: "'Montserrat'" }}
-                  >
-                    <i className="fa-solid fa-magnifying-glass"></i> Ver Detalhes
-                  </button>
                 </div>
               );
             })}
@@ -297,21 +299,13 @@ function RankPersonagens() {
           {/* TABELA DO RESTANTE DO RANKING */}
           {listaPersonagens.length > 3 && (
             <div style={{ width: "100%", maxWidth: "1100px", margin: "0 auto 60px auto" }}>
-              <input
-                type="text"
-                placeholder="Buscar cavalinha por nome..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                style={{ width: "100%", maxWidth: "350px", display: "block", margin: "0 auto 20px auto", backgroundColor: "#0b1320", color: "#f1ead4", border: "1px solid rgba(197,160,89,0.3)", borderRadius: "8px", padding: "12px 16px", fontFamily: "'Montserrat'", fontSize: "10pt" }}
-              />
-
               {listaFiltrada.length === 0 ? (
                 <p style={{ textAlign: "center", color: "#5f758e", fontStyle: "italic", fontFamily: "'Montserrat'", fontSize: "9.5pt" }}>
                   Nenhuma cavalinha encontrada com esse nome.
                 </p>
               ) : (
               <div className="quadro-table-scroll" style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", boxShadow: "0 8px 25px rgba(0,0,0,0.5)", overflowX: "auto" }}>
-                <table style={{ width: "100%", minWidth: "700px", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", minWidth: "700px", borderCollapse: "collapse", fontVariantNumeric: "tabular-nums" }}>
                   <thead>
                     <tr>
                       <th style={thStyle}>#</th>
@@ -320,15 +314,15 @@ function RankPersonagens() {
                       <ThOrdenavel campo="podios" texto="Pódios" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                       <ThOrdenavel campo="vitorias" texto="Vitórias" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                       <ThOrdenavel campo="winRate" texto="Win Rate (%)" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
+                      <ThOrdenavel campo="posMedia" texto="Pos. Média" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
                       <ThOrdenavel campo="pickRate" texto="Pick Rate (%)" ordenacao={ordenacao} aoClicar={alternarOrdenacao} />
-                      <th style={{ ...thStyle, cursor: "default" }}>Detalhes</th>
                     </tr>
                   </thead>
                   <tbody>
                     {listaFiltrada.map((p, indice) => {
                       const urlImagem = obterUrlImagemPersonagem(p.nome);
                       return (
-                        <tr key={p.nome} style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)" }}>
+                        <tr key={p.nome} className="linha-clicavel" onClick={() => setPersonagemSelecionado(p)} title="Ver detalhes" style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)", cursor: "pointer" }}>
                           <td style={{ padding: "12px 10px", textAlign: "center", color: "#a4b3c6", fontFamily: "'Montserrat'", fontSize: "10pt" }}>{indice + 4}</td>
                           <td style={{ padding: "12px 10px", textAlign: "left" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -341,17 +335,9 @@ function RankPersonagens() {
                           <td style={{ padding: "12px 10px", textAlign: "center", color: "#a4b3c6", fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.corridas}</td>
                           <td style={{ padding: "12px 10px", textAlign: "center", color: "#a4b3c6", fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.podios}</td>
                           <td style={{ padding: "12px 10px", textAlign: "center", color: "#c5a059", fontWeight: 700, fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.vitorias}</td>
-                          <td style={{ padding: "12px 10px", textAlign: "center", color: "#1bd39e", fontWeight: 700, fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.winRate}%</td>
+                          <td style={{ padding: "12px 10px", textAlign: "center", color: p.corridas < AMOSTRA_MINIMA ? "#5f758e" : "#f1ead4", fontWeight: 600, fontFamily: "'Montserrat'", fontSize: "10pt" }} title={p.corridas < AMOSTRA_MINIMA ? `Poucas corridas (menos de ${AMOSTRA_MINIMA}) para comparar` : undefined}>{p.winRate}%</td>
+                          <td style={{ padding: "12px 10px", textAlign: "center", color: "#a4b3c6", fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.posMedia.toLocaleString("pt-BR")}</td>
                           <td style={{ padding: "12px 10px", textAlign: "center", color: "#a4b3c6", fontFamily: "'Montserrat'", fontSize: "10pt" }}>{p.pickRate}%</td>
-                          <td style={{ padding: "12px 10px", textAlign: "center" }}>
-                            <button
-                              type="button"
-                              onClick={() => setPersonagemSelecionado(p)}
-                              style={{ background: "transparent", border: "1px solid rgba(197,160,89,0.4)", color: "#c5a059", borderRadius: "50px", padding: "5px 14px", fontSize: "8pt", fontWeight: 700, cursor: "pointer", fontFamily: "'Montserrat'" }}
-                            >
-                              <i className="fa-solid fa-magnifying-glass"></i> Ver
-                            </button>
-                          </td>
                         </tr>
                       );
                     })}
