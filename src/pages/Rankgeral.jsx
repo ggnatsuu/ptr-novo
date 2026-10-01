@@ -158,8 +158,6 @@ function RankGeral() {
       }
     });
 
-    const prestigioCalculado = totaisGerais.total * PONTOS_PARTICIPACAO + totaisGerais.pontosColocacao;
-    const classeTreinador =
       prestigioCalculado >= 6000 ? "Mestre de G1" : prestigioCalculado >= 3000 ? "Especialista do Turf" : "Treinador Licenciado";
 
     setDadosCard({
@@ -482,9 +480,6 @@ function RankGeral() {
                         </span>
                       </div>
                       <TituloTreinador nome={dadosCard.nomeTreinador} tamanho="10pt" estilo={{ marginBottom: "4px" }} />
-                      <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
-                        CLASSE: <span style={{ color: "#c5a059", fontWeight: 700 }}>{dadosCard.classeTreinador}</span>
-                      </div>
                       <div style={{ fontSize: "10.5pt", color: "#a4b3c6", margin: "4px 0", fontWeight: 600 }}>
                         HIPÓDROMO FAVORITO: <span style={{ color: "#c5a059", fontWeight: 700 }}>{dadosCard.hipodromoFavorito}</span>
                       </div>
