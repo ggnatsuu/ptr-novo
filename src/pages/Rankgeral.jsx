@@ -69,9 +69,8 @@ function somarRanking(partidas) {
 function corDaForma(pos) {
   if (pos === 1) return { fundo: "#c5a059", texto: "#0b1320" };
   if (pos === 2) return { fundo: "#a4b3c6", texto: "#0b1320" };
-  if (pos === 3) return { fundo: "#cd7f32", texto: "#0b1320" };
-  if (pos <= 9) return { fundo: "rgba(164, 179, 198, 0.14)", texto: "#f1ead4" };
-  return { fundo: "transparent", texto: "#5f758e" };
+  if (pos === 3) return { fundo: "#a8662c", texto: "#f1ead4" };
+  return { fundo: "transparent", texto: pos <= 9 ? "#a4b3c6" : "#5f758e" };
 }
 
 const thStyle = {
@@ -402,14 +401,16 @@ function RankGeral() {
 
                   return (
                     <tr key={t.chave} style={{ borderBottom: "1px solid rgba(164, 179, 198, 0.1)" }}>
-                      <td style={{ ...celula, boxShadow: corPodio ? `inset 3px 0 0 ${corPodio}` : undefined }}>
-                        <div style={{ fontSize: "12pt", fontWeight: corPodio ? 800 : 600, color: corPodio ?? "#f1ead4", textShadow: t.rank === 1 ? "0 0 10px rgba(197,160,89,0.4)" : undefined }}>
+                      <td style={{ ...celula, boxShadow: corPodio ? `inset 3px 0 0 ${corPodio}` : undefined, whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: "11.5pt", fontWeight: corPodio ? 800 : 600, color: corPodio ?? "#f1ead4" }}>
                           {t.rank === 1 ? "👑 1" : t.rank}
-                        </div>
-                        {t.variacao !== null && (
-                          <div style={{ fontSize: "7.5pt", fontWeight: 700, marginTop: "2px", color: t.variacao === "novo" ? "#4f9bd9" : t.variacao > 0 ? "#1bd39e" : t.variacao < 0 ? "#e04b37" : "#5f758e" }} title="Em relação à edição anterior">
-                            {t.variacao === "novo" ? "NOVO" : t.variacao > 0 ? `▲ ${t.variacao}` : t.variacao < 0 ? `▼ ${-t.variacao}` : "–"}
-                          </div>
+                        </span>
+                        {t.variacao !== null && t.variacao !== 0 && (
+                          <span style={{ display: "inline-block", width: 0, overflow: "visible", verticalAlign: "middle" }} title="Em relação à edição anterior">
+                            <span style={{ marginLeft: "6px", fontSize: "7.5pt", fontWeight: 700, color: t.variacao === "novo" ? "#4f9bd9" : t.variacao > 0 ? "#1bd39e" : "#e04b37" }}>
+                              {t.variacao === "novo" ? "NOVO" : t.variacao > 0 ? `▲${t.variacao}` : `▼${-t.variacao}`}
+                            </span>
+                          </span>
                         )}
                       </td>
                       <td
@@ -420,30 +421,26 @@ function RankGeral() {
                         {t.nome}
                         <TituloTreinador nome={t.nome} estilo={{ paddingLeft: "22px", marginTop: "2px" }} />
                       </td>
-                      <td style={celula}>
-                        <div style={{ color: "#c5a059", fontWeight: 800, fontSize: "12pt" }}>
-                          {t.prestigio.toLocaleString("pt-BR")} <span style={{ fontSize: "8pt", fontWeight: 600, opacity: 0.7 }}>pts</span>
-                        </div>
-                        {t.atrasLider > 0 && (
-                          <div style={{ color: "#5f758e", fontSize: "7.5pt", fontWeight: 600 }} title="Distância para o líder">−{t.atrasLider.toLocaleString("pt-BR")}</div>
-                        )}
+                      <td style={{ ...celula, whiteSpace: "nowrap" }} title={t.atrasLider > 0 ? `${t.atrasLider.toLocaleString("pt-BR")} pts atrás do líder` : "Líder"}>
+                        <span style={{ color: "#c5a059", fontWeight: 800, fontSize: "11.5pt" }}>{t.prestigio.toLocaleString("pt-BR")}</span>
+                        <span style={{ color: "#c5a059", fontSize: "8pt", fontWeight: 600, opacity: 0.6 }}> pts</span>
                       </td>
                       <td style={celula}>
-                        <div style={{ display: "inline-flex", gap: "4px" }}>
+                        <div style={{ display: "inline-flex", gap: "3px" }}>
                           {t.forma.map((c, i) => {
                             const cor = corDaForma(c.pos);
                             return (
-                              <span key={i} title={`Ed. ${c.edicao} · ${c.pista ?? ""}: ${c.pos}º`} style={{ width: "22px", height: "22px", borderRadius: "50%", background: cor.fundo, color: cor.texto, border: "1px solid rgba(164, 179, 198, 0.2)", fontSize: "8pt", fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                              <span key={i} title={`Ed. ${c.edicao} · ${c.pista ?? ""}: ${c.pos}º`} style={{ width: "20px", height: "20px", borderRadius: "50%", background: cor.fundo, color: cor.texto, fontSize: "8pt", fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
                                 {c.pos}
                               </span>
                             );
                           })}
                         </div>
                       </td>
-                      <td style={{ ...celula, fontWeight: 700, color: "#f1ead4" }}>{t.primeiros}</td>
-                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.segundos}</td>
-                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.terceiros}</td>
-                      <td style={{ ...celula, color: "#a4b3c6" }}>{t.totalCorridas}</td>
+                      <td style={{ ...celula, fontWeight: 600, color: "#f1ead4" }}>{t.primeiros}</td>
+                      <td style={{ ...celula, fontWeight: 600, color: "#f1ead4" }}>{t.segundos}</td>
+                      <td style={{ ...celula, fontWeight: 600, color: "#f1ead4" }}>{t.terceiros}</td>
+                      <td style={{ ...celula, fontWeight: 600, color: "#a4b3c6" }}>{t.totalCorridas}</td>
                     </tr>
                   );
                 })
