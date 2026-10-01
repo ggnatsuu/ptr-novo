@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { useState, useMemo } from "react";
 import { obterUrlImagemPersonagem } from "../utils/cloudinary";
+import { useCorridas } from "../utils/resumoCorridas";
 
 const thStyle = {
   cursor: "pointer",
@@ -135,21 +134,16 @@ function agregarPersonagens(corridas) {
 }
 
 function RankPersonagens() {
-  const [carregando, setCarregando] = useState(true);
-  const [corridas, setCorridas] = useState([]);
+  // 🎯 Todas as corridas (resumo de 1 documento); os filtros e a
+  // agregação rodam em cima disso, sem nova leitura no banco.
+  const corridasCarregadas = useCorridas();
+  const carregando = corridasCarregadas === null;
+  const corridas = useMemo(() => corridasCarregadas ?? [], [corridasCarregadas]);
   const [busca, setBusca] = useState("");
   const [ordenacao, setOrdenacao] = useState({ campo: "vitorias", crescente: false });
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
   const [filtros, setFiltros] = useState({ grade: "", distancia: "", terreno: "" });
 
-  // 🎯 Busca TODAS as corridas já registradas uma vez; os filtros e a
-  // agregação rodam em cima disso, sem nova leitura no banco.
-  useEffect(() => {
-    getDocs(collection(db, "resultados_partidas"))
-      .then((snapshot) => setCorridas(snapshot.docs.map((d) => d.data())))
-      .catch((erro) => console.error("Erro ao carregar ranking de personagens:", erro))
-      .finally(() => setCarregando(false));
-  }, []);
 
   // Opções dos filtros a partir das corridas que existem.
   const opcoes = useMemo(() => {

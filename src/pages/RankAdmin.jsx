@@ -398,8 +398,9 @@ function RankAdmin() {
   const [recalculando, setRecalculando] = useState(false);
   async function textoRecalculo() {
     try {
-      const { novas } = await recalcularConquistas();
-      return novas ? ` 🏅 ${novas} conquista(s) nova(s) desbloqueada(s).` : " 🏅 Conquistas atualizadas.";
+      const { novas, resumoFalhou } = await recalcularConquistas();
+      const aviso = resumoFalhou ? " ⚠️ O resumo das corridas não pôde ser gravado (confira a regra da coleção resumos)." : "";
+      return (novas ? ` 🏅 ${novas} conquista(s) nova(s) desbloqueada(s).` : " 🏅 Conquistas atualizadas.") + aviso;
     } catch (erro) {
       console.error("Erro ao recalcular conquistas:", erro);
       return " ⚠️ As conquistas não puderam ser recalculadas (confira as regras da coleção conquistas).";

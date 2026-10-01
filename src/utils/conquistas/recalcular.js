@@ -9,6 +9,7 @@ import { db } from "../../config/firebase";
 import { montarHistorico, calcularConquistas, calcularPersonagens } from "./motor";
 import { metricasConquistas } from "./metricasArquivo";
 import { idConquistas } from "./leve";
+import { gravarResumoCorridas } from "../resumoCorridas";
 
 export { idConquistas };
 
@@ -69,5 +70,14 @@ export async function recalcularConquistas() {
   });
   await lote.commit();
 
-  return { treinadores: conquistas.size, novas };
+  // Resumo das corridas (1 documento lido pelas páginas públicas).
+  let resumoFalhou = false;
+  try {
+    await gravarResumoCorridas(resultados, pistasPorEdicao);
+  } catch (erro) {
+    console.error("Erro ao gravar o resumo das corridas:", erro);
+    resumoFalhou = true;
+  }
+
+  return { treinadores: conquistas.size, novas, resumoFalhou };
 }

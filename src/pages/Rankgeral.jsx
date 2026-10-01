@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { collection, onSnapshot, doc, getDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
 import TituloTreinador from "../components/TituloTreinador";
+import { useCorridas } from "../utils/resumoCorridas";
 import FotoTreinador from "../components/FotoTreinador";
 
 // 🎯 Tabela de pontos por posição, idêntica à regra oficial do rankGeral.js
@@ -109,7 +110,8 @@ function ThOrdenavel({ campo, texto, ordenacao, aoClicar, alinhamento = "center"
 // e cálculos específicos daquele treinador (musume mais usada, hipódromo
 // favorito, etc.)
 function RankGeral() {
-  const [partidas, setPartidas] = useState([]);
+  const corridasCarregadas = useCorridas();
+  const partidas = useMemo(() => corridasCarregadas ?? [], [corridasCarregadas]);
   const [categoriaIndex, setCategoriaIndex] = useState(0);
 
   const [modalAberto, setModalAberto] = useState(false);
@@ -260,31 +262,18 @@ function RankGeral() {
     return () => clearTimeout(temporizador);
   }, [buscaInput]);
 
-  // 🎯 Equivalente ao antigo firestoreDb.collection("resultados_partidas").onSnapshot(...)
-  useEffect(() => {
-    const pararDeObservar = onSnapshot(
-      collection(db, "resultados_partidas"),
-      (snapshot) => {
-        const lista = [];
-        snapshot.forEach((doc) => lista.push(doc.data()));
-        setPartidas(lista);
-      },
-      (erro) => {
-        console.error("Erro ao puxar classificações:", erro);
-      }
-    );
-
-    return () => pararDeObservar();
-  }, []);
 
   // 🎯 Ordem das pistas sorteadas de cada edição (pra saber qual corrida
   // veio por último dentro de uma edição, na forma recente).
+  // O resumo já traz "ordemPista"; só lê o sorteio se faltar em alguma.
   const [ordemPistas, setOrdemPistas] = useState({});
+  const faltaOrdem = partidas.some((p) => !p.ordemPista);
   useEffect(() => {
+    if (!faltaOrdem) return;
     getDocs(collection(db, "pistas_sorteadas"))
       .then((snap) => setOrdemPistas(Object.fromEntries(snap.docs.map((d) => [d.id, (d.data().pistas ?? []).map((x) => x.nome)]))))
       .catch((erro) => console.error("Erro ao ler a ordem das pistas:", erro));
-  }, []);
+  }, [faltaOrdem]);
 
   // 🎯 Ranking da modalidade + comparação com o ranking antes da última
   // edição (variação de posição) + forma recente (últimas 5 corridas).
@@ -292,7 +281,7 @@ function RankGeral() {
     const modoAtivo = CATEGORIAS_CICLO[categoriaIndex];
     const daModalidade = partidas
       .filter((p) => modoAtivo === "TOTAL" || p.grade === modoAtivo)
-      .map((p) => ({ ...p, _ordem: numeroEdicao(p.edicaoId) * 100 + ((ordemPistas[p.edicaoId] ?? []).indexOf(p.pistaNome) + 1) }));
+      .map((p) => ({ ...p, _ordem: numeroEdicao(p.edicaoId) * 100 + (p.ordemPista ?? (ordemPistas[p.edicaoId] ?? []).indexOf(p.pistaNome) + 1) }));
     const ultima = Math.max(0, ...daModalidade.map((p) => numeroEdicao(p.edicaoId)));
     const atual = somarRanking(daModalidade);
     const anterior = new Map(somarRanking(daModalidade.filter((p) => numeroEdicao(p.edicaoId) !== ultima)).map((t) => [t.chave, t.rank]));

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { listaAvatares } from "../data/avatares";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
@@ -7,6 +7,7 @@ import { obterUrlAvatarCloudinary } from "../utils/cloudinary";
 import { idConquistas } from "../utils/conquistas/leve";
 import { resolverTitulo, recarregarTitulos } from "../utils/conquistas/titulos";
 import PainelConquistas from "./PainelConquistas";
+import { buscarCorridas } from "../utils/resumoCorridas";
 
 // 🎯 Lista única de todas as pistas (G1 + G2/G3), sem duplicatas, em ordem
 // alfabética — é o "catálogo" de troféus possíveis. Calculada uma vez só
@@ -97,9 +98,8 @@ function TrainerCardModal({ aberto, onFechar }) {
       const conquistasSnap = await getDoc(doc(db, "conquistas", idConquistas(nomeTreinador))).catch(() => null);
       const docConquistas = conquistasSnap?.exists() ? conquistasSnap.data() : null;
 
-      const partidasSnapshot = await getDocs(collection(db, "resultados_partidas"));
-      partidasSnapshot.forEach((docPartida) => {
-        const partida = docPartida.data();
+      const partidas = await buscarCorridas();
+      partidas.forEach((partida) => {
         const linha = (partida.classificacao || []).find(
           (c) => c.treinador && c.treinador.toLowerCase().trim() === nomeTreinadorLower
         );

@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { doc, getDoc, collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { useCorridas } from "../utils/resumoCorridas";
 
 const ZOOM_FACTOR_PC = 2.5;
 
@@ -12,7 +13,6 @@ function Jornal() {
   const [edicaoAtiva, setEdicaoAtiva] = useState(null);
   const [edicaoAtualCache, setEdicaoAtualCache] = useState(null);
   const [historico, setHistorico] = useState([]);
-  const [top3, setTop3] = useState([]);
   const [paginaAtualIndex, setPaginaAtualIndex] = useState(0);
 
   // 🎯 Estados do Modo Cinema
@@ -82,36 +82,19 @@ function Jornal() {
   // 🎯 Equivalente ao segundo bloco do jornal.js original (Top 3 do rank).
   // Só usa "nome" e "primeiros" no final, então simplifiquei o cálculo
   // pra não guardar campos que nunca chegam a ser exibidos.
-  useEffect(() => {
-    const pararDeObservar = onSnapshot(
-      collection(db, "resultados_partidas"),
-      (snapshot) => {
-        const mapaTreinadores = {};
-
-        snapshot.forEach((docSnap) => {
-          const partida = docSnap.data();
-          (partida.classificacao || []).forEach((linha) => {
-            const treinador = linha.treinador;
-            if (!treinador) return;
-            if (!mapaTreinadores[treinador]) {
-              mapaTreinadores[treinador] = { nome: treinador, primeiros: 0 };
-            }
-            if (parseInt(linha.posicao) === 1) {
-              mapaTreinadores[treinador].primeiros += 1;
-            }
-          });
-        });
-
-        const listaOrdenada = Object.values(mapaTreinadores).sort((a, b) => b.primeiros - a.primeiros);
-        setTop3(listaOrdenada.slice(0, 3));
-      },
-      (erro) => {
-        console.error("Erro no snap do jornal:", erro);
-      }
-    );
-
-    return () => pararDeObservar();
-  }, []);
+  const corridas = useCorridas();
+  const top3 = useMemo(() => {
+    const mapaTreinadores = {};
+    (corridas ?? []).forEach((partida) => {
+      (partida.classificacao || []).forEach((linha) => {
+        const treinador = linha.treinador;
+        if (!treinador) return;
+        if (!mapaTreinadores[treinador]) mapaTreinadores[treinador] = { nome: treinador, primeiros: 0 };
+        if (parseInt(linha.posicao) === 1) mapaTreinadores[treinador].primeiros += 1;
+      });
+    });
+    return Object.values(mapaTreinadores).sort((a, b) => b.primeiros - a.primeiros).slice(0, 3);
+  }, [corridas]);
 
   function passarPagina() {
     if (!edicaoAtiva || !edicaoAtiva.paginas?.length) return;
