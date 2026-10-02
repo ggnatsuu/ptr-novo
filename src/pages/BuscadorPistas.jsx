@@ -5,6 +5,7 @@ import umasRaw from "../uma-skill-tools/data/umas.json";
 import iconsRaw from "../uma-skill-tools/data/icons.json";
 import recomendacoesPistasRaw from "../uma-skill-tools/data/recomendacoes-pistas.json";
 import DiagramaPistaGuia from "../components/DiagramaPistaGuia";
+import MinimapaPista from "../components/MinimapaPista";
 import { portraitDaRoupa } from "../utils/iconeRoupa";
 import { roupaUpcoming } from "../utils/roupasExtras";
 import { formatarDuracaoBase } from "../utils/diagramaPista";
@@ -395,9 +396,9 @@ function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, 
 
   const resultadosCavalinha = useMemo(() => {
     const termo = buscaCavalinha.trim().toLowerCase();
-    if (termo.length === 0) return [];
     // Só corredoras já lançadas no Global (as futuras ficam pras anotações do Guia).
-    return catalogoCavalinhas.filter((c) => (MOSTRAR_UPCOMING || !c.upcoming) && c.nomeBase.toLowerCase().includes(termo)).slice(0, 8);
+    // Campo vazio = lista todas (o dropdown rola).
+    return catalogoCavalinhas.filter((c) => (MOSTRAR_UPCOMING || !c.upcoming) && `${c.nomeBase} ${c.epiteto ?? ""}`.toLowerCase().includes(termo));
   }, [buscaCavalinha]);
 
   // 🎯 Trocar a estratégia recalcula TODAS as skills já selecionadas —
@@ -1189,6 +1190,11 @@ function BuscadorPistas() {
                     <span><i className="fa-solid fa-rotate"></i> {traduzirDirecao(pistaDiagramaAberta.direcao)}</span>
                   </div>
                 </div>
+                {dadosCorrida && (
+                  <div className="bpx-minimapa-cabecalho">
+                    <MinimapaPista courseId={Object.keys(courseData).find((id) => courseData[id] === dadosCorrida)} marcadores={[]} />
+                  </div>
+                )}
                 <button type="button" className="bp-modal-fechar" onClick={() => setPistaDiagramaAberta(null)}>&times;</button>
               </div>
 

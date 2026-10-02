@@ -139,7 +139,7 @@ function formatarValorCondicao(chave, valor) {
   if (VALORES_CONDICAO[chave] && VALORES_CONDICAO[chave][valor] !== undefined) {
     return VALORES_CONDICAO[chave][valor];
   }
-  if (/_per$|_rate$/.test(chave)) {
+  if (/_per$|_rate$/.test(chave) && chave !== "order_rate") { // order_rate: posições ao lado, no formato do GameTora
     return `${valor}%`;
   }
   return valor;
@@ -157,7 +157,19 @@ export function formatarCondicaoTexto(condStr) {
 // quando a skill tem várias condições combinadas.
 export function partesDaCondicao(condStr) {
   if (!condStr) return [];
-  return condStr.split(/(?=[&@])/).map((parte) => formatarCondicaoTexto(parte));
+  return condStr.split(/(?=[&@])/).map((parte) => formatarCondicaoTexto(parte) + posicoesDoOrderRate(parte));
+}
+
+// 🎯 order_rate em posições reais, no formato do GameTora: "(CM >= 5 | LoH >= 6)".
+// Mesma conta do motor (ActivationConditions.ts, orderFilter): corte =
+// Math.round(nº de cavalos × X / 100), comparado à posição pelo mesmo operador.
+// CM tem 9 cavalos, LoH 12.
+const CAVALOS_POR_EVENTO = { CM: 9, LoH: 12 };
+function posicoesDoOrderRate(parte) {
+  const m = parte.match(/order_rate(<=|>=|==|!=|<|>)(\d+)(?![\d_])/);
+  if (!m) return "";
+  const [, op, x] = m;
+  return ` (${Object.entries(CAVALOS_POR_EVENTO).map(([ev, n]) => `${ev} ${op} ${Math.round(n * (Number(x) / 100))}`).join(" | ")})`;
 }
 
 // 🎯 Confirmado batendo baseDuration:18000 contra "Base duration: 1.8s" na

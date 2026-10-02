@@ -1553,3 +1553,25 @@
   margin-left: auto; flex-shrink: 0; border: 1px solid rgba(95, 168, 232, 0.55); color: #5fa8e8; background: rgba(95, 168, 232, 0.12);
   border-radius: 5px; padding: 0 6px; font-family: "Montserrat", sans-serif; font-size: 7pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
 }
+
+/* Modal: minimapa da pista no cabeçalho, ao lado das informações */
+.bp-modal-box-split .bp-modal-header { align-items: center; }
+.bp-modal-box-split .bp-modal-header > div:first-child { flex: 1; }
+.bpx-minimapa-cabecalho { flex: 0 0 300px; max-width: 34%; }
+@media (max-width: 900px) { .bpx-minimapa-cabecalho { display: none; } }
+
+/* Lista de corredoras: mostra todas com rolagem */
+.bp-modal-box-split .bp-cavalinha-campo-nome .bp-skill-dropdown { max-height: 380px; }
+
+/* Uniques: portrait sempre sem fundo (inclusive no hover/ativo) e hover sem "pular"
+   (o carrossel corta o que sai da borda) */
+.bp-modal-box-split .bp-recomendada-btn img.bpx-portrait,
+.bp-modal-box-split .bp-recomendada-btn:hover img.bpx-portrait,
+.bp-modal-box-split .bp-recomendada-btn.ativo img.bpx-portrait { background: transparent !important; }
+.bpx-carrossel .bp-recomendada-btn:hover { transform: none; background: rgba(197, 160, 89, 0.08); }
+
+/* Minimapa logo depois das informações da pista (o X continua no canto) */
+.bp-modal-box-split .bp-modal-header { justify-content: flex-start; }
+.bp-modal-box-split .bp-modal-header > div:first-child { flex: 0 1 auto; }
+.bp-modal-box-split .bpx-minimapa-cabecalho { flex: 0 0 300px; margin-left: 32px; }
+.bp-modal-box-split .bp-modal-header .bp-modal-fechar { margin-left: auto; }
