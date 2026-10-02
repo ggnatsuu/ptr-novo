@@ -1,0 +1,3277 @@
+{
+ "_sobre": "Gerado por scripts/atualizar-dados.mjs a partir do GameTora. Só entra o que NÃO existe nos dados do alpha123 — o que existe lá sempre prevalece.",
+ "geradoEm": "2026-10-02",
+ "status": {
+  "100101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100102": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-14"
+  },
+  "100103": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-06-25"
+  },
+  "100201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100301": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100302": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-07-16"
+  },
+  "100303": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100402": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-14"
+  },
+  "100403": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100501": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-02"
+  },
+  "100502": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-05"
+  },
+  "100503": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100602": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-05"
+  },
+  "100603": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100702": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-02"
+  },
+  "100703": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "100801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100802": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-28"
+  },
+  "100901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "100902": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-28"
+  },
+  "101001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-06-11"
+  },
+  "101003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101102": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-09-21"
+  },
+  "101103": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-09-17"
+  },
+  "101202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101301": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101302": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-07-16"
+  },
+  "101303": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-02"
+  },
+  "101401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101402": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-09-21"
+  },
+  "101501": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101502": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-29"
+  },
+  "101601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-08-20"
+  },
+  "101602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101702": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-14"
+  },
+  "101703": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "101802": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-08-28"
+  },
+  "101803": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "101901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-11-19"
+  },
+  "101902": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-08-18"
+  },
+  "102001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-09-07"
+  },
+  "102002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-05"
+  },
+  "102003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-22"
+  },
+  "102102": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-07"
+  },
+  "102201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-15"
+  },
+  "102202": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-05-18"
+  },
+  "102203": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102301": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-07-10"
+  },
+  "102302": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-05"
+  },
+  "102303": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "102402": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-08-28"
+  },
+  "102403": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102501": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-08"
+  },
+  "102502": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102503": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-07-02"
+  },
+  "102602": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-02-18"
+  },
+  "102701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "102702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-11-11"
+  },
+  "102802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "102901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-08-05"
+  },
+  "102902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "103002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-11-24"
+  },
+  "103003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-30"
+  },
+  "103102": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103103": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "103202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103203": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103301": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-03-05"
+  },
+  "103302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-05-28"
+  },
+  "103402": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-07"
+  },
+  "103501": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "103502": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-27"
+  },
+  "103503": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-06-18"
+  },
+  "103602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-30"
+  },
+  "103702": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-02-18"
+  },
+  "103703": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "103801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-07-27"
+  },
+  "103802": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-05-18"
+  },
+  "103901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-01"
+  },
+  "103902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-07"
+  },
+  "104002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-14"
+  },
+  "104003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "104102": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104103": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-08-12"
+  },
+  "104202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-06-04"
+  },
+  "104402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104501": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "104502": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-11-24"
+  },
+  "104503": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-08-11"
+  },
+  "104602": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-22"
+  },
+  "104603": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-18"
+  },
+  "104802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104803": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "104901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-15"
+  },
+  "104902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-08-03"
+  },
+  "105002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-27"
+  },
+  "105003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-12"
+  },
+  "105102": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "105202": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-01-29"
+  },
+  "105301": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-07"
+  },
+  "105302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105502": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105601": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "105602": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-11-06"
+  },
+  "105701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "105801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-10-21"
+  },
+  "105802": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-08-18"
+  },
+  "105901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-12-28"
+  },
+  "105902": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-06-11"
+  },
+  "106001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "106002": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-26"
+  },
+  "106003": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2025-06-26"
+  },
+  "106102": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-26"
+  },
+  "106103": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-03-12"
+  },
+  "106202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-05-10"
+  },
+  "106402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106502": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-03-22"
+  },
+  "106702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106703": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-03-12"
+  },
+  "106802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106803": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "106901": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-02-11"
+  },
+  "106902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107002": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107101": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-02-25"
+  },
+  "107102": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107201": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-04-20"
+  },
+  "107202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107401": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-03-26"
+  },
+  "107402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107403": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107703": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-01"
+  },
+  "107802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "107901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108002": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108201": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108502": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108701": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-08-25"
+  },
+  "108702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108801": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "108902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109102": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109201": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109801": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-07-16"
+  },
+  "109802": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "109902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110001": {
+   "status": "lancado",
+   "lancamentoGlobal": "2026-09-24"
+  },
+  "110002": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110201": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110502": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110801": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "110902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111002": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111201": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111302": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111602": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111801": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "111902": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112402": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112702": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "112901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113001": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113201": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113202": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113601": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "113701": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "114101": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "114301": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "114401": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "114501": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  },
+  "114901": {
+   "status": "previsto",
+   "lancamentoGlobal": null
+  }
+ },
+ "skillsSoJapao": [
+  "200024",
+  "200034",
+  "200164",
+  "200204",
+  "200973",
+  "201033",
+  "201183",
+  "201243",
+  "201313",
+  "201323",
+  "201463",
+  "201582",
+  "201632",
+  "202254",
+  "202611",
+  "202711",
+  "202712",
+  "202721",
+  "202722",
+  "202731",
+  "202732",
+  "202733",
+  "202734",
+  "202741",
+  "202742",
+  "202751",
+  "202752",
+  "202761",
+  "202762",
+  "202771",
+  "202772",
+  "202791",
+  "202792",
+  "202801",
+  "202802",
+  "202811",
+  "202812",
+  "202821",
+  "202822",
+  "202831",
+  "202832",
+  "202841",
+  "202842",
+  "202851",
+  "202852",
+  "202861",
+  "202862",
+  "202871",
+  "202872",
+  "202881",
+  "202882",
+  "202891",
+  "202892",
+  "202901",
+  "202902",
+  "202912",
+  "202921",
+  "202922",
+  "202931",
+  "202932",
+  "202942",
+  "202951",
+  "202952",
+  "202961",
+  "202962",
+  "202971",
+  "202972",
+  "202981",
+  "202982",
+  "202991",
+  "202992",
+  "202993",
+  "203001",
+  "203002",
+  "203011",
+  "203012",
+  "203021",
+  "203022",
+  "203031",
+  "203032",
+  "203041",
+  "203042",
+  "203051",
+  "203052",
+  "203061",
+  "203071",
+  "203081",
+  "203082",
+  "203091",
+  "203092",
+  "203093",
+  "203101",
+  "203102",
+  "203103",
+  "203111",
+  "203112",
+  "203121",
+  "203122",
+  "203131",
+  "203132",
+  "203141",
+  "203142",
+  "203151",
+  "203152",
+  "203161",
+  "203162",
+  "203171",
+  "203172",
+  "203181",
+  "203182",
+  "203201",
+  "203202",
+  "203212",
+  "203221",
+  "203222",
+  "203231",
+  "203232",
+  "203241",
+  "203242",
+  "203251",
+  "203252",
+  "203262",
+  "203272",
+  "203281",
+  "203301",
+  "203302",
+  "203311",
+  "203312",
+  "203322",
+  "203331",
+  "203332",
+  "203341",
+  "203342",
+  "203351",
+  "203352",
+  "203361",
+  "203362",
+  "203371",
+  "203372",
+  "203381",
+  "203382",
+  "203391",
+  "203392",
+  "203402",
+  "203411",
+  "203412",
+  "203421",
+  "203422",
+  "203431",
+  "203432",
+  "203441",
+  "203442",
+  "203452",
+  "203461",
+  "203462",
+  "203471",
+  "203472",
+  "203481",
+  "203482",
+  "203491",
+  "203492",
+  "203501",
+  "203502",
+  "203511",
+  "203512",
+  "203522",
+  "203532",
+  "203541",
+  "203542",
+  "203552",
+  "203562",
+  "203571",
+  "203572",
+  "203582",
+  "203591",
+  "203592",
+  "203601",
+  "203602",
+  "203611",
+  "203612",
+  "203621",
+  "203622",
+  "203631",
+  "203632",
+  "203642",
+  "203651",
+  "203652",
+  "203661",
+  "203662",
+  "203671",
+  "203672",
+  "203681",
+  "203682",
+  "203691",
+  "203701",
+  "203702",
+  "203711",
+  "203712",
+  "203721",
+  "203731",
+  "203732",
+  "203741",
+  "203742",
+  "203751",
+  "203752",
+  "203761",
+  "203762",
+  "203772",
+  "203781",
+  "203791",
+  "203792",
+  "203801",
+  "203802",
+  "203812",
+  "203822",
+  "203831",
+  "203832",
+  "203841",
+  "203842",
+  "203851",
+  "203852",
+  "203861",
+  "203862",
+  "203871",
+  "203872",
+  "203881",
+  "203882",
+  "203892",
+  "203902",
+  "203911",
+  "203912",
+  "203922",
+  "203931",
+  "203932",
+  "203941",
+  "203942",
+  "203951",
+  "203952",
+  "203961",
+  "203962",
+  "203972",
+  "203981",
+  "203982",
+  "203991",
+  "203992",
+  "204001",
+  "204002",
+  "204012",
+  "204021",
+  "204022",
+  "204031",
+  "204032",
+  "204041",
+  "204042",
+  "204051",
+  "204052",
+  "204061",
+  "204062",
+  "204071",
+  "204072",
+  "204081",
+  "204082",
+  "204092",
+  "204101",
+  "204102",
+  "204111",
+  "204112",
+  "204121",
+  "204122",
+  "204131",
+  "204132",
+  "204141",
+  "204142",
+  "204151",
+  "204152",
+  "204161",
+  "204162",
+  "204172",
+  "204181",
+  "204182",
+  "204191",
+  "204192",
+  "204202",
+  "204211",
+  "204212",
+  "204222",
+  "204232",
+  "204233",
+  "204234",
+  "204242",
+  "204243",
+  "204244",
+  "204301",
+  "204302",
+  "210291",
+  "210292",
+  "210301",
+  "210302",
+  "210311",
+  "210321",
+  "210322",
+  "210331",
+  "210341",
+  "210342",
+  "210351",
+  "210352",
+  "210361",
+  "210362",
+  "210371",
+  "210372",
+  "210381",
+  "210382"
+ ],
+ "roupas": [
+  {
+   "id": "114301",
+   "personagem": {
+    "id": "1143",
+    "nome": "Victoire Pisa",
+    "nomeJp": "ヴィクトワールピサ"
+   },
+   "variante": null,
+   "epiteto": "Lueur Angélique",
+   "epitetoJp": "Lueur Angélique",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "104103",
+   "personagem": {
+    "id": "1041",
+    "nome": "Sakura Bakushin O",
+    "nomeJp": "サクラバクシンオー"
+   },
+   "variante": "Ballroom",
+   "epiteto": "Spring-Thunder Speedster",
+   "epitetoJp": "春雷の韋駄天",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "108202",
+   "personagem": {
+    "id": "1082",
+    "nome": "North Flight",
+    "nomeJp": "ノースフライト"
+   },
+   "variante": "Ballroom",
+   "epiteto": "Pale-Blue Flash",
+   "epitetoJp": "水縹の一閃",
+   "raridade": 3,
+   "estrategia": "End",
+   "status": "previsto"
+  },
+  {
+   "id": "113001",
+   "personagem": {
+    "id": "1130",
+    "nome": "Lucky Lilac",
+    "nomeJp": "ラッキーライラック"
+   },
+   "variante": null,
+   "epiteto": "Standard of Unyielding Resolve",
+   "epitetoJp": "万折不撓の纏",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "111801",
+   "personagem": {
+    "id": "1118",
+    "nome": "Admire Groove",
+    "nomeJp": "アドマイヤグルーヴ"
+   },
+   "variante": null,
+   "epiteto": "Glacial Queen",
+   "epitetoJp": "Glacial Queen",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "100503",
+   "personagem": {
+    "id": "1005",
+    "nome": "Fuji Kiseki",
+    "nomeJp": "フジキセキ"
+   },
+   "variante": "Cheerleader",
+   "epiteto": "Blanche Étoile",
+   "epitetoJp": "ブランシュ・エトワール",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "109402",
+   "personagem": {
+    "id": "1094",
+    "nome": "Jungle Pocket",
+    "nomeJp": "ジャングルポケット"
+   },
+   "variante": "Cheerleader",
+   "epiteto": "Vermilion Head",
+   "epitetoJp": "ヴァーミリオン・ヘッド",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "111201",
+   "personagem": {
+    "id": "1112",
+    "nome": "Daring Heart",
+    "nomeJp": "デアリングハート"
+   },
+   "variante": null,
+   "epiteto": "Daring Darling!",
+   "epitetoJp": "Daring Darling!",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "113601",
+   "personagem": {
+    "id": "1136",
+    "nome": "Red Desire",
+    "nomeJp": "レッドディザイア"
+   },
+   "variante": null,
+   "epiteto": "Divine Raiment",
+   "epitetoJp": "Divine Raiment",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "102503",
+   "personagem": {
+    "id": "1025",
+    "nome": "Manhattan Cafe",
+    "nomeJp": "マンハッタンカフェ"
+   },
+   "variante": "Wedding",
+   "epiteto": "Ethereal Rose",
+   "epitetoJp": "幽玄薔薇",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "111602",
+   "personagem": {
+    "id": "1116",
+    "nome": "Gentildonna",
+    "nomeJp": "ジェンティルドンナ"
+   },
+   "variante": "Wedding",
+   "epiteto": "La dama perfetta",
+   "epitetoJp": "La dama perfetta",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "113401",
+   "personagem": {
+    "id": "1134",
+    "nome": "Curren Bouquetd'or",
+    "nomeJp": "カレンブーケドール"
+   },
+   "variante": null,
+   "epiteto": "Couture in Bloom",
+   "epitetoJp": "花宿しのクチュール",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "107703",
+   "personagem": {
+    "id": "1077",
+    "nome": "Narita Top Road",
+    "nomeJp": "ナリタトップロード"
+   },
+   "variante": "Tracen Ken",
+   "epiteto": "Bountiful Dragon Broth Saga",
+   "epitetoJp": "万福龍湯伝・頂",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "102203",
+   "personagem": {
+    "id": "1022",
+    "nome": "Fine Motion",
+    "nomeJp": "ファインモーション"
+   },
+   "variante": "Tracen Ken",
+   "epiteto": "Radiant Noodle Splendor Saga",
+   "epitetoJp": "麺華煌彩伝・極",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "114501",
+   "personagem": {
+    "id": "1145",
+    "nome": "Rulership",
+    "nomeJp": "ルーラーシップ"
+   },
+   "variante": null,
+   "epiteto": "Monochrome GM",
+   "epitetoJp": "Monochrome GM",
+   "raridade": 3,
+   "estrategia": "End",
+   "status": "previsto"
+  },
+  {
+   "id": "102003",
+   "personagem": {
+    "id": "1020",
+    "nome": "Seiun Sky",
+    "nomeJp": "セイウンスカイ"
+   },
+   "variante": "Summer",
+   "epiteto": "Shoreline Whimsy in Orange",
+   "epitetoJp": "渚のきまぐれオランジュ",
+   "raridade": 3,
+   "estrategia": "Front",
+   "status": "previsto"
+  },
+  {
+   "id": "107403",
+   "personagem": {
+    "id": "1074",
+    "nome": "Mejiro Bright",
+    "nomeJp": "メジロブライト"
+   },
+   "variante": "Summer",
+   "epiteto": "Seaside Elegance in Chiffon",
+   "epitetoJp": "海辺のエレガンスシフォン",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "111302",
+   "personagem": {
+    "id": "1113",
+    "nome": "Fusaichi Pandora",
+    "nomeJp": "フサイチパンドラ"
+   },
+   "variante": "Summer",
+   "epiteto": "Snatchin' Hearts ♡",
+   "epitetoJp": "Snatchin' Hearts ♡",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "114101",
+   "personagem": {
+    "id": "1141",
+    "nome": "Epiphaneia",
+    "nomeJp": "エピファネイア"
+   },
+   "variante": null,
+   "epiteto": "Fate's Chosen Star",
+   "epitetoJp": "Fate's Chosen Star",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "104302",
+   "personagem": {
+    "id": "1043",
+    "nome": "Shinko Windy",
+    "nomeJp": "シンコウウインディ"
+   },
+   "variante": "Five Point Five Anni",
+   "epiteto": "Chomp-Chomp ☆ Scamp",
+   "epitetoJp": "ガブガブ☆スキャンプ",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "112702",
+   "personagem": {
+    "id": "1127",
+    "nome": "Fenomeno",
+    "nomeJp": "フェノーメノ"
+   },
+   "variante": "Five Point Five Anni",
+   "epiteto": "Violet Flame of Fortitude",
+   "epitetoJp": "剛毅なる紫焔",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "114901",
+   "personagem": {
+    "id": "1149",
+    "nome": "Phalaenopsis",
+    "nomeJp": "ファレノプシス"
+   },
+   "variante": null,
+   "epiteto": null,
+   "epitetoJp": "絶佳の暁闇",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "114401",
+   "personagem": {
+    "id": "1144",
+    "nome": "Rose Kingdom",
+    "nomeJp": "ローズキングダム"
+   },
+   "variante": null,
+   "epiteto": "Éclat de Roseraie",
+   "epitetoJp": "Éclat de Roseraie",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  },
+  {
+   "id": "101703",
+   "personagem": {
+    "id": "1017",
+    "nome": "Symboli Rudolf",
+    "nomeJp": "シンボリルドルフ"
+   },
+   "variante": "Halloween",
+   "epiteto": "Adamant Sovereign",
+   "epitetoJp": "Adamant Sovereign",
+   "raridade": 3,
+   "estrategia": "Late",
+   "status": "previsto"
+  },
+  {
+   "id": "101803",
+   "personagem": {
+    "id": "1018",
+    "nome": "Air Groove",
+    "nomeJp": "エアグルーヴ"
+   },
+   "variante": "Halloween",
+   "epiteto": "Eternal Hekateia",
+   "epitetoJp": "悠久なるヘカテイア",
+   "raridade": 3,
+   "estrategia": "Pace",
+   "status": "previsto"
+  }
+ ],
+ "skills": [
+  {
+   "id": "101431",
+   "nome": "Ring-a-Link",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=16&distance_rate<=18&order_rate>=50",
+     "condition": "running_style==3&phase_laterhalf==1",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&distance_type==3&is_last_straight_onetime==1&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901431",
+   "nome": "Ring-a-Link",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=16&distance_rate<=18&order_rate>=50",
+     "condition": "running_style==3&phase_laterhalf==1",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&distance_type==3&is_last_straight_onetime==1&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 350,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120411",
+   "nome": "Sakura Storm Spring Burst",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_type==1&distance_rate>=50&distance_rate<=51&order_rate<=40",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      },
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_rate>=50&distance_rate<=51&order_rate<=40",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920411",
+   "nome": "Sakura Storm Spring Burst",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_type==1&distance_rate>=50&distance_rate<=51&order_rate<=40",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      },
+      {
+       "type": 22,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_rate>=50&distance_rate<=51&order_rate<=40",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "110821",
+   "nome": "Sparkling Arrow Line",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "distance_rate>=50&order_rate>=40&distance_type==2&order_rate_out50_continue==1",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_rate>=50&order_rate>=40",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "910821",
+   "nome": "Sparkling Arrow Line",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "distance_rate>=50&order_rate>=40&distance_type==2&order_rate_out50_continue==1",
+     "baseDuration": 36000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_rate>=50&order_rate>=40",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101301",
+   "nome": "Blooming Star",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_type==2&ground_type==1@distance_type==3&ground_type==1",
+     "condition": "remain_distance>=999&remain_distance<=1001&order_rate<=50&corner==0",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "remain_distance>=999&remain_distance<=1001&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901301",
+   "nome": "Blooming Star",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "remain_distance>=999&remain_distance<=1001&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101181",
+   "nome": "Distant Far North",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "distance_rate>=40&distance_rate<=41&order_rate>=40&distance_type==3&ground_type==1",
+     "baseDuration": 70000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_rate>=40&distance_rate<=41",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901181",
+   "nome": "Distant Far North",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "distance_rate>=40&distance_rate<=41&order_rate>=40&distance_type==3&ground_type==1",
+     "baseDuration": 42000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_rate>=40&distance_rate<=41",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120051",
+   "nome": "Gloire à toi!",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "activate_count_later_half>=1&distance_type==3&is_basis_distance==1",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "activate_count_later_half>=1",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920051",
+   "nome": "Gloire à toi!",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "activate_count_later_half>=1",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "110941",
+   "nome": "Twilight Blood Pact",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "distance_type==3&phase==1&order_rate>=40&blocked_side_continuetime>=2",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 4000,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase==1&order_rate>=40&blocked_side_continuetime>=2",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "910941",
+   "nome": "Twilight Blood Pact",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase==1&order_rate>=40&blocked_side_continuetime>=2",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101121",
+   "nome": "With All My Heart",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==2&distance_type==2&order_rate<=50",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==2",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901121",
+   "nome": "With All My Heart",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==2",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101361",
+   "nome": "Innocent Prayer: Holy Light",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_type==2@distance_type==3",
+     "condition": "phase==2&lastspurt==2&order_rate>=40",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&run_at_full_speed_random==1&is_used_skill_id_with_detail_one==204452",
+     "baseDuration": 20000,
+     "effects": []
+    }
+   ],
+   "noGlobal": false,
+   "naoSimulado": true
+  },
+  {
+   "id": "901361",
+   "nome": "Innocent Prayer: Holy Light",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "distance_type==2@distance_type==3",
+     "condition": "phase==2&lastspurt==2&order_rate>=40",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120251",
+   "nome": "In Times You're Wandering the Night",
+   "iconId": "20023",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase==1&running_style==3",
+     "baseDuration": 0,
+     "effects": [
+      {
+       "type": 9,
+       "modifier": 550,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&distance_type==4&distance_rate>=50&order_rate>=30&order_rate<=70",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920251",
+   "nome": "In Times You're Wandering the Night",
+   "iconId": "20021",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase==1&running_style==3",
+     "baseDuration": 0,
+     "effects": [
+      {
+       "type": 9,
+       "modifier": 150,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "111161",
+   "nome": "Unwithering Cattleya",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=50&distance_rate<=51&order_rate<=80&order_rate>=40&distance_type==3",
+     "condition": "remain_distance<=401&remain_distance>=399&order_rate<=50&order_rate>=20",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 5000,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "distance_rate>=50&distance_rate<=51&order_rate<=80&order_rate>=40&distance_type==3",
+     "condition": "remain_distance<=401&remain_distance>=399",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "911161",
+   "nome": "Unwithering Cattleya",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=50&distance_rate<=51&order_rate<=80&order_rate>=40&distance_type==3",
+     "condition": "remain_distance<=401&remain_distance>=399&order_rate<=50&order_rate>=20",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3000,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "distance_rate>=50&distance_rate<=51&order_rate<=80&order_rate>=40&distance_type==3",
+     "condition": "remain_distance<=401&remain_distance>=399",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101341",
+   "nome": "Flora That Will Bloom for You",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_type==3@distance_type==4",
+     "condition": "near_count>=2&phase==1&order_rate<=50",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "near_count>=2&phase==1&order_rate<=50",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901341",
+   "nome": "Flora That Will Bloom for You",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "near_count>=2&phase==1&order_rate<=50",
+     "baseDuration": 36000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120771",
+   "nome": "One Bowl, Full Power Delivery!",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "activate_count_heal>=3&distance_rate>=60&phase==1&distance_type==4&running_style==2&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      },
+      {
+       "type": 31,
+       "modifier": 3000,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "activate_count_heal>=3&distance_rate>=60&phase==1&distance_type==4&running_style==2",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920771",
+   "nome": "One Bowl, Full Power Delivery!",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "activate_count_heal>=3&distance_rate>=60&phase==1&distance_type==4&running_style==2",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120221",
+   "nome": "Graceful Dash: The Way of Ramen",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_firsthalf==1&order_rate<=50&blocked_side_continuetime>=2&running_style==2",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920221",
+   "nome": "Graceful Dash: The Way of Ramen",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_firsthalf==1&order_rate<=50&blocked_side_continuetime>=2&running_style==2",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101451",
+   "nome": "Unmatched Tactics",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==4",
+     "condition": "is_goodstart==1",
+     "baseDuration": 80000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "running_style==2@running_style==4",
+     "condition": "is_badstart==1&distance_rate>=50&distance_rate<=51&order_rate>=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901451",
+   "nome": "Unmatched Tactics",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==4",
+     "condition": "is_goodstart==1",
+     "baseDuration": 48000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120201",
+   "nome": "Let the Sea Breeze Carry Me",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "running_style==1&ground_type==1&phase_random==1&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&distance_type==3&phase_firstquarter_random==2&is_badstart==0",
+     "baseDuration": 20000,
+     "effects": [
+      {
+       "type": 31,
+       "modifier": 4000,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920201",
+   "nome": "Let the Sea Breeze Carry Me",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "running_style==1&ground_type==1&phase_random==1&order_rate<=50",
+     "baseDuration": 18000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120741",
+   "nome": "Evening Calm Retreat Memory",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_type==3&phase==1&change_order_onetime>0@distance_type==4&phase==1&change_order_onetime>0",
+     "condition": "phase>=2&is_last_straight==1&order_rate>=40&order_rate<=80",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      },
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase>=2&is_last_straight==1&order_rate>=40&order_rate<=80",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920741",
+   "nome": "Evening Calm Retreat Memory",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "distance_type==3&phase==1&change_order_onetime>0@distance_type==4&phase==1&change_order_onetime>0",
+     "condition": "phase>=2&is_last_straight==1&order_rate>=40&order_rate<=80",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      },
+      {
+       "type": 22,
+       "modifier": 350,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase>=2&is_last_straight==1&order_rate>=40&order_rate<=80",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "111131",
+   "nome": "Beachside Venus Time♡",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==1&overtake_target_time>=1&order_rate<=50&motivation==5&distance_type==3",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      },
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==1&overtake_target_time>=1&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "911131",
+   "nome": "Beachside Venus Time♡",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf==1&overtake_target_time>=1&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101411",
+   "nome": "Shine! Burst! Supernova!",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_rate>=50",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&course_distance>=2000&is_lastspurt==1",
+     "baseDuration": 20000,
+     "effects": [
+      {
+       "type": 31,
+       "modifier": 3000,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901411",
+   "nome": "Shine! Burst! Supernova!",
+   "iconId": "20016",
+   "rarity": 6,
+   "alternatives": [
+    {
+     "precondition": "running_style==1@running_style==2",
+     "condition": "distance_rate>=50",
+     "baseDuration": 36000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&course_distance>=2000&is_lastspurt==1",
+     "baseDuration": 12000,
+     "effects": [
+      {
+       "type": 31,
+       "modifier": 2000,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "110431",
+   "nome": "The Scariest Prank Ever♪",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "running_style==2&is_overtake==1&accumulatetime>=5&ground_type==2",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "running_style==2&is_overtake==1&accumulatetime>=5",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "910431",
+   "nome": "The Scariest Prank Ever♪",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "running_style==2&is_overtake==1&accumulatetime>=5",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "111271",
+   "nome": "Ironclad Guardian",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=50&overtake_target_time>=2",
+     "condition": "distance_type==3&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50@distance_type==4&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_type==3&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50@distance_type==4&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "911271",
+   "nome": "Ironclad Guardian",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "distance_rate>=50&overtake_target_time>=2",
+     "condition": "distance_type==3&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50@distance_type==4&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_type==3&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50@distance_type==4&phase>=2&is_finalcorner_laterhalf==1&order_rate<=50",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101491",
+   "nome": "Bloom Fiercely",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==3",
+     "condition": "phase==1&corner!=0&is_overtake==1",
+     "baseDuration": 50000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_type==3&is_activate_other_skill_detail==1&corner==0",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 3500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901491",
+   "nome": "Bloom Fiercely",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==3",
+     "condition": "phase==1&corner!=0&is_overtake==1",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 350,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "distance_type==3&is_activate_other_skill_detail==1&corner==0",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "101441",
+   "nome": "Épanouissement by Royal Decree",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase<=1&change_order_onetime>0&accumulatetime>=5&order_rate<=50@phase<=1&blocked_side_continuetime>=2&accumulatetime>=5&order_rate<=50",
+     "baseDuration": 60000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&phase==3&distance_type==3",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "901441",
+   "nome": "Épanouissement by Royal Decree",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase<=1&change_order_onetime>0&accumulatetime>=5&order_rate<=50@phase<=1&blocked_side_continuetime>=2&accumulatetime>=5&order_rate<=50",
+     "baseDuration": 36000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "is_activate_other_skill_detail==1&phase==3&distance_type==3",
+     "baseDuration": 18000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120171",
+   "nome": "Cascading Might",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==3",
+     "condition": "phase==2&order_rate<=70&remain_distance>=600&ground_type==1&track_id>=10001&track_id<=10010",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 4500,
+       "target": 1
+      },
+      {
+       "type": 31,
+       "modifier": 3000,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "running_style==2@running_style==3",
+     "condition": "phase==2&order_rate<=70&remain_distance>=600",
+     "baseDuration": 30000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 1500,
+       "target": 1
+      },
+      {
+       "type": 31,
+       "modifier": 1000,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920171",
+   "nome": "Cascading Might",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "running_style==2@running_style==3",
+     "condition": "phase==2&order_rate<=70&remain_distance>=600",
+     "baseDuration": 18000,
+     "effects": [
+      {
+       "type": 22,
+       "modifier": 350,
+       "target": 1
+      },
+      {
+       "type": 31,
+       "modifier": 500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  },
+  {
+   "id": "120181",
+   "nome": "Shadow Ancestress",
+   "iconId": "20013",
+   "rarity": 5,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf_random==1&order_rate<=50&distance_type==3",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 5500,
+       "target": 1
+      }
+     ]
+    },
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf_random==1&order_rate<=50",
+     "baseDuration": 40000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 4500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false
+  },
+  {
+   "id": "920181",
+   "nome": "Shadow Ancestress",
+   "iconId": "20011",
+   "rarity": 1,
+   "alternatives": [
+    {
+     "precondition": "",
+     "condition": "phase_laterhalf_random==1&order_rate<=50",
+     "baseDuration": 24000,
+     "effects": [
+      {
+       "type": 27,
+       "modifier": 2500,
+       "target": 1
+      }
+     ]
+    }
+   ],
+   "noGlobal": false,
+   "herdada": true
+  }
+ ]
+}

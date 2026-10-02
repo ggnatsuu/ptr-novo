@@ -12,6 +12,8 @@ import PainelAnotacoesMeta from "../components/PainelAnotacoesMeta";
 import TodasAnotacoesMeta from "../components/TodasAnotacoesMeta";
 import IconeTipoCarta from "../components/IconeTipoCarta";
 import ComposicoesEquipe from "../components/ComposicoesEquipe";
+import DiagramaPistaGuia from "../components/DiagramaPistaGuia";
+import { calcularRegioesSkill, catalogoSkillsPorId, ESTRATEGIA_POR_ESTILO } from "../utils/skillsPista";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { anotacaoVazia, cartaPorId, classeRaridade, carregarAnotacao, gravarAnotacao, assinaturaAnotacao, lerEventoAtual, definirEventoAtual } from "../utils/anotacoesMeta";
@@ -248,7 +250,7 @@ function SeletorEvento({ eventos, atual, aoEscolher, eventoAtual }) {
   const estiloSeta = (ativo) => ({ width: "36px", background: "#0b1320", border: "1px solid rgba(197, 160, 89, 0.3)", color: ativo ? "#c5a059" : "#3a4a5e", cursor: ativo ? "pointer" : "default", borderRadius: "8px" });
 
   return (
-    <div ref={ref} style={{ position: "relative", display: "flex", gap: "6px", alignItems: "stretch" }}>
+    <div ref={ref} className="seletor-evento" style={{ position: "relative", display: "flex", gap: "6px", alignItems: "stretch" }}>
       <button type="button" title={anterior?.nome ?? ""} disabled={!anterior} onClick={() => aoEscolher(anterior.id)} style={estiloSeta(!!anterior)}>
         <i className="fa-solid fa-chevron-left"></i>
       </button>
@@ -265,7 +267,7 @@ function SeletorEvento({ eventos, atual, aoEscolher, eventoAtual }) {
       </button>
 
       {aberto && (
-        <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50, width: "min(440px, calc(100vw - 32px))", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0, 0, 0, 0.55)", overflow: "hidden" }}>
+        <div className="dropdown-evento" style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50, width: "min(440px, calc(100vw - 32px))", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.35)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0, 0, 0, 0.55)", overflow: "hidden" }}>
           <div style={{ display: "flex", borderBottom: "1px solid rgba(164, 179, 198, 0.1)" }}>
             {ABAS_EVENTO.map((valor) => (
               <button key={valor} type="button" onClick={() => setAba(valor)} style={{ flex: 1, background: "transparent", border: "none", borderBottom: `2px solid ${aba === valor ? "#c5a059" : "transparent"}`, color: aba === valor ? "#c5a059" : "#8193a8", padding: "12px 0", fontSize: "10pt", fontWeight: 800, cursor: "pointer", fontFamily: "'Montserrat'" }}>
@@ -313,6 +315,7 @@ function GuiaMeta() {
   const [painelAberto, setPainelAberto] = useState(false);
   const [deckAtivo, setDeckAtivo] = useState(0);
   const [visao, setVisao] = useState("guia"); // "guia" | "anotacoes"
+  const [diagramaAberto, setDiagramaAberto] = useState(false);
   const [parametros] = useSearchParams();
   const eventoDaUrl = parametros.get("evento"); // ?evento=CM #20 (vindo do editor)
   const [eventoAtual, setEventoAtual] = useState(null);
@@ -489,10 +492,17 @@ function GuiaMeta() {
   const courseId = acharCourseId(pista);
   const st = evento.status_recomendados;
   const dadosEstilo = evento.estilos?.[estilo];
+  const dadosCorrida = courseId ? courseData[courseId] : null;
+  const skillsNoDiagrama = diagramaAberto && dadosCorrida
+    ? (dadosEstilo?.aceleracoes ?? []).map((id) => catalogoSkillsPorId.get(String(id))).filter(Boolean).map((sk) => ({
+      ...sk, ...calcularRegioesSkill(dadosCorrida, sk.id, ESTRATEGIA_POR_ESTILO[estilo] ?? 2),
+    }))
+    : [];
   const alternativas = [st.alternativa_1, st.alternativa_2].filter((a) => a && (a.stamina || a.guts));
 
   return (
-    <main className="main-layout-wrapper" style={{ marginTop: "130px", padding: "0 16px 60px", fontFamily: "'Montserrat', sans-serif", maxWidth: "1200px", marginLeft: "auto", marginRight: "auto" }}>
+    <div className="guia-layout">
+    <main className="main-layout-wrapper" style={{ marginTop: "130px", padding: "0 16px 60px", fontFamily: "'Montserrat', sans-serif", maxWidth: "1200px", flex: "0 1 1200px", minWidth: 0 }}>
       {ehAdmin && dados.origem === "json" && (
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", marginBottom: "14px", padding: "12px 16px", background: "rgba(240, 160, 64, 0.08)", border: "1px dashed rgba(240, 160, 64, 0.5)", borderRadius: "10px", color: "#f0a040", fontSize: "9pt" }}>
           <i className="fa-solid fa-database"></i>
@@ -545,7 +555,7 @@ function GuiaMeta() {
               {evento.periodo_especial && <span style={estiloEtiqueta}><i className="fa-solid fa-star"></i> {evento.periodo_especial.replace(/[()]/g, "")}</span>}
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+          <div className="coluna-seletor-evento" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
             <SeletorEvento eventos={eventosVisiveis} atual={dados.eventos.find((e) => e.id === idEvento) ?? evento} aoEscolher={setIdEvento} eventoAtual={eventoAtual} />
             {ehAdmin && evento.oculto && <span style={{ ...estiloEtiqueta, borderColor: "rgba(232, 128, 111, 0.5)", color: "#e8806f" }}><i className="fa-solid fa-eye-slash"></i> Oculto para os membros</span>}
             {evento.id === eventoAtual ? (
@@ -594,7 +604,12 @@ function GuiaMeta() {
           </div>
           <div style={{ flex: "0 1 340px", minWidth: "260px", borderLeft: "1px solid rgba(164, 179, 198, 0.08)", padding: "12px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             {courseId ? (
-              <MinimapaPista courseId={courseId} marcadores={[]} />
+              <>
+                <MinimapaPista courseId={courseId} marcadores={[]} />
+                <button type="button" onClick={() => setDiagramaAberto((v) => !v)} style={{ alignSelf: "center", marginTop: "10px", display: "inline-flex", alignItems: "center", gap: "6px", background: diagramaAberto ? "linear-gradient(135deg, #f3d27a, #c5a059)" : "rgba(197, 160, 89, 0.1)", border: "1px solid rgba(197, 160, 89, 0.5)", color: diagramaAberto ? "#0b1320" : "#c5a059", borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 800, fontSize: "8.5pt", fontFamily: "'Montserrat'" }}>
+                  <i className="fa-solid fa-chart-area"></i> {diagramaAberto ? "Fechar diagrama" : "Diagrama da Pista"}
+                </button>
+              </>
             ) : (
               <div style={{ textAlign: "center", color: "#5f758e", fontSize: "8.5pt", padding: "30px 0" }}>
                 <i className="fa-solid fa-map" style={{ fontSize: "16pt", display: "block", marginBottom: "6px" }}></i>
@@ -829,6 +844,23 @@ function GuiaMeta() {
         aoFechar={() => setPainelAberto(false)}
       />}
     </main>
+
+    {/* DIAGRAMA DA PISTA (painel lateral) */}
+    <aside className={`painel-diagrama-guia${diagramaAberto && visao === "guia" ? " aberto" : ""}`} aria-hidden={!diagramaAberto}>
+      <div className="painel-diagrama-guia-conteudo">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+          <h3 style={{ ...estiloTitulo, margin: 0, flex: 1 }}><i className="fa-solid fa-chart-area" style={{ color: "#c5a059" }}></i> Diagrama da Pista</h3>
+          <button type="button" onClick={() => setDiagramaAberto(false)} title="Fechar" style={{ background: "transparent", border: "none", color: "#8193a8", fontSize: "14pt", cursor: "pointer" }}><i className="fa-solid fa-xmark"></i></button>
+        </div>
+        <p style={{ margin: "0 0 12px", color: "#8193a8", fontSize: "8.5pt" }}>
+          {pista.hipodromo} · {pista.distancia}m · {pista.terreno}
+          {skillsNoDiagrama.length > 0 && <> · acelerações de <span style={{ color: "#c5a059", fontWeight: 700 }}>{estilo}</span> marcadas</>}
+        </p>
+        {diagramaAberto && dadosCorrida && <DiagramaPistaGuia dadosCorrida={dadosCorrida} skills={skillsNoDiagrama} />}
+        <p style={{ margin: "8px 0 0", color: "#5f758e", fontSize: "7.5pt" }}>Barra cheia = duração da skill · tracejado = onde ela pode ativar · passe o mouse para ver trecho, fase e inclinação.</p>
+      </div>
+    </aside>
+    </div>
   );
 }
 

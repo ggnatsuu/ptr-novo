@@ -8,6 +8,8 @@ import {
 import skillDataRaw from "../uma-skill-tools/data/skill_data.json";
 import skillNamesRaw from "../uma-skill-tools/data/skillnames.json";
 import skillMetaRaw from "../uma-skill-tools/data/skill_meta.json";
+// Uniques/roupas que ainda não existem no alpha123 (injetadas ao importar).
+import { skillsExtras, skillUpcoming } from "./roupasExtras";
 
 // 🎯 Só as skills que têm dado de condição de verdade (algumas entradas em
 // skillnames.json não têm skill_data correspondente — são nomes órfãos).
@@ -33,6 +35,9 @@ export const catalogoSkillsCompleto = Object.keys(skillDataRaw)
       herdada: id[0] === "9",
       alternatives: [...skillDataRaw[id].alternatives, ...alternativasIrmãs],
       iconId: skillMetaRaw[id]?.iconId || null,
+      // Unique vinda do levantamento do GameTora (ainda não saiu no Global / sem dado no alpha123)
+      extra: skillsExtras.get(id) ?? null,
+      upcoming: skillUpcoming(id), // unique (ou herdada) de roupa que ainda não saiu no Global
     };
   })
   .sort((a, b) => {
@@ -62,20 +67,22 @@ export const catalogoSkillsCompleto = Object.keys(skillDataRaw)
 // esse valor pra true (uma linha só) que elas voltam a aparecer.
 export const EVOLUIDAS_DISPONIVEIS_NO_GLOBAL = false;
 
+// 🎯 MOSTRAR_UPCOMING: o diagrama mostra só o que já saiu no Global. As skills
+// de roupas ainda não lançadas (unique herdada delas) ficam fora da busca;
+// trocar pra true faz elas voltarem. As anotações do Guia não usam esse filtro.
+export const MOSTRAR_UPCOMING = false;
+
 export const catalogoSkills = catalogoSkillsCompleto.filter((s) => {
   if (!s.herdada && [3, 4, 5].includes(s.rarity)) return false; // unique base
+  if (!MOSTRAR_UPCOMING && s.upcoming) return false; // roupa ainda não lançada no Global
   if (!EVOLUIDAS_DISPONIVEIS_NO_GLOBAL && s.rarity === 6) return false; // evoluída
   return true;
 });
 
 const parserSkills = getParser(ConditionsAjustadas);
 
-export const PALETA_SKILLS = [
-  { stroke: "rgb(205,11,11)", fill: "rgba(247,115,115,0.35)" },
-  { stroke: "rgb(28,61,106)", fill: "rgba(47,103,177,0.35)" },
-  { stroke: "rgb(114,76,132)", fill: "rgba(182,153,196,0.35)" },
-  { stroke: "rgb(36,106,99)", fill: "rgba(61,177,166,0.35)" },
-];
+// Cores das skills destacadas no diagrama (tema escuro).
+export const PALETA_SKILLS = ["#f3c75a", "#5fa8e8", "#e8806f", "#7fd08a", "#c58bff", "#4fc3c7", "#ff8ad8"].map((c) => ({ stroke: c, fill: `${c}55` }));
 
 // 🎯 Nem toda skill tem ícone mapeado (o skill_meta.json cobre ~1714 de
 // 1716) — retorna null quando não tem, pra quem for usar decidir o que

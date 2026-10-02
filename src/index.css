@@ -94,3 +94,34 @@
 .detalhe-skill-compacto .bp-skill-efeito-nome { font-size: 7.5pt !important; padding: 2px 7px !important; }
 .detalhe-skill-compacto .bp-skill-efeito-valor { font-size: 8pt !important; }
 .detalhe-skill-compacto .bp-skill-secao-valor-inline { font-size: 8pt !important; }
+
+/* Guia do Meta: dropdown de eventos ocupa a largura do seletor no celular */
+@media (max-width: 600px) {
+  .dropdown-evento { left: 0 !important; right: 0 !important; width: auto !important; }
+  .coluna-seletor-evento, .seletor-evento { width: 100%; }
+  .seletor-evento > button:nth-child(2) { flex: 1; min-width: 0 !important; }
+}
+
+/* Guia do Meta: painel lateral do diagrama da pista (o guia desliza para o lado) */
+.guia-layout { display: flex; justify-content: center; align-items: flex-start; }
+.painel-diagrama-guia {
+  flex: 0 0 auto; width: 0; opacity: 0; overflow: hidden;
+  position: sticky; top: 90px; margin-top: 150px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin-right 0.5s ease;
+}
+.painel-diagrama-guia.aberto { width: min(1320px, 60vw); opacity: 1; margin-right: 16px; }
+.painel-diagrama-guia-conteudo {
+  width: min(1320px, 60vw); box-sizing: border-box; max-height: calc(100vh - 110px); overflow-y: auto;
+  background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 12px;
+  padding: 16px 18px; font-family: 'Montserrat', sans-serif; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+/* Tela sem espaço para os dois: o diagrama entra por cima, vindo da direita */
+@media (max-width: 1800px) {
+  .painel-diagrama-guia {
+    position: fixed; top: 0; right: 0; bottom: 0; margin: 0; z-index: 1100;
+    width: min(1320px, 100vw) !important; opacity: 1; transform: translateX(105%);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .painel-diagrama-guia.aberto { transform: none; margin: 0; }
+  .painel-diagrama-guia-conteudo { width: 100%; height: 100%; max-height: none; border-radius: 0; padding-top: 90px; }
+}

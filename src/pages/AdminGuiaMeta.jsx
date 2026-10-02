@@ -10,6 +10,8 @@ import BuscaSkill from "../components/BuscaSkill";
 import SkillComDetalhe from "../components/SkillComDetalhe";
 import EditorEstilosGuia from "../components/EditorEstilosGuia";
 import EditorEstrategiasGuia from "../components/EditorEstrategiasGuia";
+import HistoricoGuia from "../components/HistoricoGuia";
+import { registrarHistorico, listarHistorico, secoesAlteradas, tempoRelativo } from "../utils/historicoGuia";
 import { catalogoSkillsPorId, caminhoIconeSkill, COR_RARIDADE_SKILL } from "../utils/skillsPista";
 import { recarregarIndice, carregarEvento, salvarEventoGuia, excluirEventoGuia, definirOcultoGuia, eventoVazio, ESTILOS_GUIA } from "../utils/guiaMetaDados";
 import { lerEventoAtual, definirEventoAtual } from "../utils/anotacoesMeta";
@@ -68,11 +70,20 @@ function AdminGuiaMeta() {
   const [criando, setCriando] = useState(null); // { tipo, numero, copiarDe }
   const [confirmarExcluir, setConfirmarExcluir] = useState(false);
   const [confirmarTroca, setConfirmarTroca] = useState(null); // id para trocar com alterações pendentes
+  const [historico, setHistorico] = useState(null); // últimas alterações (todas as pessoas)
+  const [historicoAberto, setHistoricoAberto] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     Promise.all([recarregarIndice(), lerEventoAtual()]).then(([i, atual]) => { setIndice(i); setEventoAtual(atual); });
+    listarHistorico().then(setHistorico).catch((erro) => { console.warn("Histórico do guia indisponível:", erro); setHistorico([]); });
   }, []);
+
+  // Registra a ação no histórico e já mostra na tela.
+  const anotar = async (evento, acao, secoes) => {
+    const entrada = await registrarHistorico(evento, acao, secoes);
+    if (entrada) setHistorico((h) => [entrada, ...(h ?? [])]);
+  };
 
   useEffect(() => {
     if (!mensagem) return undefined;
@@ -134,6 +145,7 @@ function AdminGuiaMeta() {
         setRascunho((r) => (r ? { ...r, oculto } : r));
       }
       setMensagem({ texto: `${id} ${oculto ? "oculto para os membros" : "visível para os membros"}.`, tipo: "ok" });
+      anotar(id, oculto ? "ocultou" : "mostrou");
     } catch (erro) {
       console.error("Erro ao ocultar o evento:", erro);
       setMensagem({ texto: "Não foi possível alterar. Confira a regra do Firestore.", tipo: "erro" });
@@ -142,8 +154,11 @@ function AdminGuiaMeta() {
 
   const salvar = async () => {
     setSalvando(true);
+    const acao = novo ? "criou" : "salvou";
+    const secoes = novo ? [] : secoesAlteradas(original, rascunho);
     try {
       const eventos = await salvarEventoGuia(rascunho);
+      anotar(rascunho.id, acao, secoes);
       setIndice((i) => ({ ...i, eventos }));
       setOriginal(clonar(rascunho));
       setNovo(false);
@@ -161,6 +176,7 @@ function AdminGuiaMeta() {
     setConfirmarExcluir(false);
     try {
       const eventos = await excluirEventoGuia(rascunho.id);
+      anotar(rascunho.id, "excluiu");
       setIndice((i) => ({ ...i, eventos }));
       setIdSelecionado(null); setRascunho(null); setOriginal(null);
       setMensagem({ texto: "Evento excluído.", tipo: "ok" });
@@ -190,7 +206,11 @@ function AdminGuiaMeta() {
     await definirEventoAtual(rascunho.id);
     setEventoAtual(rascunho.id);
     setMensagem({ texto: `${rascunho.id} agora é o evento atual do guia.`, tipo: "ok" });
+    anotar(rascunho.id, "atual");
   };
+
+  const historicoDoEvento = historico && rascunho ? historico.filter((e) => e.evento === rascunho.id).slice(0, 20) : null;
+  const ultimaDoEvento = historicoDoEvento?.[0] ?? null;
 
   const grupos = useMemo(() => {
     if (!indice) return [];
@@ -218,6 +238,9 @@ function AdminGuiaMeta() {
           <div style={{ color: "#c5a059", fontSize: "8pt", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}><i className="fa-solid fa-screwdriver-wrench"></i> Admin</div>
           <h1 style={{ margin: "4px 0 0", fontFamily: "'Cinzel', serif", color: "#f1ead4", fontSize: "20pt" }}>Editor do Guia do Meta</h1>
         </div>
+        <button type="button" onClick={() => setHistoricoAberto((v) => !v)} style={estiloBotao(historicoAberto ? "#c5a059" : "#8193a8")}>
+          <i className="fa-solid fa-clock-rotate-left"></i> Histórico
+        </button>
         <button type="button" onClick={() => setCriando({ tipo: "Champions Meeting", numero: "", copiarDe: "" })} style={estiloBotao("#c5a059", true)}>
           <i className="fa-solid fa-plus"></i> Novo evento
         </button>
@@ -226,6 +249,15 @@ function AdminGuiaMeta() {
       {mensagem && (
         <div style={{ marginBottom: "12px", padding: "10px 14px", borderRadius: "8px", fontSize: "9pt", color: mensagem.tipo === "erro" ? "#e8806f" : "#7fd08a", background: mensagem.tipo === "erro" ? "rgba(232, 128, 111, 0.1)" : "rgba(79, 199, 106, 0.1)", border: `1px solid ${mensagem.tipo === "erro" ? "rgba(232, 128, 111, 0.4)" : "rgba(79, 199, 106, 0.35)"}` }}>
           <i className={`fa-solid ${mensagem.tipo === "erro" ? "fa-triangle-exclamation" : "fa-circle-check"}`}></i> {mensagem.texto}
+        </div>
+      )}
+
+      {historicoAberto && (
+        <div style={{ ...estiloCaixa, marginBottom: "16px" }}>
+          <h3 style={estiloTitulo}><i className="fa-solid fa-clock-rotate-left" style={{ color: "#c5a059" }}></i> Histórico de alterações</h3>
+          <div className="rolagem-dourada" style={{ maxHeight: "340px", overflowY: "auto" }}>
+            <HistoricoGuia entradas={historico} aoAbrirEvento={(id) => { pedirAbrir(id); setHistoricoAberto(false); }} />
+          </div>
         </div>
       )}
 
@@ -268,6 +300,11 @@ function AdminGuiaMeta() {
                 <span style={{ color: "#f1ead4", fontWeight: 800, fontSize: "11pt", flex: 1, minWidth: "160px" }}>
                   {r.nome}
                   {pendente && <span style={{ color: "#f0a040", fontSize: "8.5pt", fontWeight: 700 }}> · {novo ? "novo, ainda não salvo" : "alterações não salvas"}</span>}
+                  {ultimaDoEvento && (
+                    <span title={ultimaDoEvento.quando.toLocaleString("pt-BR")} style={{ display: "block", color: "#5f758e", fontSize: "7.5pt", fontWeight: 600 }}>
+                      <i className="fa-solid fa-clock-rotate-left"></i> Última alteração: {ultimaDoEvento.nome} · {tempoRelativo(ultimaDoEvento.quando)}
+                    </span>
+                  )}
                 </span>
                 {!novo && <button type="button" onClick={() => alternarOculto(r.id, !r.oculto)} title={r.oculto ? "Voltar a mostrar para os membros" : "Esconder dos membros; admin continua vendo"} style={estiloBotao(r.oculto ? "#e8806f" : "#8193a8")}>
                   <i className={`fa-solid ${r.oculto ? "fa-eye-slash" : "fa-eye"}`}></i> {r.oculto ? "Oculto" : "Visível"}
@@ -390,6 +427,14 @@ function AdminGuiaMeta() {
                 <h3 style={estiloTitulo}><i className="fa-solid fa-chess-knight" style={{ color: "#c5a059" }}></i> Personagens e decks por estilo</h3>
                 <EditorEstilosGuia estilos={r.estilos} aoMudarEstilo={mudarEstilo} />
               </div>
+
+              {/* HISTÓRICO DO EVENTO */}
+              {!novo && (
+                <div style={estiloCaixa}>
+                  <h3 style={estiloTitulo}><i className="fa-solid fa-clock-rotate-left" style={{ color: "#c5a059" }}></i> Histórico deste evento</h3>
+                  <HistoricoGuia entradas={historicoDoEvento} mostrarEvento={false} vazio="Nenhuma alteração registrada neste evento ainda." />
+                </div>
+              )}
             </>
           )}
         </section>
