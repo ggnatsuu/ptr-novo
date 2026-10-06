@@ -21,6 +21,7 @@ import SecaoAnaliseTreinador from "../components/SecaoAnaliseTreinador";
 import SecaoGraficoDesempenho from "../components/SecaoGraficoDesempenho";
 import ReplayCorrida from "../components/ReplayCorrida";
 import GraficoComparativo from "../components/GraficoComparativo";
+import ChanceVitoria from "../components/ChanceVitoria";
 
 // 🔒 Enquanto estiver em testes, só admin usa. Pra liberar pra todo mundo
 // (inclusive sem login), é só trocar pra false.
@@ -184,6 +185,9 @@ function ReplayArquivo() {
             </div>
             <div style={{ marginTop: "24px" }}>
               <GraficoComparativo key={`comparativo-${arquivo.nome}`} replay={dados.replay} />
+            </div>
+            <div style={{ marginTop: "24px" }}>
+              <ChanceVitoria key={`chance-${arquivo.nome}`} dados={dados} />
             </div>
           </>
         )}

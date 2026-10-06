@@ -1,0 +1,63 @@
+/* 🎯 src/styles/chanceVitoria.css — cartão "Chance de vitória" do Replay */
+
+.cv-cartao { width: 100%; box-sizing: border-box; background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 12px; padding: 16px 18px; font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; gap: 14px; }
+.cv-topo { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cv-titulo { font-family: 'Cinzel', serif; color: #f1ead4; font-size: 14pt; font-weight: 700; }
+.cv-titulo i { color: #c5a059; font-size: 11pt; margin-right: 4px; }
+.cv-sub { color: #8193a8; font-size: 9pt; margin: 4px 0 0; max-width: 560px; }
+.cv-acoes { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cv-pilulas { display: flex; gap: 4px; }
+.cv-pilulas button { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 999px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 700; padding: 5px 11px; cursor: pointer; }
+.cv-pilulas button.ativo { background: rgba(197, 160, 89, 0.14); border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+.cv-btn { background: linear-gradient(135deg, #f3d27a, #c5a059); border: none; border-radius: 10px; color: #0b1320; font-family: inherit; font-size: 9.5pt; font-weight: 900; padding: 10px 18px; cursor: pointer; }
+.cv-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cv-btn-discreto { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 8px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 800; padding: 7px 12px; cursor: pointer; }
+.cv-progresso { width: 220px; height: 10px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 999px; overflow: hidden; }
+.cv-progresso div { height: 100%; background: linear-gradient(90deg, #c5a059, #f3d27a); transition: width 0.2s ease; }
+.cv-progresso-texto { color: #a4b3c6; font-size: 9pt; font-weight: 700; }
+.cv-aviso { color: #f0a040; font-size: 8.5pt; margin: 0; }
+
+.cv-destaques { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.cv-destaques > div { background: #0b1320; border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.cv-destaques > div.surpresa { border-color: rgba(127, 208, 138, 0.45); }
+.cv-destaques span { color: #8193a8; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.cv-destaques strong { color: #f1ead4; font-size: 12pt; }
+.cv-destaques em { font-style: normal; color: #c5a059; font-size: 9pt; font-weight: 700; }
+.cv-destaques .surpresa em { color: #7fd08a; }
+
+.cv-tabela-rolagem { overflow-x: auto; }
+.cv-tabela { width: 100%; border-collapse: collapse; font-size: 9pt; min-width: 640px; }
+.cv-tabela th { color: #8193a8; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 0 8px 8px; }
+.cv-tabela td { padding: 7px 8px; border-top: 1px solid rgba(164, 179, 198, 0.08); color: #c9d3df; vertical-align: middle; }
+.cv-tabela tr.vencedora td { background: rgba(197, 160, 89, 0.06); }
+.cv-corredora { display: flex; align-items: center; gap: 8px; min-width: 180px; }
+.cv-corredora img, .cv-sem-foto { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #0b1320; display: flex; align-items: center; justify-content: center; color: #5f758e; }
+.cv-corredora strong { display: block; color: #f1ead4; font-size: 9.5pt; }
+.cv-corredora small { color: #8193a8; font-size: 7.5pt; font-weight: 600; }
+.cv-barra { position: relative; width: 150px; height: 20px; background: #0b1320; border-radius: 6px; overflow: hidden; }
+.cv-barra div { height: 100%; background: linear-gradient(90deg, rgba(197, 160, 89, 0.45), #c5a059); }
+.cv-barra span { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 8px; color: #f1ead4; font-weight: 800; font-family: ui-monospace, Consolas, monospace; font-size: 8.5pt; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+.cv-distribuicao { display: flex; align-items: flex-end; gap: 2px; height: 26px; width: 120px; cursor: help; }
+.cv-distribuicao i { flex: 1; background: #5f758e; border-radius: 2px 2px 0 0; }
+.cv-distribuicao i.real { background: #c5a059; }
+.cv-real { color: #f1ead4 !important; font-weight: 800; }
+.cv-rodape { color: #5f758e; font-size: 8pt; margin: 0; line-height: 1.5; }
+.cv-rodape a { color: #c5a059; }
+
+/* Escolha de quem entra na simulação */
+.cv-selecao { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.cv-selecao-topo { display: flex; align-items: center; gap: 8px; color: #8193a8; font-size: 8pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.cv-selecao-topo > span { flex: 1; }
+.cv-selecao-topo strong { color: #f1ead4; margin-left: 6px; }
+.cv-selecao-topo strong.erro { color: #e8806f; }
+.cv-selecao-topo button { background: none; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 999px; color: #a4b3c6; font-family: inherit; font-size: 7.5pt; font-weight: 800; padding: 3px 10px; cursor: pointer; text-transform: none; letter-spacing: 0; }
+.cv-selecao-topo button:hover { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+.cv-selecao-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+.cv-escolha { display: flex; align-items: center; gap: 8px; background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 5px 8px; cursor: pointer; font-family: inherit; text-align: left; opacity: 0.55; transition: opacity 0.15s ease, border-color 0.15s ease; }
+.cv-escolha.marcada { opacity: 1; border-color: rgba(197, 160, 89, 0.5); }
+.cv-escolha > i { color: #5f758e; font-size: 11pt; }
+.cv-escolha.marcada > i { color: #c5a059; }
+.cv-escolha img, .cv-escolha .cv-sem-foto { width: 28px; height: 28px; }
+.cv-escolha-texto { min-width: 0; display: flex; flex-direction: column; }
+.cv-escolha-texto strong { color: #f1ead4; font-size: 8.5pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cv-escolha-texto small { color: #8193a8; font-size: 7.5pt; font-weight: 600; }

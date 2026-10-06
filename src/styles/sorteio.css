@@ -592,3 +592,204 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(197, 160, 89, 0.5) rgba(11, 19, 32, 0.6);
 }
+/* ==========================================================================
+   REPAGINAÇÃO (padrão Agenda/Buscador) — Parte 1: cabeçalho e calendário
+   ========================================================================== */
+.sorteio-cabecalho { width: 100%; max-width: 1100px; margin: 0 auto 22px; padding: 0 20px; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+.sorteio-sobretitulo { color: #c5a059; font-size: 8pt; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.sorteio-titulo { font-family: 'Cinzel', serif; color: #f1ead4; font-size: 24pt; font-weight: 700; margin: 4px 0 6px; }
+.sorteio-descricao { color: #8193a8; font-size: 10pt; margin: 0; }
+
+.calendar-config-panel {
+    max-width: 1060px; gap: 14px; flex-wrap: wrap; justify-content: flex-start;
+    background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px;
+    padding: 16px 20px; margin: 0 auto 28px; box-shadow: none; box-sizing: border-box;
+}
+.calendar-config-panel .config-group { gap: 5px; min-width: 140px; }
+.calendar-config-panel .config-group label { font-size: 7.5pt; font-weight: 800; color: #8193a8; letter-spacing: 1px; }
+.calendar-config-panel .config-group label i { color: #c5a059; margin-right: 3px; }
+.calendar-config-panel .custom-select {
+    font-size: 9.5pt; font-weight: 600; padding: 9px 30px 9px 12px; border-radius: 8px;
+    border-color: rgba(164, 179, 198, 0.14); background-position: right 12px center;
+}
+.calendar-config-panel .custom-select:focus, .calendar-config-panel .custom-select:hover { border-color: rgba(197, 160, 89, 0.6); }
+.calendar-config-panel input.custom-select { padding: 9px 10px; cursor: text; }
+.calendar-config-panel .config-group:first-child { min-width: 90px; }
+
+/* ==========================================================================
+   Parte 2: cartões das pistas (G1 e G2/G3)
+   ========================================================================== */
+.pyramid-layout-container .pyramid-row { max-width: 1060px; margin-left: auto; margin-right: auto; gap: 16px; }
+.pyramid-row .lottery-card.sorteio-pista {
+    flex: 1 1 0; max-width: none; min-width: 260px; padding: 12px; gap: 10px;
+    display: flex; flex-direction: column; align-items: stretch; text-align: left;
+    background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); font-family: 'Montserrat', sans-serif;
+}
+.pyramid-row .lottery-card.sorteio-pista:hover { transform: none; border-color: rgba(197, 160, 89, 0.4); }
+.lottery-card.sorteio-pista.g1 { border-color: rgba(197, 160, 89, 0.45); }
+.lottery-card.sorteio-pista.card-hidden { transform: translateY(15px); }
+
+.sorteio-pista-rotulo { color: #8193a8; font-size: 7.5pt; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+.sorteio-pista-rotulo i { color: #c5a059; margin-right: 3px; }
+
+.sorteio-pista-topo { position: relative; height: 130px; border-radius: 8px; overflow: hidden; background: #0b1320; }
+.sorteio-pista-topo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13, 22, 36, 0.05) 30%, rgba(13, 22, 36, 0.95) 100%); pointer-events: none; }
+.sorteio-pista-topo.vazio { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 1px dashed rgba(197, 160, 89, 0.3); color: #5f758e; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: center; padding: 0 12px; }
+.sorteio-pista-topo.vazio::after { display: none; }
+.sorteio-pista-topo.vazio i { color: rgba(197, 160, 89, 0.55); font-size: 18pt; }
+.sorteio-pista-topo.rodando { border-style: solid; border-color: rgba(197, 160, 89, 0.6); color: #f1ead4; text-transform: none; letter-spacing: 0; font-size: 11pt; box-shadow: inset 0 0 24px rgba(197, 160, 89, 0.15); }
+.sorteio-pista-topo.rodando i { color: #c5a059; }
+
+.sorteio-pista-revelada { display: flex; flex-direction: column; gap: 10px; animation: sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.sorteio-pista-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sorteio-pista-fita { position: absolute; top: 8px; left: 0; height: 20px; z-index: 1; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+.sorteio-pista-grade { position: absolute; top: 8px; left: 8px; z-index: 1; background: rgba(11, 19, 32, 0.85); color: #f1ead4; border-radius: 6px; padding: 2px 8px; font-size: 8pt; font-weight: 900; }
+.sorteio-pista-nome { position: absolute; left: 12px; right: 12px; bottom: 8px; z-index: 1; margin: 0; font-family: 'Cinzel', serif; color: #f1ead4; font-size: 13pt; font-weight: 700; line-height: 1.2; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); }
+
+.sorteio-pista-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sorteio-pista-chips span { display: inline-flex; align-items: center; gap: 6px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 7px; padding: 4px 9px; color: #f1ead4; font-size: 8.5pt; font-weight: 700; white-space: nowrap; }
+.sorteio-pista-chips i { color: #c5a059; font-size: 8pt; }
+
+.lottery-card.sorteio-pista .sorteio-pista-select { width: 100%; margin-top: auto; font-size: 9.5pt; font-weight: 600; padding: 9px 30px 9px 12px; border-radius: 8px; border-color: rgba(164, 179, 198, 0.14); background-position: right 12px center; }
+.lottery-card.sorteio-pista .sorteio-pista-select:hover, .lottery-card.sorteio-pista .sorteio-pista-select:focus { border-color: rgba(197, 160, 89, 0.6); }
+.sorteio-pista-sortear {
+    margin-top: auto; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 8px;
+    color: #c5a059; font-family: inherit; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 10px 12px; cursor: pointer; transition: background 0.2s ease;
+}
+.sorteio-pista-sortear:hover:not(:disabled) { background: rgba(197, 160, 89, 0.2); }
+.sorteio-pista-sortear:disabled { opacity: 0.5; cursor: wait; }
+@media (max-width: 768px) { .pyramid-row .lottery-card.sorteio-pista { width: 100%; flex: none; } }
+@keyframes sorteioRevelar { from { opacity: 0; transform: scale(0.94); filter: brightness(1.8); } to { opacity: 1; transform: scale(1); filter: brightness(1); } }
+
+/* Pistas #3/#4 escondidas não ocupam espaço; ao revelar, entram com animação */
+.lottery-card.sorteio-pista.card-hidden { display: none; }
+.lottery-card.sorteio-pista.card-revealed { animation: sorteioEntrar 0.4s ease-out; }
+.row-bottom-tier .lottery-card.sorteio-pista { max-width: calc(50% - 8px); }
+@media (max-width: 768px) { .row-bottom-tier .lottery-card.sorteio-pista { max-width: none; } }
+@keyframes sorteioEntrar { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   Parte 3: roletas (clima/humor/cenário), Support Cards e SSR
+   ========================================================================== */
+.sorteio-secao-cabecalho { width: 100%; margin-bottom: 16px; font-family: 'Montserrat', sans-serif; text-align: left; }
+.sorteio-secao-titulo { color: #f1ead4; font-family: 'Cinzel', serif; font-size: 14pt; font-weight: 700; }
+.sorteio-secao-titulo i { color: #c5a059; font-size: 11pt; margin-right: 4px; }
+.sorteio-secao-cabecalho p { margin: 4px 0 0; color: #8193a8; font-size: 9pt; }
+
+.sorteio-roletas { width: 100%; margin-top: 28px; padding: 0 20px 10px; box-sizing: border-box; }
+.sorteio-roletas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; width: 100%; max-width: 1100px; margin: 0 auto; }
+.sorteio-roleta-cartao {
+    display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 0;
+    background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px; padding: 18px; box-sizing: border-box;
+}
+.sorteio-roleta-cartao .roulette-wrapper { width: min(320px, 100%) !important; height: auto !important; aspect-ratio: 1; margin-top: 14px !important; }
+.sorteio-roleta-cartao .roulette-wrapper canvas { width: 100% !important; height: 100% !important; }
+.sorteio-roleta-cartao .wheel-pointer { font-size: 22pt !important; top: -16px !important; }
+
+/* Cartão do resultado embaixo da roleta (as auras de cor continuam) */
+.sorteio-roleta-cartao .lottery-card.weather-card {
+    width: 100%; flex: none; padding: 12px; gap: 10px; margin: 0;
+    background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; box-shadow: none;
+}
+.sorteio-roleta-cartao .lottery-card.weather-card:hover { transform: none; }
+.sorteio-roleta-cartao .lottery-card-badge {
+    position: static; transform: none; align-self: flex-start; background: none; box-shadow: none; padding: 0;
+    color: #8193a8; font-size: 7.5pt; font-weight: 800; letter-spacing: 1.2px;
+}
+.sorteio-roleta-cartao .lottery-result-box { min-height: 90px !important; margin: 0; border-color: rgba(197, 160, 89, 0.25); }
+.sorteio-roleta-cartao .btn-minimal-reveal,
+.sorteio-roleta-cartao .btn-trigger-lottery {
+    margin: 0; padding: 10px 12px; border-radius: 8px; font-size: 9pt; font-weight: 800; letter-spacing: 0.5px; box-shadow: none;
+}
+.sorteio-roleta-cartao .btn-trigger-lottery { background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.55); color: #c5a059; }
+.sorteio-roleta-cartao .btn-trigger-lottery:hover:not(:disabled) { background: rgba(197, 160, 89, 0.22); transform: none; }
+
+/* Support Cards e SSR: cada seção num cartão */
+.advanced-calendar-section.sorteio-secao { width: 100%; padding: 0 20px; margin-top: 16px; background: transparent; border: none; box-sizing: border-box; }
+.sorteio-secao .calendar-section-inner {
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px 22px; box-sizing: border-box;
+    background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px;
+}
+.sorteio-secao .deck-slot-wrapper { background: #0b1320; border-color: rgba(164, 179, 198, 0.14); border-radius: 10px; }
+.sorteio-secao .deck-slot-badge { background: #0d1624; color: #c5a059; border: 1px solid rgba(197, 160, 89, 0.45); box-shadow: none; font-size: 7.5pt; font-weight: 800; }
+.sorteio-secao .scenarios-side-column, .sorteio-secao .scenarios-horizontal-footer-column { background: #0b1320; border-color: rgba(164, 179, 198, 0.14); box-shadow: none; }
+.sorteio-secao .scenarios-panel-badge { background: #0d1624; font-size: 7.5pt; font-weight: 800; letter-spacing: 1px; border-radius: 6px; }
+
+/* Ajustes: resultados das roletas com altura fixa (o cenário vinha com imagem grande) */
+.sorteio-roleta-cartao .sorteio-secao-cabecalho { min-height: 58px; margin-bottom: 0; }
+.sorteio-roleta-cartao .lottery-result-box { height: 128px; min-height: 0 !important; overflow: hidden; }
+.sorteio-roleta-cartao .lottery-result-box img { max-height: 54px !important; max-width: 160px !important; width: auto !important; margin: 0 auto 6px !important; }
+.sorteio-roleta-cartao .lottery-result-box h4 { font-size: 12pt !important; margin: 0 0 4px !important; }
+
+/* Botões das roletas de Support Cards e SSR no padrão novo */
+.sorteio-secao .action-zone { flex-wrap: wrap; gap: 8px !important; max-width: 580px; margin-left: auto; margin-right: auto; }
+.sorteio-secao .action-zone button {
+    flex: 1 1 auto !important; padding: 10px 14px !important; border-radius: 8px !important; font-size: 8.5pt !important;
+    font-weight: 800 !important; letter-spacing: 0.5px !important; box-shadow: none !important; transform: none !important; white-space: nowrap;
+}
+.sorteio-secao .action-zone .btn-reroll-individual { background: #0b1320 !important; border: 1px solid rgba(164, 179, 198, 0.2) !important; color: #a4b3c6 !important; }
+.sorteio-secao .action-zone .btn-reroll-individual:hover:not(:disabled) { border-color: rgba(197, 160, 89, 0.6) !important; color: #c5a059 !important; }
+.sorteio-secao .action-zone .btn-trigger-lottery { flex: 2 1 auto !important; background: rgba(197, 160, 89, 0.12) !important; border: 1px solid rgba(197, 160, 89, 0.55) !important; color: #c5a059 !important; }
+.sorteio-secao .action-zone .btn-trigger-lottery:hover:not(:disabled) { background: rgba(197, 160, 89, 0.22) !important; }
+.sorteio-secao .action-zone button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ==========================================================================
+   Parte 4: quadro oficial e passos de publicação
+   ========================================================================== */
+.sorteio-quadro { width: 100%; overflow-x: auto; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; }
+.sorteio-quadro .report-table-premium { font-size: 9pt; }
+.sorteio-quadro .report-table-premium th { padding: 10px 10px; font-size: 7.5pt; font-weight: 800; letter-spacing: 1px; color: #8193a8; border-bottom: 1px solid rgba(164, 179, 198, 0.14); }
+.sorteio-quadro .report-table-premium td { padding: 10px 10px; background: transparent; border-bottom-color: rgba(164, 179, 198, 0.08); }
+.sorteio-quadro .report-table-premium tr:last-child td { border-bottom: none; }
+
+.sorteio-passos {
+    width: calc(100% - 40px); max-width: 1100px; margin: 16px auto 40px; box-sizing: border-box;
+    background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px; padding: 18px 20px 22px;
+    font-family: 'Montserrat', sans-serif;
+}
+.sorteio-passos p { text-align: left !important; }
+.sorteio-passo-titulo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; color: #f1ead4; font-size: 11pt; font-weight: 800; text-align: left; }
+.sorteio-passo-titulo span {
+    width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(197, 160, 89, 0.14); border: 1px solid rgba(197, 160, 89, 0.55); color: #c5a059; font-size: 9.5pt; font-weight: 800;
+}
+.sorteio-passo-titulo em { font-style: normal; color: #5f758e; font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.sorteio-passos .btn-trigger-lottery {
+    border-radius: 8px !important; padding: 11px 16px !important; font-size: 9pt !important; letter-spacing: 0.5px; box-shadow: none !important; transform: none !important;
+}
+.sorteio-passos .btn-trigger-lottery:disabled { cursor: not-allowed; }
+.sorteio-passos .custom-select { border-color: rgba(164, 179, 198, 0.14); border-radius: 8px; background-image: none; }
+.sorteio-passos .custom-select:focus { border-color: rgba(197, 160, 89, 0.6); }
+
+/* Quadro oficial: resumo da rodada + tabela só das pistas (sem rolagem) */
+.sorteio-quadro-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.sorteio-quadro-item { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sorteio-quadro-item > span { color: #8193a8; font-size: 7pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.sorteio-quadro-item strong { color: #f1ead4; font-size: 9.5pt; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sorteio-quadro-item strong.pendente { color: #5f758e; font-weight: 600; font-style: italic; }
+.sorteio-quadro { overflow-x: visible; }
+.sorteio-quadro .report-table-premium { min-width: 0; table-layout: auto; }
+.sorteio-quadro .report-table-premium td { color: #c9d3df; }
+@media (max-width: 640px) { .sorteio-quadro { overflow-x: auto; } }
+/* Deck: 6 ícones não cabem numa coluna estreita — ocupa o dobro */
+.sorteio-quadro-item.deck { grid-column: span 2; }
+.sorteio-quadro-item.deck > div { flex-wrap: wrap; }
+/* Resumo numa linha só: cada item do tamanho do conteúdo (deck volta pro lugar) */
+.sorteio-quadro-resumo { display: flex; flex-wrap: wrap; }
+.sorteio-quadro-item { flex: 1 1 auto; }
+.sorteio-quadro-item.deck { grid-column: auto; }
+.sorteio-quadro-item.deck > div { flex-wrap: nowrap; gap: 3px !important; }
+.sorteio-quadro-item.deck img { height: 18px !important; }
+
+/* Quadro oficial: resumo em blocos coloridos (padrão Agenda/Guia) */
+.sorteio-quadro-blocos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.sorteio-quadro-bloco { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid; border-radius: 10px; min-width: 0; font-family: 'Montserrat', sans-serif; }
+.sorteio-quadro-bloco.deck { grid-column: span 2; }
+.sorteio-quadro-bloco-icone { width: 34px; height: 34px; flex-shrink: 0; border: 1px solid; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 12pt; }
+.sorteio-quadro-bloco-rotulo { color: #8193a8; font-size: 7pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.sorteio-quadro-bloco-valor { color: #f1ead4; font-size: 10pt; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sorteio-quadro-bloco-valor.pendente { color: #5f758e; font-weight: 600; font-style: italic; }
+@media (max-width: 640px) { .sorteio-quadro-bloco.deck { grid-column: auto; } }

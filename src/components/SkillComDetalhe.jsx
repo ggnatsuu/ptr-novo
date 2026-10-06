@@ -3,7 +3,7 @@
 // flutuante com os detalhes (condições, efeitos e duração), no mesmo
 // formato do seletor do Buscador de Pistas.
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { catalogoSkillsPorId, caminhoIconeSkill, COR_RARIDADE_SKILL, partesDaCondicao, formatarEfeito, formatarDuracaoEfetiva } from "../utils/skillsPista";
 import { formatarDuracaoBase } from "../utils/diagramaPista";
@@ -11,7 +11,9 @@ import "../styles/buscadorpistas.css";
 
 const LARGURA = 270;
 
-function SkillComDetalhe({ skillId, distancia, children, estilo }) {
+// abrirNoClique: em vez de abrir ao passar o mouse, abre/fecha no clique e
+// fecha ao clicar fora (Comparador).
+function SkillComDetalhe({ skillId, distancia, children, estilo, abrirNoClique = false }) {
   const ref = useRef(null);
   const [posicao, setPosicao] = useState(null);
   const skill = catalogoSkillsPorId.get(String(skillId));
@@ -24,8 +26,21 @@ function SkillComDetalhe({ skillId, distancia, children, estilo }) {
     setPosicao(abaixo ? { left: esquerda, top: r.bottom + 6 } : { left: esquerda, bottom: window.innerHeight - r.top + 6 });
   };
 
+  useEffect(() => {
+    if (!abrirNoClique || !posicao) return undefined;
+    const fechar = (e) => { if (!ref.current?.contains(e.target)) setPosicao(null); };
+    const fecharAoRolar = () => setPosicao(null);
+    document.addEventListener("mousedown", fechar);
+    window.addEventListener("scroll", fecharAoRolar, true);
+    return () => { document.removeEventListener("mousedown", fechar); window.removeEventListener("scroll", fecharAoRolar, true); };
+  }, [abrirNoClique, posicao]);
+
+  const eventos = abrirNoClique
+    ? { onClick: () => (posicao ? setPosicao(null) : abrir()) }
+    : { onMouseEnter: abrir, onMouseLeave: () => setPosicao(null) };
+
   return (
-    <span ref={ref} onMouseEnter={abrir} onMouseLeave={() => setPosicao(null)} style={{ display: "inline-flex", maxWidth: "100%", ...estilo }}>
+    <span ref={ref} {...eventos} style={{ display: "inline-flex", maxWidth: "100%", cursor: abrirNoClique ? "pointer" : undefined, ...estilo }}>
       {children}
       {posicao && skill && createPortal(
         <div style={{ position: "fixed", ...posicao, zIndex: 2000, width: `${LARGURA}px`, maxHeight: "70vh", overflowY: "auto", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.4)", borderRadius: "10px", boxShadow: "0 12px 32px rgba(0, 0, 0, 0.6)", padding: "8px 10px", fontFamily: "'Montserrat', sans-serif", pointerEvents: "none" }}>

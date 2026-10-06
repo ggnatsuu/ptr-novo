@@ -128,7 +128,7 @@ function Home() {
           <div className="sobre-ptr-timeline-pontos">
             <div className="sobre-ptr-ponto">
               <div className="sobre-ptr-ponto-bolinha"><img src="/assets/img/home/ikuno_01.webp" alt="descrição da imagem" /></div>
-              <p className="sobre-ptr-ponto-quando">Sexta-feira</p>
+              <p className="sobre-ptr-ponto-quando">Quarta-feira</p>
               <p className="sobre-ptr-ponto-titulo">Check-in aberto</p>
               <p className="sobre-ptr-ponto-texto">
                 Apenas para a organização ter noção de quantos participantes teremos.
@@ -164,7 +164,7 @@ function Home() {
 
         <p className="sobre-ptr-cronograma-completo">
           A PTR acontece durante todo final de semana, tendo seu evento principal no sábado. Na
-          sexta-feira abrimos o Check-in, apenas para que a organização tenha uma noção de quantos
+          quarta-feira abrimos o Check-in, apenas para que a organização tenha uma noção de quantos
           participantes teremos na edição. Mas calma, o Check-in não é obrigatório. Não é porque você
           esqueceu ou não fez o Check-in que ficará de fora. Você ainda poderá colocar sua cavala para
           correr normalmente.

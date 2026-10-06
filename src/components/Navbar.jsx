@@ -22,7 +22,7 @@ import {
 // 🎯 Monta a classe do link considerando se ele é a página atual — usado
 // pelo NavLink em vez do antigo Link, que não sabia dizer "você está aqui".
 // 🎯 Copiada exatamente do Agenda.jsx (mesma lógica, mesmos horários) —
-// abre sexta 18h, fecha sábado 15h30. Mantendo idêntica nos dois
+// abre quarta 18h, fecha sábado 15h30. Mantendo idêntica nos dois
 // arquivos, evita a bolinha do Navbar dizer "aberto" enquanto a página
 // de Agenda já considera fechado (ou vice-versa).
 // 🎯 Pega a hora atual "fixada" em Brasília, não importa o fuso
@@ -49,15 +49,15 @@ function calcularJanelaCheckin() {
   const agora = agoraEmBrasilia();
   const diaSemana = agora.getDay(); // 0=Dom, 1=Seg, ..., 5=Sex, 6=Sáb
 
-  let diasDesdeSexta = diaSemana - 5;
-  if (diasDesdeSexta < 0) diasDesdeSexta += 7;
+  let diasDesdeQuarta = diaSemana - 3;
+  if (diasDesdeQuarta < 0) diasDesdeQuarta += 7;
 
   const abertura = new Date(agora);
-  abertura.setDate(agora.getDate() - diasDesdeSexta);
+  abertura.setDate(agora.getDate() - diasDesdeQuarta);
   abertura.setHours(18, 0, 0, 0);
 
   const fechamento = new Date(abertura);
-  fechamento.setDate(abertura.getDate() + 1); // sábado seguinte
+  fechamento.setDate(abertura.getDate() + 3); // sábado seguinte
   fechamento.setHours(15, 30, 0, 0);
 
   const aindaNaoAbriu = agora < abertura;
@@ -77,7 +77,7 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const estaEmPaginaDeRank = location.pathname.startsWith("/rank");
-  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas") || location.pathname.startsWith("/replay") || location.pathname.startsWith("/guia-meta");
+  const estaEmFerramentas = location.pathname.startsWith("/team-trials") || location.pathname.startsWith("/pistas") || location.pathname.startsWith("/replay") || location.pathname.startsWith("/guia-meta") || location.pathname.startsWith("/comparador");
   const estaEmAdmin = location.pathname.startsWith("/sorteio") || location.pathname.startsWith("/rank-admin") || location.pathname.startsWith("/admin-guia-meta");
 
   const [menuAberto, setMenuAberto] = useState(false);
@@ -269,6 +269,9 @@ function Navbar() {
                   </Link>
                   <Link to="/pistas">
                     <FontAwesomeIcon icon={faMagnifyingGlass} /> Buscador de Pistas
+                  </Link>
+                  <Link to="/comparador">
+                    <i className="fa-solid fa-scale-balanced"></i> Comparador
                   </Link>
                   <Link to="/replay">
                     <FontAwesomeIcon icon={faFilm} /> Replay de Corrida
@@ -464,6 +467,9 @@ function Navbar() {
                   </Link>
                   <Link to="/pistas">
                     <FontAwesomeIcon icon={faMagnifyingGlass} /> Buscador de Pistas
+                  </Link>
+                  <Link to="/comparador">
+                    <i className="fa-solid fa-scale-balanced"></i> Comparador
                   </Link>
                   <Link to="/replay">
                     <FontAwesomeIcon icon={faFilm} /> Replay de Corrida

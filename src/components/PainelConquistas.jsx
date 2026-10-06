@@ -6,9 +6,53 @@
 // título dela.
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { CATEGORIAS, CONQUISTAS, RARIDADES } from "../data/conquistas";
 import { NIVEIS_PERSONAGEM } from "../utils/conquistas/leve";
 import { resolverTitulo } from "../utils/conquistas/titulos";
+
+const LARGURA_DETALHE = 290;
+
+// Cartão flutuante ao passar o mouse numa conquista: como conseguir + status.
+function DetalheConquista({ conquista, obtida, categoria, posicao }) {
+  const raridade = RARIDADES[conquista.raridade];
+  const cor = raridade.cor;
+  const status = obtida
+    ? obtida.manual ? "Concedida pela organização" : `Desbloqueada na Ed. ${String(obtida.edicaoId ?? "").replace(/\D/g, "")}${obtida.pista ? ` · ${obtida.pista}` : ""}`
+    : "Ainda não desbloqueada";
+  return createPortal(
+    <div style={{ position: "fixed", ...posicao, zIndex: 100050, // acima do modal do cartão (perfil.css: z-index 100000)
+      width: `${LARGURA_DETALHE}px`, pointerEvents: "none", fontFamily: "'Montserrat', sans-serif", background: "#0d1624", border: `1px solid ${cor}66`, borderTop: `3px solid ${cor}`, borderRadius: "10px", boxShadow: "0 14px 34px rgba(0, 0, 0, 0.6)", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", background: `linear-gradient(135deg, ${cor}22, transparent 70%)` }}>
+        <span style={{ width: "38px", height: "38px", flexShrink: 0, borderRadius: "10px", background: `${cor}1f`, border: `1px solid ${cor}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <i className={`fa-solid fa-${conquista.icone}`} style={{ color: cor, fontSize: "15pt" }}></i>
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ color: "#f1ead4", fontWeight: 800, fontSize: "10pt", lineHeight: 1.25 }}>{conquista.nome}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginTop: "4px" }}>
+            <span style={{ color: cor, border: `1px solid ${cor}66`, borderRadius: "4px", padding: "0 6px", fontSize: "7pt", fontWeight: 800, textTransform: "uppercase" }}>{raridade.nome}</span>
+            {categoria && <span style={{ color: "#8193a8", fontSize: "7.5pt", fontWeight: 600 }}><i className={`fa-solid fa-${categoria.icone}`}></i> {categoria.nome}</span>}
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: "10px 14px 12px", display: "grid", gap: "9px" }}>
+        <div>
+          <div style={{ color: "#5f758e", fontSize: "7pt", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "3px" }}>Como conseguir</div>
+          <div style={{ color: "#d4dbe4", fontSize: "8.5pt", lineHeight: 1.5 }}>{conquista.descricao}</div>
+        </div>
+        {conquista.tipo === "conquista" && conquista.titulo && (
+          <div style={{ fontSize: "8pt", color: "#a4b3c6" }}>
+            <i className="fa-solid fa-id-badge" style={{ color: cor }}></i> Título: <strong style={{ color: cor, fontStyle: "italic" }}>{conquista.titulo}</strong>
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", paddingTop: "8px", borderTop: "1px solid rgba(164, 179, 198, 0.1)", color: obtida ? "#7fd08a" : "#8193a8", fontSize: "8pt", fontWeight: 700 }}>
+          <i className={`fa-solid ${obtida ? "fa-circle-check" : "fa-lock"}`}></i> {status}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
 
 const NOME_NIVEL = { iniciante: "Iniciante", entusiasta: "Entusiasta", especialista: "Especialista", oshi: "Oshi" };
 
@@ -16,6 +60,15 @@ const NOME_NIVEL = { iniciante: "Iniciante", entusiasta: "Entusiasta", especiali
 function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar, somenteObtidas = false, semPersonagens = false }) {
   const [selecionado, setSelecionado] = useState(null);
   const [salvando, setSalvando] = useState(false);
+  const [detalhe, setDetalhe] = useState(null); // { tag, posicao }
+
+  // Abre o cartão de detalhe ao lado do card (abaixo, ou acima se não couber).
+  const mostrarDetalhe = (tag, e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - LARGURA_DETALHE - 8));
+    const abaixo = window.innerHeight - r.bottom > 260 || r.top < 260;
+    setDetalhe({ tag, posicao: abaixo ? { left, top: r.bottom + 6 } : { left, bottom: window.innerHeight - r.top + 6 } });
+  };
   const obtidas = new Map((docConquistas?.conquistas ?? []).map((q) => [q.tag, q]));
   Object.entries(docConquistas?.manuais ?? {}).forEach(([tag, info]) => obtidas.set(tag, { tag, manual: true, ...info }));
   const personagens = docConquistas?.personagens ?? [];
@@ -119,7 +172,8 @@ function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar, somenteObt
                 return (
                   <div
                     key={c.tag}
-                    title={c.descricao}
+                    onMouseEnter={(e) => mostrarDetalhe(c.tag, e)}
+                    onMouseLeave={() => setDetalhe(null)}
                     onClick={clicavel ? () => setSelecionado(id) : undefined}
                     style={{ position: "relative", display: "flex", gap: "10px", alignItems: "flex-start", background: "#0b1320", border: `1px solid ${q ? cor : "rgba(164, 179, 198, 0.1)"}`, borderRadius: "8px", padding: "8px 10px", opacity: q ? 1 : 0.4, cursor: clicavel ? "pointer" : "default", ...contorno(id, cor) }}
                   >
@@ -131,6 +185,7 @@ function PainelConquistas({ docConquistas, tituloEquipado, aoEquipar, somenteObt
                         {q ? (q.manual ? "Concedida pela organização" : `Ed. ${String(q.edicaoId ?? "").replace(/\D/g, "")}${q.pista ? ` · ${q.pista}` : ""}`) : c.descricao}
                       </div>
                     </div>
+                    {detalhe?.tag === c.tag && <DetalheConquista conquista={c} obtida={q} categoria={categoria} posicao={detalhe.posicao} />}
                     {podeEquipar && id === tituloEquipado && (
                       <span style={{ position: "absolute", top: "6px", right: "8px", color: cor, fontSize: "7pt", fontWeight: 800, textTransform: "uppercase" }}>
                         <i className="fa-solid fa-check"></i> Equipado

@@ -103,7 +103,7 @@ function Regulamento() {
           <p>A PTR realiza uma edição por semana.</p>
           <ul className="reg-lista">
             <li>
-              <strong>Sexta-feira</strong>
+              <strong>Quarta-feira</strong>
               <ul className="reg-lista">
                 <li>Abertura do Check-in às 18h00.</li>
               </ul>
@@ -137,7 +137,7 @@ function Regulamento() {
             da PocoLords.
           </p>
           <p>
-            Sua abertura ocorre às <strong>18h00 de sexta-feira</strong>, sendo encerrado aproximadamente
+            Sua abertura ocorre às <strong>18h00 de quarta-feira</strong>, sendo encerrado aproximadamente
             às <strong>15h30 de sábado</strong>.
           </p>
           <p>

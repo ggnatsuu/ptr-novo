@@ -24,22 +24,29 @@ export function calcularFases(distancia) {
 // curva nem reta dentro do próprio jogo, então fica sem cor/borda/rótulo
 // nenhum (só os números de metragem nas pontas, pra referência).
 export function montarSegmentosPista(dados) {
-  const zonasConhecidas = [
-    ...dados.corners.map((c) => ({ tipo: "curva", inicio: c.start, fim: c.start + c.length })),
-    ...dados.straights.map((s) => ({ tipo: "reta", inicio: s.start, fim: s.end })),
-  ].sort((a, b) => a.inicio - b.inicio);
+  // As curvas mandam: em alguns percursos os dados trazem retas que invadem
+  // as curvas (Ooi 1800m: reta 0–301 e curva 300–450; reta 600–1100 por cima
+  // da curva 500–650). Então as curvas entram inteiras, numeradas em ordem, e
+  // as retas só ocupam o que sobra entre elas (igual ao alpha123).
+  const curvas = [...dados.corners]
+    .sort((a, b) => a.start - b.start)
+    .map((cv, i) => ({ tipo: "curva", inicio: cv.start, fim: cv.start + cv.length, numero: i + 1 }));
+  const retas = [];
+  [...dados.straights].sort((a, b) => a.start - b.start).forEach((r) => {
+    let pedacos = [[r.start, r.end]];
+    curvas.forEach((cv) => {
+      pedacos = pedacos.flatMap(([i, f]) => (cv.fim <= i || cv.inicio >= f ? [[i, f]] : [[i, Math.min(f, cv.inicio)], [Math.max(i, cv.fim), f]]));
+    });
+    pedacos.filter(([i, f]) => f - i > 1).forEach(([i, f]) => retas.push({ tipo: "reta", inicio: i, fim: f }));
+  });
+  const zonas = [...curvas, ...retas].sort((a, b) => a.inicio - b.inicio);
 
   const segmentos = [];
   let cursor = 0;
-  let numeroCurva = 0;
-  zonasConhecidas.forEach((zona) => {
-    if (zona.inicio > cursor) {
-      segmentos.push({ tipo: "indefinido", inicio: cursor, fim: zona.inicio });
-    }
-    if (zona.inicio < cursor) return; // zona já coberta (sobreposição rara), ignora
-    if (zona.tipo === "curva") numeroCurva += 1;
-    segmentos.push({ ...zona, numero: zona.tipo === "curva" ? numeroCurva : undefined });
-    cursor = zona.fim;
+  zonas.forEach((zona) => {
+    if (zona.inicio > cursor + 0.5) segmentos.push({ tipo: "indefinido", inicio: cursor, fim: zona.inicio });
+    segmentos.push(zona);
+    cursor = Math.max(cursor, zona.fim);
   });
   if (cursor < dados.distance) {
     segmentos.push({ tipo: "indefinido", inicio: cursor, fim: dados.distance });

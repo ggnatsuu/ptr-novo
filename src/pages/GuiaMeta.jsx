@@ -316,6 +316,12 @@ function GuiaMeta() {
   const [deckAtivo, setDeckAtivo] = useState(0);
   const [visao, setVisao] = useState("guia"); // "guia" | "anotacoes"
   const [diagramaAberto, setDiagramaAberto] = useState(false);
+  // O diagrama continua montado durante a animação de fechar (senão o painel encolhe vazio).
+  const [diagramaMontado, setDiagramaMontado] = useState(false);
+  const alternarDiagrama = () => {
+    if (!diagramaAberto) setDiagramaMontado(true);
+    setDiagramaAberto(!diagramaAberto);
+  };
   const [parametros] = useSearchParams();
   const eventoDaUrl = parametros.get("evento"); // ?evento=CM #20 (vindo do editor)
   const [eventoAtual, setEventoAtual] = useState(null);
@@ -493,7 +499,7 @@ function GuiaMeta() {
   const st = evento.status_recomendados;
   const dadosEstilo = evento.estilos?.[estilo];
   const dadosCorrida = courseId ? courseData[courseId] : null;
-  const skillsNoDiagrama = diagramaAberto && dadosCorrida
+  const skillsNoDiagrama = diagramaMontado && dadosCorrida
     ? (dadosEstilo?.aceleracoes ?? []).map((id) => catalogoSkillsPorId.get(String(id))).filter(Boolean).map((sk) => ({
       ...sk, ...calcularRegioesSkill(dadosCorrida, sk.id, ESTRATEGIA_POR_ESTILO[estilo] ?? 2),
     }))
@@ -606,7 +612,7 @@ function GuiaMeta() {
             {courseId ? (
               <>
                 <MinimapaPista courseId={courseId} marcadores={[]} />
-                <button type="button" onClick={() => setDiagramaAberto((v) => !v)} style={{ alignSelf: "center", marginTop: "10px", display: "inline-flex", alignItems: "center", gap: "6px", background: diagramaAberto ? "linear-gradient(135deg, #f3d27a, #c5a059)" : "rgba(197, 160, 89, 0.1)", border: "1px solid rgba(197, 160, 89, 0.5)", color: diagramaAberto ? "#0b1320" : "#c5a059", borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 800, fontSize: "8.5pt", fontFamily: "'Montserrat'" }}>
+                <button type="button" onClick={alternarDiagrama} style={{ alignSelf: "center", marginTop: "10px", display: "inline-flex", alignItems: "center", gap: "6px", background: diagramaAberto ? "linear-gradient(135deg, #f3d27a, #c5a059)" : "rgba(197, 160, 89, 0.1)", border: "1px solid rgba(197, 160, 89, 0.5)", color: diagramaAberto ? "#0b1320" : "#c5a059", borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 800, fontSize: "8.5pt", fontFamily: "'Montserrat'" }}>
                   <i className="fa-solid fa-chart-area"></i> {diagramaAberto ? "Fechar diagrama" : "Diagrama da Pista"}
                 </button>
               </>
@@ -693,9 +699,13 @@ function GuiaMeta() {
                       let posicao = 0;
                       return lerRanking(desc.ranking_estilos).map((item, i) => {
                         if (item.operador) {
+                          // Mesmo conjunto de ícones, tamanho e cor pra todos; muda só a forma.
                           const forte = item.operador.replace("=", "").length;
-                          const simbolo = item.operador === "=" ? "=" : item.operador.endsWith("=") ? "≥" : forte >= 2 ? "≫" : "›";
-                          return <span key={i} title={forte >= 2 ? "Bem acima" : item.operador.includes("=") ? "Igual ou acima" : "Acima"} style={{ color: forte >= 2 ? "#c5a059" : "#5f758e", fontSize: forte >= 3 ? "28pt" : "22pt", fontWeight: 800, lineHeight: 1 }}>{simbolo}</span>;
+                          const op = item.operador === "=" ? { icone: "fa-equals", cor: "#8193a8", titulo: "Empatados" }
+                            : item.operador.endsWith("=") ? { icone: "fa-greater-than-equal", cor: "#8193a8", titulo: "Igual ou acima" }
+                              : forte >= 2 ? { icone: "fa-angles-right", cor: "#8193a8", titulo: "Bem acima" }
+                                : { icone: "fa-angle-right", cor: "#8193a8", titulo: "Acima" };
+                          return <i key={i} className={`fa-solid ${op.icone}`} title={op.titulo} style={{ color: op.cor, fontSize: "14pt", width: "18px", textAlign: "center" }}></i>;
                         }
                         posicao += 1;
                         const primeiro = posicao === 1;
@@ -846,7 +856,7 @@ function GuiaMeta() {
     </main>
 
     {/* DIAGRAMA DA PISTA (painel lateral) */}
-    <aside className={`painel-diagrama-guia${diagramaAberto && visao === "guia" ? " aberto" : ""}`} aria-hidden={!diagramaAberto}>
+    <aside className={`painel-diagrama-guia${diagramaAberto && visao === "guia" ? " aberto" : ""}`} aria-hidden={!diagramaAberto} onTransitionEnd={(e) => { if (e.target === e.currentTarget && !diagramaAberto && (e.propertyName === "width" || e.propertyName === "transform")) setDiagramaMontado(false); }}>
       <div className="painel-diagrama-guia-conteudo">
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
           <h3 style={{ ...estiloTitulo, margin: 0, flex: 1 }}><i className="fa-solid fa-chart-area" style={{ color: "#c5a059" }}></i> Diagrama da Pista</h3>
@@ -856,7 +866,7 @@ function GuiaMeta() {
           {pista.hipodromo} · {pista.distancia}m · {pista.terreno}
           {skillsNoDiagrama.length > 0 && <> · acelerações de <span style={{ color: "#c5a059", fontWeight: 700 }}>{estilo}</span> marcadas</>}
         </p>
-        {diagramaAberto && dadosCorrida && <DiagramaPistaGuia dadosCorrida={dadosCorrida} skills={skillsNoDiagrama} />}
+        {diagramaMontado && dadosCorrida && <DiagramaPistaGuia dadosCorrida={dadosCorrida} skills={skillsNoDiagrama} />}
         <p style={{ margin: "8px 0 0", color: "#5f758e", fontSize: "7.5pt" }}>Barra cheia = duração da skill · tracejado = onde ela pode ativar · passe o mouse para ver trecho, fase e inclinação.</p>
       </div>
     </aside>

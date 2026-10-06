@@ -53,8 +53,36 @@ function alturaEm(perfil, m) {
   return perfil.at(-1).altura;
 }
 
+// Empilha etiquetas de skill: cada uma vai pra primeira linha onde não encosta
+// na anterior (a barra é só o trecho ativo; o nome vai dentro ou logo depois).
+function empilharEtiquetas(lista, distancia) {
+  const fins = [];
+  return lista.map((e) => {
+    // A barra é só o trecho em que a skill ficou ativa; o nome vai dentro se
+    // couber, senão logo depois da barra — ou antes dela, quando passaria do
+    // fim do diagrama (skills perto da chegada). O nome também ocupa a linha.
+    const xi = L + (e.inicio / distancia) * P;
+    const larg = Math.max(((e.fim - e.inicio) / distancia) * P, 3);
+    const largTexto = e.nome.length * 6.4 + 28;
+    const dentro = larg >= largTexto;
+    const textoAntes = !dentro && xi + larg + 4 + largTexto > W - R;
+    const de = textoAntes ? xi - 4 - largTexto : xi;
+    const ate = dentro ? xi + larg : textoAntes ? xi + larg : xi + larg + 4 + largTexto;
+    return { ...e, xi, larg, dentro, textoAntes, largTexto, de, ate };
+  }).sort((a, b) => a.de - b.de).map((e) => {
+    let linha = fins.findIndex((f) => f < e.de - 2);
+    if (linha < 0) { linha = fins.length; fins.push(0); }
+    fins[linha] = e.ate;
+    return { ...e, linha };
+  });
+}
 // numerar: mostra a ordem de prioridade (Guia); no Buscador é só a ordem em que foram adicionadas.
-function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
+// Comparador (opcionais):
+//   curvas: { series: [{ nome, cor, eixo: "vel" | "hp", tracejado, pontos: [[pos, valor], ...] }], velMin, velMax, hpMax }
+//           → faixa no topo com velocidade (eixo esquerdo) e HP (eixo direito).
+//   etiquetas: [{ nome, inicio, fim, cor, iconId }] → skills como etiquetas na
+//           posição em que ativaram, empilhadas quando se sobrepõem (estilo Umalator).
+function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true, curvas = null, etiquetas = null }) {
   const uid = useId().replace(/:/g, "");
   const distancia = dadosCorrida.distance;
   const x = (m) => L + (m / distancia) * P;
@@ -65,13 +93,41 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
   const perfil = useMemo(() => perfilElevacao(dadosCorrida), [dadosCorrida]);
   const ultimaReta = [...segmentos].reverse().find((s) => s.tipo === "reta");
 
-  // Layout vertical
-  const yElev = 34, hElev = 70;
+  // Layout vertical (com curvas, a faixa de velocidade/HP entra no topo)
+  const yCurvas = 34, hCurvas = curvas ? 190 : 0;
+  const yElev = curvas ? yCurvas + hCurvas + 14 : 34, hElev = 70;
   const yTrecho = yElev + hElev + 12, hTrecho = 30;
   const yFase = yTrecho + hTrecho + 8, hFase = 24;
   const yRegua = yFase + hFase + 6;
   const ySkills = yRegua + 30;
   const hSkill = 34, gapSkill = 8;
+
+  // Etiquetas de skill: cada uma vai pra primeira linha onde não encosta na anterior.
+  const hEtiqueta = 22, gapEtiqueta = 5;
+  // Etiquetas com `grupo` (ex.: "A" e "B") ficam em faixas separadas, uma
+  // embaixo da outra; cada faixa empilha só as próprias etiquetas.
+  const SEP_GRUPO = 12;
+  const { linhasEtiqueta, gruposEtiqueta } = useMemo(() => {
+    if (!etiquetas?.length) return { linhasEtiqueta: [], gruposEtiqueta: [] };
+    const grupos = [];
+    for (const e of etiquetas) {
+      const chave = e.grupo ?? "";
+      if (!grupos.some((g) => g.chave === chave)) grupos.push({ chave, cor: e.cor });
+    }
+    let base = 0;
+    const todas = [];
+    grupos.forEach((g, gi) => {
+      const doGrupo = empilharEtiquetas(etiquetas.filter((e) => (e.grupo ?? "") === g.chave), distancia);
+      const n = doGrupo.reduce((m, e) => Math.max(m, e.linha + 1), 0);
+      Object.assign(g, { primeira: base, n, indice: gi });
+      doGrupo.forEach((e) => todas.push({ ...e, linha: base + e.linha, grupoIndice: gi }));
+      base += n;
+    });
+    return { linhasEtiqueta: todas, gruposEtiqueta: grupos };
+  }, [etiquetas, distancia]);
+
+  const nLinhasEtiqueta = linhasEtiqueta.reduce((m, e) => Math.max(m, e.linha + 1), 0);
+  const yEtiqueta = (linha, grupoIndice) => ySkills + linha * (hEtiqueta + gapEtiqueta) + grupoIndice * SEP_GRUPO;
 
   const linhas = skills.flatMap((sk, i) => {
     const cor = sk.cor?.stroke ?? PALETA_SKILLS[i % PALETA_SKILLS.length].stroke;
@@ -79,7 +135,14 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
       ? sk.gatilhos.map((g, gi) => ({ sk, cor, gatilho: g, sufixo: sk.gatilhos.length > 1 ? ` [${gi + 1}]` : "", chave: `${sk.id}-${gi}` }))
       : [{ sk, cor, gatilho: null, sufixo: "", chave: `${sk.id}-x` }];
   });
-  const altura = (linhas.length ? ySkills + linhas.length * (hSkill + gapSkill) : ySkills - 6) + 4;
+  const altura = nLinhasEtiqueta
+    ? ySkills + nLinhasEtiqueta * (hEtiqueta + gapEtiqueta) + Math.max(0, gruposEtiqueta.length - 1) * SEP_GRUPO + 4
+    : (linhas.length ? ySkills + linhas.length * (hSkill + gapSkill) : ySkills - 6) + 4;
+
+  // Curvas de velocidade (eixo esquerdo) e HP (eixo direito)
+  const yVel = (v) => yCurvas + hCurvas - 8 - ((Math.min(Math.max(v, curvas.velMin), curvas.velMax) - curvas.velMin) / Math.max(0.1, curvas.velMax - curvas.velMin)) * (hCurvas - 20);
+  const yHp = (h) => yCurvas + hCurvas - 8 - (Math.max(0, h) / Math.max(1, curvas.hpMax)) * (hCurvas - 20);
+  const ticksVel = curvas ? Array.from({ length: 5 }, (_, i) => curvas.velMin + ((curvas.velMax - curvas.velMin) * i) / 4) : [];
 
   // Elevação
   const alturas = perfil.map((p) => p.altura);
@@ -112,7 +175,19 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
     if (seg && seg.tipo !== "indefinido") partes.push(seg.tipo === "curva" ? `Corner ${seg.numero}` : seg === ultimaReta ? "Final straight" : "Straight");
     if (fase) partes.push(FASES[fase[0]].nome);
     if (dec) partes.push(`${dec.tipo === "subida" ? "Uphill" : "Downhill"} ${Math.abs(dec.slope) / 10000}%`);
-    return partes.join("  ·  ");
+    // Valores das curvas no ponto do mouse, agrupados por corredora (A, B...)
+    const grupos = [];
+    curvas?.series.forEach((s) => {
+      let melhor = null;
+      for (const p of s.pontos) if (!melhor || Math.abs(p[0] - mouse) < Math.abs(melhor[0] - mouse)) melhor = p;
+      if (!melhor || Math.abs(melhor[0] - mouse) > distancia / 50) return;
+      const chave = s.grupo ?? s.nome;
+      let g = grupos.find((x) => x.chave === chave);
+      if (!g) grupos.push((g = { chave, cor: s.cor }));
+      if (s.eixo === "hp") { g.hp = melhor[1]; g.yHp = yHp(melhor[1]); g.xHp = x(melhor[0]); }
+      else { g.vel = melhor[1]; g.yVel = yVel(melhor[1]); g.xVel = x(melhor[0]); }
+    });
+    return { local: partes.join("  ·  "), grupos };
   })();
 
   const marcas = Array.from({ length: Math.floor(distancia / 200) + 1 }, (_, i) => i * 200);
@@ -134,7 +209,36 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
       </defs>
 
       {/* Grade vertical a cada 200m, ligando todas as faixas */}
-      {marcas.map((m) => <line key={`g${m}`} x1={x(m)} y1={yElev} x2={x(m)} y2={yRegua} stroke={COR.grade} strokeWidth="1" />)}
+      {marcas.map((m) => <line key={`g${m}`} x1={x(m)} y1={curvas ? yCurvas : yElev} x2={x(m)} y2={yRegua} stroke={COR.grade} strokeWidth="1" />)}
+
+      {/* VELOCIDADE / HP (Comparador) */}
+      {curvas && (
+        <g>
+          {rotulo("VELOC. / HP", yCurvas + hCurvas / 2 + 4)}
+          <rect x={L} y={yCurvas} width={P} height={hCurvas} rx="6" fill={COR.trilho} />
+          {ticksVel.map((v) => (
+            <g key={`tv${v}`}>
+              <line x1={L} x2={W - R} y1={yVel(v)} y2={yVel(v)} stroke={COR.grade} />
+              <text x={L + 4} y={yVel(v) - 3} fill={COR.rotulo} fontSize="8.5" fontWeight="700">{v.toFixed(1)} m/s</text>
+            </g>
+          ))}
+          {[0.5, 1].map((f) => (
+            <text key={`th${f}`} x={W - R - 4} y={yHp(curvas.hpMax * f) - 3} textAnchor="end" fill={COR.rotulo} fontSize="8.5" fontWeight="700">{Math.round(curvas.hpMax * f)} HP</text>
+          ))}
+          {curvas.series.map((s, i) => (
+            <polyline
+              key={`c${i}`}
+              points={s.pontos.map(([pos, val]) => `${x(pos)},${s.eixo === "hp" ? yHp(val) : yVel(val)}`).join(" ")}
+              fill="none"
+              stroke={s.cor}
+              strokeWidth={s.tracejado ? 1.6 : 2.2}
+              strokeDasharray={s.tracejado ? "5 4" : undefined}
+              strokeOpacity={s.tracejado ? 0.85 : 1}
+              strokeLinejoin="round"
+            />
+          ))}
+        </g>
+      )}
 
       {/* Faixas de ativação das skills (atrás de tudo) */}
       {linhas.map(({ gatilho, cor, chave }) => gatilho && (gatilho.isImmediate
@@ -209,14 +313,16 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
         const meioY = y + hSkill / 2;
         const icone = caminhoIconeSkill(sk.iconId);
         const regiao = gatilho?.regions[0];
-        const durMetros = gatilho?.baseDuration != null ? (gatilho.baseDuration / 10000) * velocidadeBaseDaPista(distancia) : 0;
-        const xIni = regiao ? x(regiao.start) : L;
+        // Simulação (Comparador): gatilho traz o início médio e a duração real em metros.
+        const durMetros = gatilho?.duracaoMetros ?? (gatilho?.baseDuration != null ? (gatilho.baseDuration / 10000) * velocidadeBaseDaPista(distancia) : 0);
+        const inicio = gatilho?.inicio ?? regiao?.start;
+        const xIni = regiao ? x(inicio) : L;
         const xFimDur = regiao ? Math.min(xIni + Math.max((durMetros / distancia) * P, 10), W - R) : L;
         const nome = `${sk.nome}${sufixo}`;
         const larguraNome = nome.length * 7 + 16;
         const nomeNaFrente = !regiao || xIni - L > larguraNome + 12; // cabe antes da ativação
-        const duracao = gatilho?.baseDuration != null ? formatarDuracaoBase(gatilho.baseDuration) : "";
-        const posicao = regiao ? `${Math.round(regiao.start)}m` : "";
+        const duracao = gatilho?.textoDuracao ?? (gatilho?.baseDuration != null ? formatarDuracaoBase(gatilho.baseDuration) : "");
+        const posicao = regiao ? `${Math.round(inicio)}m` : "";
         const prioridade = skills.indexOf(sk) + 1;
         const textoAtivacao = nomeNaFrente ? `${posicao} · ${duracao}` : `${nome} · ${duracao}`;
         const textoAntes = xFimDur + 8 + textoAtivacao.length * 6.8 > W - R;
@@ -233,7 +339,7 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
             {regiao && (
               <>
                 <line x1={xIni} y1={y} x2={xIni} y2={y + hSkill} stroke={cor} strokeOpacity="0.6" />
-                <rect x={xIni} y={y + 5} width={Math.max(x(regiao.end) - xIni, 4)} height={hSkill - 10} rx="5" fill={cor} fillOpacity="0.16" stroke={cor} strokeOpacity="0.7" strokeDasharray="4 3" />
+                <rect x={x(regiao.start)} y={y + 5} width={Math.max(x(regiao.end) - x(regiao.start), 4)} height={hSkill - 10} rx="5" fill={cor} fillOpacity="0.16" stroke={cor} strokeOpacity="0.7" strokeDasharray="4 3" />
                 <rect x={xIni} y={y + 5} width={xFimDur - xIni} height={hSkill - 10} rx="5" fill={cor} filter={`url(#brilho-${uid})`} />
                 <text x={textoAntes ? xIni - 8 : xFimDur + 8} y={meioY + 4} textAnchor={textoAntes ? "end" : "start"} fill={cor} fontSize="11.5" fontWeight="800">{textoAtivacao}</text>
               </>
@@ -242,18 +348,70 @@ function DiagramaPistaGuia({ dadosCorrida, skills = [], numerar = true }) {
         );
       })}
 
+      {/* SKILLS em etiquetas (Comparador): posição real da ativação, largura = duração */}
+      {gruposEtiqueta.length === 1 && rotulo("SKILLS", ySkills + 15)}
+      {gruposEtiqueta.length > 1 && gruposEtiqueta.map((g) => {
+        const y0 = yEtiqueta(g.primeira, g.indice);
+        const y1 = yEtiqueta(g.primeira + g.n - 1, g.indice) + hEtiqueta;
+        return (
+          <g key={`grupo-${g.chave}`}>
+            <rect x={L - 8} y={y0} width="3" height={y1 - y0} rx="1.5" fill={g.cor} />
+            <text x={L - 14} y={y0 + 15} textAnchor="end" fill={g.cor} fontSize="10" fontWeight="900" letterSpacing="1.2">SKILLS {g.chave}</text>
+            {g.indice > 0 && <line x1={L} x2={W - R} y1={y0 - SEP_GRUPO / 2 - gapEtiqueta / 2} y2={y0 - SEP_GRUPO / 2 - gapEtiqueta / 2} stroke="rgba(164, 179, 198, 0.12)" strokeDasharray="4 4" />}
+          </g>
+        );
+      })}
+      {linhasEtiqueta.map((e, i) => {
+        const y = yEtiqueta(e.linha, e.grupoIndice ?? 0);
+        const icone = e.iconId ? caminhoIconeSkill(e.iconId) : null;
+        const xTexto = e.dentro ? e.xi + 3 : e.textoAntes ? e.xi - 4 - e.largTexto + 4 : e.xi + e.larg + 4;
+        return (
+          <g key={`e${i}`}>
+            <title>{`${e.nome}: ${Math.round(e.inicio)}m → ${Math.round(e.fim)}m (${Math.round(e.fim - e.inicio)}m)`}</title>
+            <line x1={e.xi} x2={e.xi} y1={yRegua} y2={y} stroke={e.cor} strokeOpacity="0.35" strokeDasharray="2 3" />
+            <rect x={e.xi} y={y} width={e.larg} height={hEtiqueta} rx="4" fill={e.cor} fillOpacity={e.evento ? 0.14 : 0.55} stroke={e.cor} strokeDasharray={e.evento ? "4 3" : undefined} />
+            {icone && <image href={icone} x={xTexto} y={y + 2} width="18" height="18" />}
+            <text x={xTexto + (icone ? 22 : 4)} y={y + 15} fill={e.evento ? e.cor : COR.texto} fontSize="10.5" fontWeight={e.evento ? 800 : 700} fontStyle={e.evento ? "italic" : undefined}>{e.nome}</text>
+          </g>
+        );
+      })}
+
       {/* Linha do mouse + tooltip */}
       {mouse != null && (
         <g pointerEvents="none">
-          <line x1={x(mouse)} y1={yElev - 4} x2={x(mouse)} y2={altura - 4} stroke={COR.texto} strokeOpacity="0.45" strokeWidth="1" />
+          <line x1={x(mouse)} y1={(curvas ? yCurvas : yElev) - 4} x2={x(mouse)} y2={altura - 4} stroke={COR.texto} strokeOpacity="0.45" strokeWidth="1" />
           <circle cx={x(mouse)} cy={yAlt(alturaEm(perfil, mouse))} r="4" fill="#0d1624" stroke={COR.ouro} strokeWidth="2" />
+          {/* pontos nas curvas */}
+          {infoMouse.grupos.map((g) => (
+            <g key={`p${g.chave}`}>
+              {g.yVel != null && <circle cx={g.xVel} cy={g.yVel} r="4.5" fill={g.cor} stroke="#0b1320" strokeWidth="2" />}
+              {g.yHp != null && <circle cx={g.xHp} cy={g.yHp} r="3.5" fill="#0b1320" stroke={g.cor} strokeWidth="2" />}
+            </g>
+          ))}
           {(() => {
-            const w = infoMouse.length * 6.3 + 20;
-            const bx = Math.min(Math.max(x(mouse) - w / 2, L), W - R - w);
+            // Cartão ao lado do mouse: local em cima, uma linha por corredora embaixo.
+            const { local, grupos } = infoMouse;
+            const w = Math.max(local.length * 6.4 + 24, grupos.length ? 210 : 0);
+            const h = 26 + grupos.length * 21;
+            const ladoDireito = x(mouse) + 14 + w <= W - R;
+            const bx = grupos.length ? (ladoDireito ? x(mouse) + 14 : x(mouse) - 14 - w) : Math.min(Math.max(x(mouse) - w / 2, L), W - R - w);
+            const by = curvas ? yCurvas + 6 : 4;
             return (
               <g>
-                <rect x={bx} y={4} width={w} height={22} rx="6" fill="#0b1320" stroke={COR.ouro} strokeOpacity="0.6" />
-                <text x={bx + w / 2} y={19} textAnchor="middle" fill={COR.texto} fontSize="10.5" fontWeight="700">{infoMouse}</text>
+                <rect x={bx} y={by} width={w} height={h} rx="8" fill="#0b1320" fillOpacity="0.96" stroke={COR.ouro} strokeOpacity="0.7" />
+                <text x={bx + 12} y={by + 17} fill={COR.ouro} fontSize="11" fontWeight="800">{local}</text>
+                {grupos.map((g, i) => {
+                  const y = by + 26 + i * 21;
+                  return (
+                    <g key={`t${g.chave}`}>
+                      <rect x={bx + 8} y={y} width={w - 16} height="18" rx="4" fill={g.cor} fillOpacity="0.12" />
+                      <rect x={bx + 8} y={y} width="3" height="18" rx="1.5" fill={g.cor} />
+                      <text x={bx + 18} y={y + 13} fill={g.cor} fontSize="11" fontWeight="900">{g.chave}</text>
+                      {g.vel != null && <text x={bx + 40} y={y + 13} fill={COR.texto} fontSize="11" fontWeight="700">{g.vel.toFixed(2)} m/s</text>}
+                      {g.hp != null && <text x={bx + w - 14} y={y + 13} textAnchor="end" fill={COR.texto} fontSize="11" fontWeight="700">HP {Math.round(g.hp)}</text>}
+                    </g>
+                  );
+                })}
               </g>
             );
           })()}

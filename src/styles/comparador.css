@@ -1,0 +1,522 @@
+/* 🎯 src/styles/comparador.css — Comparador de Corredoras (padrão Agenda/Buscador) */
+
+.cmp-pagina { margin-top: 130px; margin-bottom: 80px; padding: 0 20px; box-sizing: border-box; width: 100%; max-width: 1140px; margin-left: auto; margin-right: auto; font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; gap: 16px; }
+
+.cmp-cabecalho .cmp-sobretitulo { color: #c5a059; font-size: 8pt; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.cmp-cabecalho h1 { font-family: 'Cinzel', serif; color: #f1ead4; font-size: 24pt; margin: 4px 0 6px; }
+.cmp-cabecalho p { color: #8193a8; font-size: 10pt; margin: 0; }
+
+.cmp-cartao { background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px; padding: 16px 18px; box-sizing: border-box; min-width: 0; }
+.cmp-cartao-titulo { color: #8193a8; font-size: 8pt; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; }
+.cmp-cartao-titulo i { color: #c5a059; margin-right: 4px; }
+.cmp-cartao-titulo small { text-transform: none; letter-spacing: 0; font-weight: 600; color: #5f758e; margin-left: 6px; }
+.cmp-rotulo { display: block; color: #8193a8; font-size: 7.5pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+.cmp-rotulo i { color: #5f758e; cursor: help; }
+
+/* Corrida */
+.cmp-corrida-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 18px; }
+.cmp-corrida-grade > div:first-child { grid-column: 1 / -1; }
+
+/* Pílulas */
+.cmp-pilulas { display: flex; flex-wrap: wrap; gap: 5px; }
+.cmp-pilulas button { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 999px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 700; padding: 5px 11px; cursor: pointer; }
+.cmp-pilulas button:hover { border-color: rgba(197, 160, 89, 0.45); color: #f1ead4; }
+.cmp-pilulas button.ativo { background: rgba(197, 160, 89, 0.14); border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+
+/* Busca com lista */
+.cmp-busca { position: relative; }
+.cmp-busca > i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #5f758e; font-size: 9pt; pointer-events: none; }
+.cmp-busca input { width: 100%; box-sizing: border-box; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; color: #f1ead4; font-family: inherit; font-size: 9.5pt; font-weight: 600; padding: 9px 12px 9px 32px; }
+.cmp-busca input:focus { outline: none; border-color: rgba(197, 160, 89, 0.6); }
+.cmp-busca-lista { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0; max-height: 300px; overflow-y: auto; background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55); }
+.cmp-busca-lista button { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(164, 179, 198, 0.06); color: #f1ead4; font-family: inherit; font-size: 9pt; font-weight: 700; text-align: left; padding: 7px 10px; cursor: pointer; }
+.cmp-busca-lista button:hover { background: rgba(197, 160, 89, 0.08); }
+.cmp-busca-lista img { width: 28px; height: 28px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.cmp-busca-lista small { display: block; color: #8193a8; font-size: 7.5pt; font-weight: 600; }
+
+/* Painéis A e B */
+.cmp-paineis { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.cmp-painel { background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-top: 3px solid; border-radius: 12px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cmp-painel-topo { display: flex; align-items: center; gap: 10px; }
+.cmp-letra { width: 26px; height: 26px; flex-shrink: 0; border: 1px solid; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 10pt; }
+.cmp-retrato { width: 46px; height: 46px; flex-shrink: 0; border: 1px solid; border-radius: 10px; overflow: hidden; background: #0b1320; display: flex; align-items: center; justify-content: center; color: #5f758e; }
+.cmp-retrato img { width: 100%; height: 100%; object-fit: cover; }
+.cmp-btn-discreto { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 8px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 800; padding: 8px 12px; cursor: pointer; }
+.cmp-btn-discreto:hover { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+
+.cmp-status { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.cmp-status label { display: flex; flex-direction: column; gap: 3px; }
+.cmp-status span { font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+.cmp-status input, .cmp-grade-3 select { width: 100%; box-sizing: border-box; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; color: #f1ead4; font-family: inherit; font-size: 10.5pt; font-weight: 800; padding: 7px 4px; text-align: center; }
+.cmp-status input:focus, .cmp-grade-3 select:focus { outline: none; border-color: rgba(197, 160, 89, 0.6); }
+.cmp-grade-3 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.cmp-grade-3 select { font-size: 9.5pt; cursor: pointer; }
+.cmp-linha { display: flex; align-items: center; gap: 12px; }
+.cmp-linha > .cmp-rotulo { width: 68px; flex-shrink: 0; margin: 0; }
+
+.cmp-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.cmp-skill { display: inline-flex; align-items: center; gap: 6px; background: #0b1320; border: 1px solid; border-radius: 8px; padding: 3px 6px 3px 4px; color: #f1ead4; font-size: 8.5pt; font-weight: 700; }
+.cmp-skill img { width: 20px; height: 20px; }
+.cmp-skill em { font-style: normal; color: #ff8ad8; font-size: 7pt; font-weight: 800; text-transform: uppercase; }
+.cmp-skill button { background: none; border: none; color: #5f758e; cursor: pointer; padding: 0 2px; }
+.cmp-skill button:hover { color: #e8806f; }
+.cmp-vazio { color: #5f758e; font-size: 8.5pt; font-style: italic; }
+
+/* Ações */
+.cmp-acoes { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; }
+.cmp-btn-principal { background: linear-gradient(135deg, #f3d27a, #c5a059); border: none; border-radius: 10px; color: #0b1320; font-family: inherit; font-size: 10pt; font-weight: 900; letter-spacing: 0.5px; padding: 12px 28px; cursor: pointer; }
+.cmp-btn-principal:disabled { opacity: 0.5; cursor: not-allowed; }
+.cmp-progresso { flex: 0 1 420px; height: 10px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 999px; overflow: hidden; }
+.cmp-progresso div { height: 100%; background: linear-gradient(90deg, #c5a059, #f3d27a); transition: width 0.2s ease; }
+.cmp-progresso-texto { color: #a4b3c6; font-size: 9pt; font-weight: 700; min-width: 80px; }
+
+/* Resultado */
+.cmp-resultado { display: flex; flex-direction: column; gap: 16px; }
+.cmp-manchete { color: #f1ead4; font-size: 15pt; font-weight: 800; }
+.cmp-manchete strong { color: #c5a059; }
+.cmp-sub { color: #8193a8; font-size: 9pt; margin: 6px 0 0; line-height: 1.5; }
+.cmp-aviso { color: #f0a040; font-size: 8.5pt; margin: 8px 0 0; }
+.cmp-resultado-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+.cmp-numeros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 10px; }
+.cmp-numeros div { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 6px 8px; }
+.cmp-numeros span { display: block; color: #8193a8; font-size: 7pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.cmp-numeros strong { color: #f1ead4; font-size: 10pt; font-family: ui-monospace, Consolas, monospace; }
+.cmp-histograma { width: 100%; height: auto; display: block; }
+.cmp-histograma text { fill: #5f758e; font-size: 10px; font-family: 'Montserrat', sans-serif; }
+.cmp-legenda { display: flex; gap: 16px; justify-content: center; color: #a4b3c6; font-size: 8pt; font-weight: 700; margin-top: 4px; }
+.cmp-legenda i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+.cmp-tabela { width: 100%; border-collapse: collapse; font-size: 9pt; }
+.cmp-tabela th { text-align: right; font-size: 8.5pt; font-weight: 800; padding: 0 8px 8px; }
+.cmp-tabela td { padding: 7px 8px; border-top: 1px solid rgba(164, 179, 198, 0.08); color: #a4b3c6; }
+.cmp-tabela td:not(:first-child) { text-align: right; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; }
+.cmp-tabela td.melhor { color: #7fd08a; font-weight: 700; }
+
+.cmp-creditos { color: #5f758e; font-size: 8pt; text-align: center; margin: 8px 0 0; line-height: 1.6; }
+.cmp-creditos a { color: #c5a059; }
+
+@media (max-width: 640px) {
+  .cmp-status { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cmp-grade-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cmp-resultado-grade, .cmp-paineis { grid-template-columns: 1fr; }
+  .cmp-numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Abas do resultado + tabela de skills */
+.cmp-abas { display: flex; gap: 6px; border-bottom: 1px solid rgba(164, 179, 198, 0.1); }
+.cmp-abas button { background: none; border: none; border-bottom: 2px solid transparent; color: #8193a8; font-family: inherit; font-size: 9.5pt; font-weight: 800; padding: 8px 14px; cursor: pointer; margin-bottom: -1px; }
+.cmp-abas button.ativo { color: #c5a059; border-bottom-color: #c5a059; }
+.cmp-abas button i { margin-right: 4px; }
+.cmp-tabela-skills th { text-align: right; color: #8193a8; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1px; }
+.cmp-tabela-skills th:first-child { text-align: left; }
+.cmp-skill-nome { display: inline-flex; align-items: center; gap: 8px; color: #f1ead4; font-weight: 700; }
+.cmp-skill-nome > i { width: 4px; height: 20px; border-radius: 2px; }
+.cmp-skill-nome img { width: 22px; height: 22px; }
+
+/* Aba Stamina */
+.cmp-subtitulo { color: #8193a8; font-size: 7.5pt; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin: 16px 0 6px; }
+.cmp-subtitulo small { text-transform: none; letter-spacing: 0; font-weight: 600; color: #5f758e; margin-left: 6px; }
+.cmp-tabela td.pior { color: #e8806f; }
+.cmp-calc { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; padding: 10px 12px; }
+.cmp-calc-linha { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: #a4b3c6; font-size: 9pt; font-weight: 700; }
+.cmp-calc-linha > span { flex: 1; min-width: 140px; }
+.cmp-calc-alvo { display: inline-flex; align-items: center; gap: 4px; }
+.cmp-calc-alvo input { width: 56px; background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 6px; color: #f1ead4; font-family: inherit; font-size: 10pt; font-weight: 800; text-align: center; padding: 5px; }
+.cmp-calc-resultado { margin-top: 10px; color: #f1ead4; font-size: 10pt; }
+.cmp-calc-resultado strong { font-size: 13pt; }
+.cmp-calc .cmp-sub { font-size: 7.5pt; margin-top: 8px; }
+
+/* ==========================================================================
+   Layout em duas colunas (inspirado no torena-sim): barra lateral com as
+   corredoras e área principal com corrida, ações e resultado.
+   ========================================================================== */
+.cmp-pagina { max-width: 1560px; }
+.cmp-layout { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; align-items: start; }
+.cmp-lateral { position: sticky; top: 86px; max-height: calc(100vh - 100px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; }
+.cmp-principal { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.cmp-seletor { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 6px; }
+.cmp-seletor-cartao { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; padding: 8px; cursor: pointer; font-family: inherit; text-align: left; transition: border-color 0.15s ease, background 0.15s ease; }
+.cmp-seletor-cartao:hover { border-color: rgba(164, 179, 198, 0.3); }
+.cmp-seletor-cartao.ativo { border-color: var(--cor); background: linear-gradient(135deg, color-mix(in srgb, var(--cor) 14%, transparent), #0d1624 70%); }
+.cmp-seletor-letra { position: absolute; top: -7px; left: 8px; background: var(--cor); color: #0b1320; border-radius: 4px; font-size: 7pt; font-weight: 900; padding: 0 5px; line-height: 14px; }
+.cmp-seletor-foto { width: 38px; height: 38px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #0b1320; display: flex; align-items: center; justify-content: center; color: #5f758e; }
+.cmp-seletor-foto img { width: 100%; height: 100%; object-fit: cover; }
+.cmp-seletor-texto { min-width: 0; display: flex; flex-direction: column; }
+.cmp-seletor-texto strong { color: #f1ead4; font-size: 9pt; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmp-seletor-texto small { color: #8193a8; font-size: 7.5pt; font-weight: 700; }
+.cmp-seletor-trocar { align-self: center; width: 28px; height: 28px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 50%; color: #a4b3c6; cursor: pointer; font-size: 8pt; }
+.cmp-seletor-trocar:hover { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+
+/* Editor mais compacto dentro da barra lateral */
+.cmp-lateral .cmp-painel { padding: 12px; gap: 12px; }
+.cmp-lateral .cmp-status input { font-size: 10pt; padding: 6px 2px; }
+.cmp-lateral .cmp-pilulas button { padding: 4px 9px; font-size: 8pt; }
+.cmp-lateral .cmp-linha { flex-direction: column; align-items: stretch; gap: 5px; }
+.cmp-lateral .cmp-linha > .cmp-rotulo { width: auto; }
+.cmp-lateral .cmp-skills { flex-direction: column; align-items: stretch; }
+.cmp-lateral .cmp-skill { padding: 5px 8px 5px 5px; }
+.cmp-lateral .cmp-skill > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 980px) {
+  .cmp-layout { grid-template-columns: 1fr; }
+  .cmp-lateral { position: static; max-height: none; overflow: visible; }
+}
+
+/* Tela cheia: barra lateral encostada na esquerda (≈27%), do menu até o
+   fim da tela; o resto fica com a corrida e os resultados. */
+.cmp-pagina { max-width: none; width: 100%; margin: 78px 0 0; padding: 0; display: block; }
+.cmp-layout { grid-template-columns: clamp(340px, 27vw, 520px) minmax(0, 1fr); gap: 0; }
+.cmp-lateral {
+  position: sticky; top: 78px; height: calc(100vh - 78px); max-height: none;
+  background: #0a111c; border-right: 1px solid rgba(164, 179, 198, 0.1);
+  padding: 18px 16px 24px; box-sizing: border-box;
+}
+.cmp-principal { padding: 28px 32px 60px; box-sizing: border-box; }
+@media (max-width: 980px) {
+  .cmp-layout { grid-template-columns: 1fr; }
+  .cmp-lateral { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(164, 179, 198, 0.1); }
+  .cmp-principal { padding: 20px 16px 50px; }
+}
+
+/* Barra-resumo da corrida (clique abre a configuração) */
+.cmp-corrida { padding: 0; }
+.cmp-resumo-corrida { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; padding: 13px 18px; cursor: pointer; font-family: inherit; text-align: left; color: #a4b3c6; }
+.cmp-resumo-corrida > i:first-child { color: #c5a059; font-size: 11pt; }
+.cmp-resumo-corrida > strong { color: #f1ead4; font-size: 10.5pt; font-weight: 800; }
+.cmp-resumo-itens { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; font-size: 9.5pt; font-weight: 600; }
+.cmp-resumo-itens > span + span::before { content: "·"; margin: 0 8px; color: #5f758e; }
+.cmp-resumo-itens .destaque { color: #c5a059; font-weight: 800; }
+.cmp-resumo-itens .modo { color: #f1ead4; font-weight: 800; }
+.cmp-resumo-seta { color: #5f758e; font-size: 9pt; }
+.cmp-resumo-corrida:hover .cmp-resumo-seta { color: #c5a059; }
+.cmp-corrida .cmp-corrida-grade { padding: 4px 18px 18px; border-top: 1px solid rgba(164, 179, 198, 0.08); padding-top: 14px; }
+
+/* Barra de ações */
+.cmp-acoes { justify-content: flex-start; flex-wrap: wrap; gap: 10px; }
+.cmp-acoes .cmp-btn-principal { padding: 10px 22px; font-size: 9.5pt; }
+.cmp-semente { display: inline-flex; align-items: center; gap: 6px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; padding: 0 8px 0 10px; }
+.cmp-semente > span { color: #8193a8; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.cmp-semente input { width: 110px; background: none; border: none; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; font-size: 9.5pt; padding: 8px 0; outline: none; }
+.cmp-semente input::placeholder { color: #5f758e; }
+.cmp-semente button { background: none; border: none; color: #8193a8; cursor: pointer; padding: 0 2px; }
+.cmp-semente button:hover { color: #c5a059; }
+
+/* Percurso: hipódromo + distância + grade */
+.cmp-percurso { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 110px; gap: 10px; }
+.cmp-percurso select { width: 100%; box-sizing: border-box; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; color: #f1ead4; font-family: inherit; font-size: 9.5pt; font-weight: 700; padding: 9px 10px; cursor: pointer; }
+.cmp-percurso select:focus { outline: none; border-color: rgba(197, 160, 89, 0.6); }
+@media (max-width: 640px) { .cmp-percurso { grid-template-columns: 1fr 1fr; } }
+
+/* Estado vazio (antes da primeira simulação) */
+.cmp-vazio-resultado { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 36px 20px; color: #8193a8; font-size: 9.5pt; text-align: center; }
+.cmp-vazio-resultado i { color: #c5a059; font-size: 18pt; margin-bottom: 4px; }
+.cmp-vazio-resultado strong { color: #f1ead4; font-size: 11pt; }
+
+/* Diagrama menor, alinhado à esquerda */
+.cmp-diagrama > svg { max-width: 1180px; }
+.cmp-dica-semente { color: #8193a8; font-size: 8pt; font-weight: 700; }
+.cmp-dica-semente i { color: #c5a059; margin-right: 3px; }
+
+/* Diagrama com gráfico de velocidade/HP: um pouco mais largo pra caber a altura */
+.cmp-diagrama > svg { max-width: 1280px; }
+
+/* Aptidão com ícone de letra */
+.cmp-aptidao { position: relative; }
+.cmp-aptidao-atual { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; padding: 4px 6px; cursor: pointer; }
+.cmp-aptidao-atual:hover { border-color: rgba(197, 160, 89, 0.5); }
+.cmp-aptidao-atual img { height: 22px; }
+.cmp-aptidao-atual i { color: #5f758e; font-size: 7pt; }
+.cmp-aptidao-lista { position: absolute; z-index: 40; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(4, 34px); gap: 4px; background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 8px; padding: 6px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5); }
+.cmp-aptidao-lista button { background: #0b1320; border: 1px solid transparent; border-radius: 6px; padding: 3px; cursor: pointer; }
+.cmp-aptidao-lista button:hover, .cmp-aptidao-lista button.ativo { border-color: rgba(197, 160, 89, 0.6); }
+.cmp-aptidao-lista img { width: 100%; display: block; }
+
+/* Botão que abre o catálogo de skills */
+.cmp-btn-adicionar { width: 100%; background: rgba(197, 160, 89, 0.08); border: 1px dashed rgba(197, 160, 89, 0.45); border-radius: 8px; color: #c5a059; font-family: inherit; font-size: 9pt; font-weight: 800; padding: 9px; cursor: pointer; }
+.cmp-btn-adicionar:hover { background: rgba(197, 160, 89, 0.16); }
+
+/* Status ajustado (Adj) embaixo de cada status */
+.cmp-adj { display: block; text-align: center; color: #8193a8; font-family: ui-monospace, Consolas, monospace; font-size: 8.5pt; font-weight: 700; cursor: help; }
+.cmp-adj-legenda { color: #5f758e; font-size: 7.5pt; font-weight: 600; margin-top: -6px; cursor: help; }
+.cmp-adj-legenda i { color: #8193a8; margin-right: 3px; }
+
+/* Barra de rodar fixa no pé da barra lateral */
+.cmp-acoes-fixas {
+  position: sticky; bottom: -24px; margin-top: auto; z-index: 5;
+  background: #0a111c; border-top: 1px solid rgba(164, 179, 198, 0.12);
+  padding: 12px 0 14px; justify-content: flex-start;
+}
+.cmp-acoes-fixas .cmp-btn-principal { flex: 1 1 100%; padding: 12px; font-size: 10pt; }
+.cmp-acoes-fixas .cmp-progresso { flex: 1 1 100%; }
+.cmp-acoes-fixas .cmp-semente input { width: 96px; }
+
+/* Corrida única: chegada */
+.cmp-chegada { display: flex; align-items: center; gap: 12px; background: #0b1320; border: 1px solid; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; font-size: 10.5pt; }
+.cmp-chegada-pos { color: #0b1320; font-weight: 900; border-radius: 6px; padding: 2px 8px; font-size: 9.5pt; }
+.cmp-chegada strong { flex: 1; min-width: 0; }
+.cmp-chegada > span:not(.cmp-chegada-pos) { color: #f1ead4; font-family: ui-monospace, Consolas, monospace; }
+.cmp-chegada em { font-style: normal; color: #8193a8; font-size: 9pt; font-weight: 700; min-width: 64px; text-align: right; }
+
+/* Builds salvas */
+.cmp-builds { background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px; overflow: hidden; }
+.cmp-builds-topo { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 10px 12px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+.cmp-builds-topo > i:first-child { color: #c5a059; }
+.cmp-builds-topo span { background: #0b1320; border-radius: 999px; padding: 0 7px; color: #f1ead4; font-size: 8pt; }
+.cmp-builds-topo > i:last-child { margin-left: auto; color: #5f758e; }
+.cmp-builds-corpo { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+.cmp-builds-salvar { display: flex; gap: 6px; }
+.cmp-builds-salvar input { flex: 1; min-width: 0; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 8px; color: #f1ead4; font-family: inherit; font-size: 9pt; padding: 7px 10px; }
+.cmp-builds-salvar input:focus { outline: none; border-color: rgba(197, 160, 89, 0.6); }
+.cmp-builds-salvar button { background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 8px; color: #c5a059; font-family: inherit; font-size: 8.5pt; font-weight: 800; padding: 0 10px; cursor: pointer; white-space: nowrap; }
+.cmp-builds-item { display: flex; gap: 6px; }
+.cmp-builds-carregar { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 6px 8px; cursor: pointer; font-family: inherit; text-align: left; color: #5f758e; }
+.cmp-builds-carregar:hover { border-color: rgba(197, 160, 89, 0.5); }
+.cmp-builds-carregar img { width: 30px; height: 30px; border-radius: 6px; object-fit: cover; }
+.cmp-builds-carregar span { min-width: 0; display: flex; flex-direction: column; }
+.cmp-builds-carregar strong { color: #f1ead4; font-size: 9pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmp-builds-carregar small { color: #8193a8; font-size: 7.5pt; font-family: ui-monospace, Consolas, monospace; }
+.cmp-builds-apagar { background: none; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; color: #5f758e; padding: 0 9px; cursor: pointer; }
+.cmp-builds-apagar:hover { color: #e8806f; border-color: rgba(232, 128, 111, 0.5); }
+
+/* A coluna da barra lateral é pintada no layout inteiro (fundo + linha), não
+   só no painel fixo; assim, no fim da página, não sobra coluna sem fundo. */
+.cmp-layout {
+  --lateral: clamp(340px, 27vw, 520px);
+  grid-template-columns: var(--lateral) minmax(0, 1fr);
+  min-height: calc(100vh - 78px);
+  background:
+    linear-gradient(90deg, transparent calc(var(--lateral) - 1px), rgba(164, 179, 198, 0.1) calc(var(--lateral) - 1px), rgba(164, 179, 198, 0.1) var(--lateral), transparent var(--lateral)),
+    linear-gradient(90deg, #0a111c var(--lateral), transparent var(--lateral));
+}
+.cmp-lateral { background: transparent; border-right: none; }
+@media (max-width: 980px) {
+  .cmp-layout { background: none; min-height: 0; }
+  .cmp-lateral { background: #0a111c; }
+}
+
+/* Para onde foi o HP: agrupado (Geral / Economizou / Custou) */
+.cmp-hp { display: flex; flex-direction: column; }
+.cmp-hp-grupo { color: #5f758e; font-size: 7pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin: 10px 0 2px; }
+.cmp-hp-grupo.verde { color: #7fd08a; }
+.cmp-hp-grupo.vermelho { color: #e8806f; }
+.cmp-hp-linha { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 6px 2px; border-top: 1px solid rgba(164, 179, 198, 0.07); font-size: 9.5pt; color: #c9d3df; }
+.cmp-hp-linha i { width: 16px; color: #8193a8; margin-right: 6px; text-align: center; }
+.cmp-hp-linha > span:last-child { text-align: right; font-family: ui-monospace, Consolas, monospace; color: #f1ead4; font-weight: 700; }
+.cmp-hp-linha > span.melhor { color: #7fd08a; }
+.cmp-hp-linha > span.pior { color: #e8806f; }
+.cmp-hp-linha small { display: block; color: #5f758e; font-size: 7.5pt; font-weight: 600; }
+
+/* Calculadora: forçar mecânicas */
+.cmp-forcar { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(164, 179, 198, 0.08); }
+.cmp-forcar > span { color: #8193a8; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.cmp-forcar label { display: flex; align-items: center; gap: 8px; color: #f1ead4; font-size: 9pt; font-weight: 700; cursor: pointer; }
+.cmp-forcar label small { color: #5f758e; font-weight: 600; font-size: 7.5pt; }
+.cmp-forcar input { display: none; }
+.cmp-chave { width: 30px; height: 16px; border-radius: 999px; background: #1a2536; position: relative; flex-shrink: 0; transition: background 0.15s ease; }
+.cmp-chave::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #8193a8; transition: transform 0.15s ease, background 0.15s ease; }
+.cmp-forcar input:checked + .cmp-chave { background: rgba(197, 160, 89, 0.45); }
+.cmp-forcar input:checked + .cmp-chave::after { transform: translateX(14px); background: #f3d27a; }
+
+/* Abas da barra lateral */
+.cmp-abas-lateral { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 10px; padding: 4px; }
+.cmp-abas-lateral button { background: none; border: none; border-radius: 7px; color: #8193a8; font-family: inherit; font-size: 9pt; font-weight: 800; padding: 8px; cursor: pointer; }
+.cmp-abas-lateral button.ativo { background: rgba(197, 160, 89, 0.14); color: #c5a059; }
+
+/* Painel de ajustes */
+.cmp-ajustes { display: flex; flex-direction: column; gap: 10px; }
+.cmp-ajustes section { background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.1); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.cmp-ajuste-linha, .cmp-ajuste-titulo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cmp-ajuste-titulo { cursor: pointer; margin-bottom: 4px; }
+.cmp-ajustes strong { display: block; color: #f1ead4; font-size: 10pt; }
+.cmp-ajustes small { display: block; color: #8193a8; font-size: 8pt; line-height: 1.4; margin-top: 2px; }
+.cmp-ajuste-linha input[type="number"] { width: 90px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 8px; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; font-size: 10.5pt; padding: 7px 8px; text-align: right; }
+.cmp-ajustes input[type="checkbox"] { width: 17px; height: 17px; accent-color: #c5a059; cursor: pointer; flex-shrink: 0; }
+.cmp-ajuste-ab { display: grid; grid-template-columns: 1fr 34px 34px; align-items: center; justify-items: center; padding: 6px 0; border-top: 1px solid rgba(164, 179, 198, 0.07); color: #c9d3df; font-size: 9pt; font-weight: 700; }
+.cmp-ajuste-ab > span:first-child { justify-self: start; }
+.cmp-ajuste-ab.cabecalho { color: #5f758e; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border-top: none; }
+.cmp-ajuste-ab.desligada { opacity: 0.4; }
+.cmp-ajuste-simples { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 0; border-top: 1px solid rgba(164, 179, 198, 0.07); color: #c9d3df; font-size: 9pt; font-weight: 700; cursor: pointer; }
+.cmp-ajuste-taxas { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+.cmp-ajuste-taxas label { display: flex; align-items: center; justify-content: space-between; gap: 6px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 4px 4px 4px 10px; color: #c9d3df; font-size: 8.5pt; font-weight: 700; }
+.cmp-ajuste-taxas input { width: 46px; background: none; border: none; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; font-size: 10pt; text-align: right; outline: none; }
+.cmp-ajuste-inativo { opacity: 0.5; }
+
+/* Histograma: eixo, mediana e cartão do mouse */
+.cmp-histograma .cmp-hist-eixo { fill: #5f758e; font-size: 9.5px; font-weight: 700; }
+.cmp-histograma .cmp-hist-mediana { fill: #a4b3c6; font-size: 9.5px; font-weight: 700; }
+.cmp-histograma .cmp-hist-dica-titulo { fill: #f1ead4; font-size: 11px; font-weight: 800; }
+.cmp-histograma .cmp-hist-dica { fill: #8193a8; font-size: 10.5px; font-weight: 700; }
+.cmp-histograma .cmp-hist-dica-valor { fill: #f1ead4; font-size: 11px; font-weight: 800; font-family: ui-monospace, Consolas, monospace; }
+
+/* Tamanho do campo: atalhos + qualquer valor de 3 a 12 */
+.cmp-campo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cmp-campo select { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); border-radius: 999px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 700; padding: 4px 8px; cursor: pointer; }
+
+/* Importar do replay */
+.cmp-btn-importar { width: 100%; background: #0d1624; border: 1px dashed rgba(197, 160, 89, 0.45); border-radius: 10px; color: #c5a059; font-family: inherit; font-size: 9pt; font-weight: 800; padding: 9px; cursor: pointer; }
+.cmp-btn-importar:hover:not(:disabled) { background: rgba(197, 160, 89, 0.1); }
+.cmp-modal-fundo { position: fixed; inset: 0; z-index: 1100; background: rgba(5, 9, 16, 0.72); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.cmp-modal { width: min(760px, 100%); max-height: calc(100vh - 60px); display: flex; flex-direction: column; background: #0d1624; border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); font-family: 'Montserrat', sans-serif; }
+.cmp-modal-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid rgba(164, 179, 198, 0.1); }
+.cmp-modal-topo strong { display: block; color: #f1ead4; font-family: 'Cinzel', serif; font-size: 13pt; }
+.cmp-modal-topo small { color: #8193a8; font-size: 8.5pt; font-weight: 600; }
+.cmp-modal-topo > button { background: none; border: none; color: #8193a8; font-size: 13pt; cursor: pointer; }
+.cmp-modal-lista { overflow-y: auto; padding: 12px 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; }
+.cmp-modal-item { display: flex; align-items: center; gap: 10px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 10px; padding: 8px 10px; cursor: pointer; font-family: inherit; text-align: left; transition: border-color 0.15s ease; }
+.cmp-modal-item:hover { border-color: rgba(197, 160, 89, 0.5); }
+.cmp-modal-letra { width: 30px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #1a2536; color: #a4b3c6; font-size: 8.5pt; font-weight: 900; }
+.cmp-modal-item img, .cmp-modal-sem-foto { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #0d1624; display: flex; align-items: center; justify-content: center; color: #5f758e; }
+.cmp-modal-texto { min-width: 0; display: flex; flex-direction: column; }
+.cmp-modal-texto strong { color: #f1ead4; font-size: 9.5pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmp-modal-texto small { color: #8193a8; font-size: 7.5pt; font-weight: 600; }
+.cmp-modal-texto small.mono { font-family: ui-monospace, Consolas, monospace; color: #5f758e; }
+.cmp-modal-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-top: 1px solid rgba(164, 179, 198, 0.1); }
+.cmp-modal-rodape label { display: flex; align-items: center; gap: 8px; color: #a4b3c6; font-size: 8.5pt; font-weight: 700; cursor: pointer; }
+.cmp-modal-rodape input { accent-color: #c5a059; width: 16px; height: 16px; }
+
+/* Skills da barra lateral: grade de 2 colunas, compacta (a unique ocupa a linha) */
+.cmp-lateral .cmp-skills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.cmp-lateral .cmp-skill { padding: 3px 4px 3px 4px; gap: 5px; font-size: 7.5pt; border-radius: 6px; min-width: 0; }
+.cmp-lateral .cmp-skill.unique { grid-column: 1 / -1; font-size: 8.5pt; padding: 5px 8px 5px 5px; }
+.cmp-lateral .cmp-skill img { width: 16px; height: 16px; flex-shrink: 0; }
+.cmp-lateral .cmp-skill.unique img { width: 20px; height: 20px; }
+.cmp-lateral .cmp-skill button { padding: 0 1px; font-size: 8pt; }
+.cmp-lateral .cmp-vazio { grid-column: 1 / -1; }
+.cmp-btn-ver-skills { width: 100%; background: none; border: none; color: #8193a8; font-family: inherit; font-size: 8pt; font-weight: 800; padding: 4px; cursor: pointer; }
+.cmp-btn-ver-skills:hover { color: #c5a059; }
+
+/* Barra lateral: tamanhos maiores (legibilidade) */
+.cmp-lateral .cmp-linha > div { width: 100%; }
+.cmp-lateral .cmp-skill { font-size: 8.8pt; padding: 6px 6px 6px 5px; gap: 7px; border-radius: 7px; }
+.cmp-lateral .cmp-skill img { width: 22px; height: 22px; }
+.cmp-lateral .cmp-skill.unique { font-size: 9.5pt; padding: 7px 10px 7px 6px; }
+.cmp-lateral .cmp-skill.unique img { width: 24px; height: 24px; }
+.cmp-lateral .cmp-skill button { font-size: 9.5pt; padding: 0 2px; }
+.cmp-lateral .cmp-skills { gap: 6px; }
+.cmp-lateral .cmp-status span { font-size: 8.5pt; }
+.cmp-lateral .cmp-status input { font-size: 11.5pt; padding: 8px 2px; }
+.cmp-lateral .cmp-adj { font-size: 9pt; }
+.cmp-lateral .cmp-rotulo { font-size: 8.5pt; }
+.cmp-lateral .cmp-pilulas button { font-size: 9pt; padding: 5px 11px; }
+.cmp-lateral .cmp-grade-3 select { font-size: 10.5pt; }
+.cmp-lateral .cmp-aptidao-atual img { height: 26px; }
+.cmp-lateral .cmp-busca input { font-size: 10.5pt; }
+.cmp-lateral .cmp-btn-adicionar, .cmp-lateral .cmp-btn-ver-skills { font-size: 9.5pt; }
+.cmp-seletor-texto strong { font-size: 10pt; }
+.cmp-seletor-texto small { font-size: 8.5pt; }
+.cmp-abas-lateral button, .cmp-btn-importar { font-size: 10pt; }
+.cmp-acoes-fixas .cmp-pilulas button { font-size: 9pt; padding: 5px 11px; }
+
+/* Barra lateral em altura fixa: o painel da corredora encolhe e só a lista
+   de skills rola; a barra de Rodar fica sempre visível embaixo. */
+@media (min-width: 981px) {
+  .cmp-lateral { overflow: hidden; padding-bottom: 0; }
+  .cmp-lateral > .cmp-painel { flex: 1 1 auto; min-height: 220px; display: flex; flex-direction: column; overflow: hidden; }
+  .cmp-lateral > .cmp-painel > .cmp-bloco-skills { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .cmp-lateral > .cmp-painel > .cmp-bloco-skills > div { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .cmp-lateral .cmp-bloco-skills .cmp-skills { flex: 0 1 auto; min-height: 50px; overflow-y: auto; align-content: start; padding-right: 4px; scrollbar-width: thin; scrollbar-color: rgba(197, 160, 89, 0.4) transparent; }
+  .cmp-lateral .cmp-btn-adicionar { flex-shrink: 0; }
+  .cmp-lateral > .cmp-builds, .cmp-lateral > .cmp-seletor, .cmp-lateral > .cmp-abas-lateral, .cmp-lateral > .cmp-btn-importar { flex-shrink: 0; }
+  .cmp-lateral > .cmp-ajustes { overflow-y: auto; min-height: 0; flex: 1 1 auto; }
+  .cmp-acoes-fixas { position: static; flex-shrink: 0; margin-top: auto; }
+}
+.cmp-skill-nome-chip { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Custo em SP: total, Kiremono e nível de dica em cada skill */
+.cmp-skills-topo { display: flex; align-items: center; gap: 10px; width: 100%; flex-wrap: wrap; }
+.cmp-sp { color: #8193a8; font-size: 9pt; font-weight: 700; margin-left: auto; }
+.cmp-sp strong { color: #f3d27a; font-size: 12pt; font-family: ui-monospace, Consolas, monospace; }
+.cmp-kiremono { display: inline-flex; align-items: center; gap: 5px; color: #a4b3c6; font-size: 8.5pt; font-weight: 700; cursor: pointer; }
+.cmp-kiremono input { accent-color: #c5a059; }
+.cmp-dica { flex-shrink: 0; display: inline-flex; flex-direction: column; align-items: center; line-height: 1; gap: 1px; background: #0d1624; border: 1px solid rgba(164, 179, 198, 0.18); border-radius: 5px; color: #5f758e; font-family: inherit; font-size: 7pt; font-weight: 900; padding: 2px 4px; cursor: pointer; min-width: 30px; }
+.cmp-dica span { color: #a4b3c6; font-size: 7.5pt; font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+.cmp-dica.ativa { border-color: rgba(127, 208, 138, 0.55); color: #7fd08a; }
+.cmp-dica:hover { border-color: rgba(197, 160, 89, 0.6); }
+
+/* Cabeçalho das skills numa linha só e sem esticar (a lista fica com o espaço) */
+.cmp-lateral > .cmp-painel > .cmp-bloco-skills > .cmp-skills-topo { flex: 0 0 auto; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; flex-wrap: nowrap; }
+.cmp-skills-topo .cmp-rotulo { display: inline; width: auto; text-align: left; }
+.cmp-skills-topo .cmp-kiremono { order: 2; white-space: nowrap; }
+.cmp-skills-topo .cmp-sp { order: 3; margin-left: auto; white-space: nowrap; }
+.cmp-lateral .cmp-bloco-skills { gap: 6px; }
+
+/* Abas Build | Skills dentro do painel da corredora */
+.cmp-abas-painel { display: grid; grid-template-columns: 1fr 1.4fr; gap: 4px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 9px; padding: 3px; flex-shrink: 0; }
+.cmp-abas-painel button { background: none; border: none; border-radius: 7px; color: #8193a8; font-family: inherit; font-size: 9.5pt; font-weight: 800; padding: 7px 8px; cursor: pointer; white-space: nowrap; }
+.cmp-abas-painel button span { color: #5f758e; font-size: 8pt; font-weight: 700; margin-left: 4px; }
+.cmp-abas-painel button.ativo { background: rgba(197, 160, 89, 0.14); color: #c5a059; }
+.cmp-abas-painel button.ativo span { color: #f3d27a; }
+.cmp-aba-build { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; }
+.cmp-btn-limpar:hover { color: #e8806f !important; border-color: rgba(232, 128, 111, 0.6) !important; }
+
+/* Confirmação de limpar (dentro do painel, no lugar do confirm do navegador) */
+.cmp-confirmar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; background: rgba(232, 128, 111, 0.08); border: 1px solid rgba(232, 128, 111, 0.45); border-radius: 9px; padding: 8px 10px; color: #f1ead4; font-size: 9pt; font-weight: 600; animation: cmpConfirmar 0.15s ease-out; }
+.cmp-confirmar > i { color: #e8806f; }
+.cmp-confirmar > span { flex: 1; min-width: 140px; }
+.cmp-confirmar button { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.25); border-radius: 7px; color: #a4b3c6; font-family: inherit; font-size: 8.5pt; font-weight: 800; padding: 5px 12px; cursor: pointer; }
+.cmp-confirmar button.sim { background: rgba(232, 128, 111, 0.18); border-color: rgba(232, 128, 111, 0.7); color: #e8806f; }
+.cmp-confirmar button.sim:hover { background: rgba(232, 128, 111, 0.3); }
+@keyframes cmpConfirmar { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* Confirmação flutuando por cima (não empurra o painel) */
+.cmp-painel { position: relative; }
+.cmp-confirmar {
+  position: absolute; top: 64px; left: 12px; right: 12px; z-index: 20;
+  background: #1a1416; border-color: rgba(232, 128, 111, 0.6);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+}
+
+/* Botões da aba Skills + relatório de custo-benefício */
+.cmp-botoes-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
+.cmp-btn-relatorio { background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.25); border-radius: 8px; color: #a4b3c6; font-family: inherit; font-size: 9pt; font-weight: 800; padding: 9px; cursor: pointer; }
+.cmp-btn-relatorio:hover:not(:disabled) { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+.cmp-btn-relatorio:disabled { opacity: 0.45; cursor: not-allowed; }
+.cmp-modal.cmp-relatorio { width: min(1100px, 100%); }
+.cmp-relatorio-corpo { padding: 14px 18px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.cmp-relatorio-gerar { display: flex; flex-direction: column; gap: 12px; }
+.cmp-relatorio-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.cmp-relatorio-barra .cmp-sp { margin-left: auto; }
+.cmp-relatorio-tabela { overflow-x: auto; }
+.cmp-relatorio-tabela .cmp-tabela { min-width: 820px; }
+.cmp-relatorio-tabela th { color: #8193a8; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.8px; text-align: right; }
+.cmp-relatorio-tabela td.rel-atual { background: rgba(197, 160, 89, 0.14); color: #f3d27a; font-weight: 800; }
+.cmp-relatorio-tabela td.rel-cb { font-weight: 800; color: #f1ead4; }
+.cmp-relatorio-tabela tr.rel-top td.rel-cb { color: #7fd08a; }
+.cmp-relatorio-tabela tr.rel-pior td.rel-cb { color: #e8806f; }
+.cmp-relatorio-tabela tr.rel-top td:first-child { box-shadow: inset 3px 0 0 #7fd08a; }
+.cmp-relatorio-tabela tr.rel-pior td:first-child { box-shadow: inset 3px 0 0 #e8806f; }
+.rel-inclui { display: block; color: #5f758e; font-size: 7.5pt; margin-left: 30px; }
+.cmp-relatorio-tabela tr.rel-total td { background: rgba(197, 160, 89, 0.12); color: #f3d27a; font-weight: 800; border-top: 2px solid rgba(197, 160, 89, 0.5); }
+.cmp-relatorio-tabela tr.rel-total-alt td { background: #0b1320; color: #a4b3c6; font-weight: 700; border-top: 1px solid rgba(164, 179, 198, 0.12); }
+
+/* Relatório: onde buscar dica + coluna de prioridade */
+.rel-dicas { background: #0b1320; border: 1px solid rgba(243, 210, 122, 0.35); border-radius: 10px; padding: 10px 12px; }
+.rel-dicas-titulo { color: #f3d27a; font-size: 9.5pt; font-weight: 800; margin-bottom: 8px; }
+.rel-dicas-titulo small { color: #8193a8; font-weight: 600; font-size: 8pt; margin-left: 6px; }
+.rel-dicas-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+.rel-dica-item { display: flex; align-items: center; gap: 7px; background: #0d1624; border-radius: 8px; padding: 6px 8px; }
+.rel-dica-pos { width: 20px; height: 20px; border-radius: 50%; background: #c5a059; color: #0b1320; font-size: 8pt; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rel-dica-item img { width: 22px; height: 22px; }
+.rel-dica-texto { min-width: 0; display: flex; flex-direction: column; }
+.rel-dica-texto strong { color: #f1ead4; font-size: 8.5pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rel-dica-texto small { color: #7fd08a; font-size: 7.5pt; font-weight: 700; }
+.rel-prioridade { font-size: 7.5pt; font-weight: 900; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+.rel-prioridade.alta { background: rgba(127, 208, 138, 0.18); color: #7fd08a; }
+.rel-prioridade.media { background: rgba(243, 210, 122, 0.16); color: #f3d27a; }
+.rel-prioridade.baixa { background: rgba(164, 179, 198, 0.12); color: #a4b3c6; }
+.rel-prioridade.nao { color: #5f758e; }
+
+/* Quais skills comprar */
+.cmp-btn-comprar { width: 100%; flex-shrink: 0; background: linear-gradient(135deg, rgba(243, 210, 122, 0.16), rgba(197, 160, 89, 0.08)); border: 1px solid rgba(197, 160, 89, 0.55); border-radius: 8px; color: #f3d27a; font-family: inherit; font-size: 9.5pt; font-weight: 800; padding: 9px; cursor: pointer; }
+.cmp-btn-comprar:hover { background: rgba(197, 160, 89, 0.22); }
+.cmp-modal.cmp-comprar { width: min(1200px, 100%); height: min(860px, calc(100vh - 40px)); }
+.cmp-comprar .cmp-relatorio-corpo { flex: 1; min-height: 0; }
+.cmp-comprar .cmp-relatorio-tabela { flex: 1; min-height: 0; overflow: auto; }
+.cmp-comprar thead th { position: sticky; top: 0; background: #0d1624; z-index: 1; }
+.cmp-th-ordenar { cursor: pointer; user-select: none; white-space: nowrap; }
+.cmp-th-ordenar:hover { color: #c5a059; }
+.cmp-custo-dica { display: inline-flex; align-items: center; gap: 4px; }
+.cmp-custo-dica button { width: 20px; height: 20px; border-radius: 5px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.25); color: #a4b3c6; font-weight: 900; cursor: pointer; line-height: 1; padding: 0; }
+.cmp-custo-dica button:hover { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
+.cmp-custo-dica > span { min-width: 44px; text-align: center; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; }
+.cmp-custo-dica em { display: block; font-style: normal; color: #7fd08a; font-size: 7pt; font-weight: 800; }

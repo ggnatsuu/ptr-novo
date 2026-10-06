@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../config/firebase";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
 import { tracknames, courseData } from "../data/pistasCourseData";
 import umasRaw from "../uma-skill-tools/data/umas.json";
@@ -70,6 +73,13 @@ const COURSE_ID_POR_NOME = Object.fromEntries(
   [...bancoCorridas, ...bancoG1].filter((p) => p.courseId).map((p) => [p.nome, p.courseId])
 );
 
+// ID do percurso (chave do course_data) — pra quem só precisa do minimapa.
+// eslint-disable-next-line react-refresh/only-export-components -- usado pela Agenda
+export function courseIdDaPista(pista) {
+  const curso = encontrarCourseData(pista);
+  return curso ? Object.keys(courseData).find((id) => courseData[id] === curso) ?? null : null;
+}
+
 function encontrarCourseData(pista) {
   // 🎯 Caminho principal: o ID exato do percurso. Só cai no cruzamento
   // hipódromo+distância+terreno+direção abaixo se a pista não tiver ID
@@ -129,6 +139,9 @@ const CATEGORIA_DISTANCIA_INFO = {
   Medium: { cor: "#4dd68c" },
   Long: { cor: "#5b9dff" },
 };
+
+// Fita oficial da grade (a mesma dos cartões da Agenda).
+const FITA_GRADE = { G1: "utx_txt_grade_ribbon_05.png", G2: "utx_txt_grade_ribbon_04.png", G3: "utx_txt_grade_ribbon_03.png" };
 
 const GRADE_INFO = {
   G1: { cor: "#c5a059", bg: "rgba(197,160,89,0.15)" },
@@ -368,8 +381,122 @@ const ESTRATEGIAS_TESTE = [
   { valor: 4, label: "End", icone: "end" },
 ];
 
-function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, skillHerdadaParaAdicionar, aoConsumirSkillHerdadaParaAdicionar }) {
+// 🎯 Janela do catálogo de skills (busca, ordenação e filtros). Usada pelo
+// teste de skills do Buscador e pelo Comparador.
+export function CatalogoSkills({ idsAdicionados = [], aoAdicionar, aoFechar }) {
   const [busca, setBusca] = useState("");
+  const [ordenacao, setOrdenacao] = useState("raridade");
+  const [filtrosAtivos, setFiltrosAtivos] = useState({
+    raridade: new Set(), estrategia: new Set(), distancia: new Set(), terreno: new Set(), fase: new Set(), tipoEfeito: new Set(),
+  });
+
+  function alternarFiltro(grupo, chave) {
+    setFiltrosAtivos((prev) => {
+      const novoSet = new Set(prev[grupo]);
+      if (novoSet.has(chave)) novoSet.delete(chave); else novoSet.add(chave);
+      return { ...prev, [grupo]: novoSet };
+    });
+  }
+
+  const totalFiltrosAtivos = Object.values(filtrosAtivos).reduce((s, set) => s + set.size, 0);
+
+  function limparFiltros() {
+    setFiltrosAtivos({ raridade: new Set(), estrategia: new Set(), distancia: new Set(), terreno: new Set(), fase: new Set(), tipoEfeito: new Set() });
+    setBusca("");
+  }
+
+  const skillsFiltradas = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    return catalogoSkills.filter((s) => {
+      if (termo && !s.nome.toLowerCase().includes(termo)) return false;
+      if (filtrosAtivos.raridade.size > 0 && ![...filtrosAtivos.raridade].some((f) => passaFiltroRaridade(s, f))) return false;
+      if (filtrosAtivos.tipoEfeito.size > 0 && ![...filtrosAtivos.tipoEfeito].some((f) => passaFiltroIcone(s, f))) return false;
+      for (const grupo of ["estrategia", "distancia", "terreno", "fase"]) {
+        const ativos = filtrosAtivos[grupo];
+        if (ativos.size > 0 && ![...ativos].some((chave) => skillPassaNoFiltro(s, chave))) return false;
+      }
+      return true;
+    }).sort(ORDENACOES[ordenacao].comparar);
+  }, [busca, filtrosAtivos, ordenacao]);
+
+  // Portal: abre direto no <body>, por cima de tudo (inclusive do menu do
+  // topo), mesmo quando quem chama está dentro de um painel fixo/sticky.
+  return createPortal(
+      <div className="bp-catalogo-overlay" onClick={() => aoFechar()}>
+        <div className="bpx-catalogo" onClick={(e) => e.stopPropagation()}>
+          {/* Busca + ordenação + fechar */}
+          <div className="bpx-catalogo-topo">
+            <label className="bpx-catalogo-busca">
+              <i className="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Buscar skill pelo nome..." value={busca} onChange={(e) => setBusca(e.target.value)} autoFocus />
+              {busca && <button type="button" onClick={() => setBusca("")} title="Limpar busca"><i className="fa-solid fa-xmark"></i></button>}
+            </label>
+            <div className="bpx-catalogo-ordem">
+              <i className="fa-solid fa-arrow-down-wide-short"></i>
+              {Object.entries(ORDENACOES).map(([chave, o]) => (
+                <button key={chave} type="button" className={ordenacao === chave ? "ativo" : ""} onClick={() => setOrdenacao(chave)}>{o.nome}</button>
+              ))}
+            </div>
+            <button type="button" className="bpx-catalogo-fechar" onClick={() => aoFechar()} title="Fechar"><i className="fa-solid fa-xmark"></i></button>
+          </div>
+
+          {/* Filtros agrupados */}
+          <div className="bpx-catalogo-filtros">
+            {Object.entries(GRUPOS_FILTRO).map(([grupo, opcoes]) => (
+              <div key={grupo} className="bpx-filtro-grupo">
+                <span className="bpx-filtro-rotulo" style={{ color: ROTULOS_GRUPO[grupo].cor }}>{ROTULOS_GRUPO[grupo].nome}</span>
+                <div className="bpx-filtro-opcoes">
+                  {opcoes.map((op) => (
+                    <button key={op.chave} type="button" className={`bpx-filtro-btn ${filtrosAtivos[grupo].has(op.chave) ? "ativo" : ""}`} onClick={() => alternarFiltro(grupo, op.chave)}>{op.label}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="bpx-filtro-grupo bpx-filtro-grupo-largo">
+              <span className="bpx-filtro-rotulo">Effect type</span>
+              <div className="bpx-filtro-opcoes">
+                {ICONES_FILTRO.map((op) => (
+                  <button key={op.base} type="button" className={`bpx-filtro-icone ${filtrosAtivos.tipoEfeito.has(op.base) ? "ativo" : ""}`} onClick={() => alternarFiltro("tipoEfeito", op.base)}>
+                    <img src={caminhoIconeSkill(op.iconId)} alt="" onError={(e) => { e.target.style.display = "none"; }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="bpx-catalogo-contagem">
+            <span>{skillsFiltradas.length} skill{skillsFiltradas.length !== 1 ? "s" : ""}</span>
+            {totalFiltrosAtivos > 0 && <button type="button" onClick={limparFiltros}><i className="fa-solid fa-filter-circle-xmark"></i> Limpar filtros ({totalFiltrosAtivos})</button>}
+          </div>
+
+          {/* Todas as skills numa rolagem só */}
+          <div className="bpx-catalogo-grade">
+            {skillsFiltradas.length === 0 && <p className="bpx-catalogo-vazio">Nenhuma skill com esses filtros.</p>}
+            {skillsFiltradas.map((s) => {
+              const jaAdicionada = idsAdicionados.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`bpx-skill-item bpx-raridade-${classeCartaoCatalogo(s)} ${jaAdicionada ? "adicionada" : ""}`}
+                  onClick={() => aoAdicionar(s)}
+                  disabled={jaAdicionada}
+                  title={jaAdicionada ? `${s.nome} (já adicionada)` : s.nome}
+                >
+                  {s.iconId && <img src={caminhoIconeSkill(s.iconId)} alt="" loading="lazy" onError={(e) => { e.target.style.display = "none"; }} />}
+                  <span>{s.nome}</span>
+                  {jaAdicionada && <i className="fa-solid fa-check"></i>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>,
+    document.body
+  );
+}
+
+function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, skillHerdadaParaAdicionar, aoConsumirSkillHerdadaParaAdicionar }) {
   const [buscaCavalinha, setBuscaCavalinha] = useState("");
   const [cavalinhaAberta, setCavalinhaAberta] = useState(false);
   const [cavalinhaSelecionada, setCavalinhaSelecionada] = useState(null);
@@ -389,10 +516,6 @@ function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, 
     });
   }
   const [estrategiaCavalo, setEstrategiaCavalo] = useState(2); // Pace Chaser como padrão
-  const [ordenacao, setOrdenacao] = useState("raridade");
-  const [filtrosAtivos, setFiltrosAtivos] = useState({
-    raridade: new Set(), estrategia: new Set(), distancia: new Set(), terreno: new Set(), fase: new Set(), tipoEfeito: new Set(),
-  });
 
   const resultadosCavalinha = useMemo(() => {
     const termo = buscaCavalinha.trim().toLowerCase();
@@ -451,35 +574,6 @@ function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillHerdadaParaAdicionar]);
-
-  function alternarFiltro(grupo, chave) {
-    setFiltrosAtivos((prev) => {
-      const novoSet = new Set(prev[grupo]);
-      if (novoSet.has(chave)) novoSet.delete(chave); else novoSet.add(chave);
-      return { ...prev, [grupo]: novoSet };
-    });
-  }
-
-  const totalFiltrosAtivos = Object.values(filtrosAtivos).reduce((s, set) => s + set.size, 0);
-
-  function limparFiltros() {
-    setFiltrosAtivos({ raridade: new Set(), estrategia: new Set(), distancia: new Set(), terreno: new Set(), fase: new Set(), tipoEfeito: new Set() });
-    setBusca("");
-  }
-
-  const skillsFiltradas = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    return catalogoSkills.filter((s) => {
-      if (termo && !s.nome.toLowerCase().includes(termo)) return false;
-      if (filtrosAtivos.raridade.size > 0 && ![...filtrosAtivos.raridade].some((f) => passaFiltroRaridade(s, f))) return false;
-      if (filtrosAtivos.tipoEfeito.size > 0 && ![...filtrosAtivos.tipoEfeito].some((f) => passaFiltroIcone(s, f))) return false;
-      for (const grupo of ["estrategia", "distancia", "terreno", "fase"]) {
-        const ativos = filtrosAtivos[grupo];
-        if (ativos.size > 0 && ![...ativos].some((chave) => skillPassaNoFiltro(s, chave))) return false;
-      }
-      return true;
-    }).sort(ORDENACOES[ordenacao].comparar);
-  }, [busca, filtrosAtivos, ordenacao]);
 
   function adicionarSkill(skill) {
     setSkillsDestacadas((atuais) => {
@@ -711,76 +805,7 @@ function SeletorDeSkills({ dadosCorrida, skillsDestacadas, setSkillsDestacadas, 
       })()}
 
       {catalogoAberto && (
-        <div className="bp-catalogo-overlay" onClick={() => setCatalogoAberto(false)}>
-          <div className="bpx-catalogo" onClick={(e) => e.stopPropagation()}>
-            {/* Busca + ordenação + fechar */}
-            <div className="bpx-catalogo-topo">
-              <label className="bpx-catalogo-busca">
-                <i className="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar skill pelo nome..." value={busca} onChange={(e) => setBusca(e.target.value)} autoFocus />
-                {busca && <button type="button" onClick={() => setBusca("")} title="Limpar busca"><i className="fa-solid fa-xmark"></i></button>}
-              </label>
-              <div className="bpx-catalogo-ordem">
-                <i className="fa-solid fa-arrow-down-wide-short"></i>
-                {Object.entries(ORDENACOES).map(([chave, o]) => (
-                  <button key={chave} type="button" className={ordenacao === chave ? "ativo" : ""} onClick={() => setOrdenacao(chave)}>{o.nome}</button>
-                ))}
-              </div>
-              <button type="button" className="bpx-catalogo-fechar" onClick={() => setCatalogoAberto(false)} title="Fechar"><i className="fa-solid fa-xmark"></i></button>
-            </div>
-
-            {/* Filtros agrupados */}
-            <div className="bpx-catalogo-filtros">
-              {Object.entries(GRUPOS_FILTRO).map(([grupo, opcoes]) => (
-                <div key={grupo} className="bpx-filtro-grupo">
-                  <span className="bpx-filtro-rotulo" style={{ color: ROTULOS_GRUPO[grupo].cor }}>{ROTULOS_GRUPO[grupo].nome}</span>
-                  <div className="bpx-filtro-opcoes">
-                    {opcoes.map((op) => (
-                      <button key={op.chave} type="button" className={`bpx-filtro-btn ${filtrosAtivos[grupo].has(op.chave) ? "ativo" : ""}`} onClick={() => alternarFiltro(grupo, op.chave)}>{op.label}</button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <div className="bpx-filtro-grupo bpx-filtro-grupo-largo">
-                <span className="bpx-filtro-rotulo">Effect type</span>
-                <div className="bpx-filtro-opcoes">
-                  {ICONES_FILTRO.map((op) => (
-                    <button key={op.base} type="button" className={`bpx-filtro-icone ${filtrosAtivos.tipoEfeito.has(op.base) ? "ativo" : ""}`} onClick={() => alternarFiltro("tipoEfeito", op.base)}>
-                      <img src={caminhoIconeSkill(op.iconId)} alt="" onError={(e) => { e.target.style.display = "none"; }} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="bpx-catalogo-contagem">
-              <span>{skillsFiltradas.length} skill{skillsFiltradas.length !== 1 ? "s" : ""}</span>
-              {totalFiltrosAtivos > 0 && <button type="button" onClick={limparFiltros}><i className="fa-solid fa-filter-circle-xmark"></i> Limpar filtros ({totalFiltrosAtivos})</button>}
-            </div>
-
-            {/* Todas as skills numa rolagem só */}
-            <div className="bpx-catalogo-grade">
-              {skillsFiltradas.length === 0 && <p className="bpx-catalogo-vazio">Nenhuma skill com esses filtros.</p>}
-              {skillsFiltradas.map((s) => {
-                const jaAdicionada = skillsDestacadas.some((sk) => sk.id === s.id);
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`bpx-skill-item bpx-raridade-${classeCartaoCatalogo(s)} ${jaAdicionada ? "adicionada" : ""}`}
-                    onClick={() => adicionarSkill(s)}
-                    disabled={jaAdicionada}
-                    title={jaAdicionada ? `${s.nome} (já adicionada)` : s.nome}
-                  >
-                    {s.iconId && <img src={caminhoIconeSkill(s.iconId)} alt="" loading="lazy" onError={(e) => { e.target.style.display = "none"; }} />}
-                    <span>{s.nome}</span>
-                    {jaAdicionada && <i className="fa-solid fa-check"></i>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <CatalogoSkills idsAdicionados={skillsDestacadas.map((sk) => sk.id)} aoAdicionar={adicionarSkill} aoFechar={() => setCatalogoAberto(false)} />
       )}
     </div>
   );
@@ -1023,6 +1048,87 @@ function SeletorAmbiente() {
 // COMPONENTE PRINCIPAL
 // ============================================================================
 
+// 🎯 Modal do diagrama + teste de skills de uma pista. Exportado pra ser
+// reaproveitado fora do Buscador (ex.: Agenda). "pista" no formato do
+// Buscador: { nome, hipodromo, distanciaNumero, distanciaCategoria,
+// terrenoCurto, direcao, courseId|course_id }.
+export function ModalDiagramaPista({ pista, aoFechar }) {
+  const [skillHerdadaParaAdicionar, setSkillHerdadaParaAdicionar] = useState(null);
+  const [skillsDestacadas, setSkillsDestacadas] = useState([]);
+    const dadosCorrida = encontrarCourseData(pista);
+    return (
+      <div className="bp-modal-overlay">
+        <div className="bp-modal-box bp-modal-box-split" onClick={(e) => e.stopPropagation()}>
+          <div className="bp-modal-header">
+            <div style={{ minWidth: 0 }}>
+              <div className="bpx-sobretitulo"><i className="fa-solid fa-chart-area"></i> Diagrama e teste de skills</div>
+              <h3>{pista.nome}</h3>
+              <div className="bpx-chips">
+                <span><i className="fa-solid fa-location-dot"></i> {pista.hipodromo}</span>
+                <span><i className="fa-solid fa-ruler-horizontal"></i> {pista.distanciaNumero}m <em>{pista.distanciaCategoria}</em></span>
+                <span><i className="fa-solid fa-seedling"></i> {pista.terrenoCurto}</span>
+                <span><i className="fa-solid fa-rotate"></i> {traduzirDirecao(pista.direcao)}</span>
+              </div>
+            </div>
+            {dadosCorrida && (
+              <div className="bpx-minimapa-cabecalho">
+                <MinimapaPista courseId={Object.keys(courseData).find((id) => courseData[id] === dadosCorrida)} marcadores={[]} />
+              </div>
+            )}
+            <button type="button" className="bp-modal-fechar" onClick={aoFechar}>&times;</button>
+          </div>
+
+          {dadosCorrida ? (
+            <div className="bp-modal-split">
+              <div className="bp-modal-coluna-esquerda">
+                <SeletorDeSkills
+                  dadosCorrida={dadosCorrida}
+                  skillsDestacadas={skillsDestacadas}
+                  setSkillsDestacadas={setSkillsDestacadas}
+                  skillHerdadaParaAdicionar={skillHerdadaParaAdicionar}
+                  aoConsumirSkillHerdadaParaAdicionar={() => setSkillHerdadaParaAdicionar(null)}
+                />
+              </div>
+              <div className="bp-modal-coluna-direita">
+                <div className="bpx-cartao">
+                  <div className="bpx-secao-titulo"><i className="fa-solid fa-chart-area"></i> Diagrama da pista <span className="bpx-dica">passe o mouse para ver trecho, fase e inclinação</span></div>
+                  <DiagramaPistaGuia dadosCorrida={dadosCorrida} skills={skillsDestacadas} numerar={false} />
+                </div>
+                <div className="bpx-linha-cartoes">
+                  <SeletorAmbiente />
+                  <RecomendacoesUniques pistaDiagramaAberta={pista} skillsDestacadas={skillsDestacadas} aoClicarSkillHerdada={setSkillHerdadaParaAdicionar} />
+                </div>
+                <p className="bpx-creditos">
+                  Simulação feita com o <a href="https://github.com/alpha123/uma-skill-tools" target="_blank" rel="noopener noreferrer">uma-skill-tools</a>, de alpha123 · <a href="/creditos">créditos</a>
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bp-modal-sem-diagrama">
+              <p>📊 Ainda não temos o traçado dessa pista no nosso dataset.</p>
+              <p className="bp-modal-sem-diagrama-hint">
+                O hipódromo "{pista.hipodromo}" não está coberto pelos dados que temos disponíveis.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+}
+
+function MinimapaQuandoVisivel({ courseId }) {
+  const ref = useRef(null);
+  const [visivel, setVisivel] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisivel(true); obs.disconnect(); } }, { rootMargin: "200px" });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return <div ref={ref} className="bp-card-minimapa">{visivel && <MinimapaPista courseId={String(courseId)} marcadores={[]} />}</div>;
+}
+
 function BuscadorPistas() {
   const [busca, setBusca] = useState("");
   const [filtroGrade, setFiltroGrade] = useState("Todas");
@@ -1031,8 +1137,12 @@ function BuscadorPistas() {
   const [filtroTerreno, setFiltroTerreno] = useState("Todos");
   const [filtroDirecao, setFiltroDirecao] = useState("Todas");
   const [pistaDiagramaAberta, setPistaDiagramaAberta] = useState(null);
-  const [skillHerdadaParaAdicionar, setSkillHerdadaParaAdicionar] = useState(null);
-  const [skillsDestacadas, setSkillsDestacadas] = useState([]);
+  const [nomesNaRodada, setNomesNaRodada] = useState(() => new Set());
+  useEffect(() => onSnapshot(
+    doc(db, "pistas_sorteadas", "atual"),
+    (snap) => setNomesNaRodada(new Set((snap.exists() ? snap.data().pistas || [] : []).map((p) => p.nome))),
+    () => setNomesNaRodada(new Set()),
+  ), []);
 
   const pistasFiltradas = useMemo(() => {
     const termoBusca = busca.trim().toLowerCase();
@@ -1044,8 +1154,8 @@ function BuscadorPistas() {
       if (filtroTerreno !== "Todos" && p.terrenoCurto !== filtroTerreno) return false;
       if (filtroDirecao !== "Todas" && p.direcao !== filtroDirecao) return false;
       return true;
-    });
-  }, [busca, filtroGrade, filtroHipodromo, filtroCategoria, filtroTerreno, filtroDirecao]);
+    }).sort((a, b) => nomesNaRodada.has(b.nome) - nomesNaRodada.has(a.nome)); // rodada atual primeiro
+  }, [busca, filtroGrade, filtroHipodromo, filtroCategoria, filtroTerreno, filtroDirecao, nomesNaRodada]);
 
   function limparFiltros() {
     setBusca("");
@@ -1063,105 +1173,103 @@ function BuscadorPistas() {
   return (
     <div className="hero-container bp-page">
       <div className="bp-header">
-        <h1 className="bp-title">🔍 Buscador de Pistas</h1>
-        <p className="bp-subtitle">
-          Filtre as corridas do calendário oficial da PTR por grade, hipódromo, distância, terreno e direção.
-        </p>
+        <div className="bp-sobretitulo"><i className="fa-solid fa-screwdriver-wrench"></i> Ferramentas</div>
+        <h1 className="bp-title">Buscador de Pistas</h1>
+        <p className="bp-subtitle">Filtre as corridas do calendário da PTR e abra o diagrama para testar skills.</p>
       </div>
 
       <div className="bp-filtros">
-        <input
-          type="text"
-          className="bp-busca-input"
-          placeholder="Buscar pelo nome da corrida..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-        />
+        <div className="bp-busca">
+          <i className="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            className="bp-busca-input"
+            placeholder="Buscar pelo nome da corrida..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
+
+        <div className="bp-filtros-botoes">
+          {[
+            { rotulo: "Grade", valor: filtroGrade, set: setFiltroGrade, todos: "Todas", opcoes: OPCOES_GRADE },
+            { rotulo: "Terreno", valor: filtroTerreno, set: setFiltroTerreno, todos: "Todos", opcoes: OPCOES_TERRENO },
+            { rotulo: "Direção", valor: filtroDirecao, set: setFiltroDirecao, todos: "Todas", opcoes: OPCOES_DIRECAO, nome: traduzirDirecao },
+          ].map((f) => (
+            <div key={f.rotulo} className="bp-grupo-botoes">
+              <span className="bp-grupo-rotulo">{f.rotulo}</span>
+              {[f.todos, ...f.opcoes].map((o) => (
+                <button key={o} type="button" className={`bp-filtro-botao${f.valor === o ? " ativo" : ""}`} onClick={() => f.set(o)}>
+                  {o === f.todos ? f.todos : f.nome ? f.nome(o) : o}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
 
         <div className="bp-filtros-grid">
-          <div className="bp-filtro-campo">
-            <label>Grade</label>
-            <select value={filtroGrade} onChange={(e) => setFiltroGrade(e.target.value)}>
-              <option value="Todas">— Todas —</option>
-              {OPCOES_GRADE.map((g) => <option key={g} value={g}>{g}</option>)}
-            </select>
-          </div>
-
-          <div className="bp-filtro-campo">
-            <label>Categoria</label>
-            <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
-              <option value="Todas">— Todas —</option>
-              {OPCOES_CATEGORIA.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-
-          <div className="bp-filtro-campo">
-            <label>Terreno</label>
-            <select value={filtroTerreno} onChange={(e) => setFiltroTerreno(e.target.value)}>
-              <option value="Todos">— Todos —</option>
-              {OPCOES_TERRENO.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-
-          <div className="bp-filtro-campo">
-            <label>Direção</label>
-            <select value={filtroDirecao} onChange={(e) => setFiltroDirecao(e.target.value)}>
-              <option value="Todas">— Todas —</option>
-              {OPCOES_DIRECAO.map((d) => <option key={d} value={d}>{traduzirDirecao(d)}</option>)}
-            </select>
-          </div>
-
-          <div className="bp-filtro-campo">
-            <label>Hipódromo</label>
-            <select value={filtroHipodromo} onChange={(e) => setFiltroHipodromo(e.target.value)}>
-              <option value="Todos">— Todos —</option>
-              {OPCOES_HIPODROMO.map((h) => <option key={h} value={h}>{h}</option>)}
-            </select>
-          </div>
+          {[
+            { rotulo: "Categoria", icone: "fa-ruler-horizontal", valor: filtroCategoria, set: setFiltroCategoria, todos: "Todas", opcoes: OPCOES_CATEGORIA },
+            { rotulo: "Hipódromo", icone: "fa-location-dot", valor: filtroHipodromo, set: setFiltroHipodromo, todos: "Todos", opcoes: OPCOES_HIPODROMO },
+          ].map((f) => (
+            <div key={f.rotulo} className={`bp-filtro-campo${f.valor !== f.todos ? " ativo" : ""}`}>
+              <label><i className={`fa-solid ${f.icone}`}></i> {f.rotulo}</label>
+              <select value={f.valor} onChange={(e) => f.set(e.target.value)}>
+                <option value={f.todos}>{f.todos}</option>
+                {f.opcoes.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+          ))}
         </div>
 
         <div className="bp-filtros-rodape">
-          <span className="bp-contagem">{pistasFiltradas.length} de {todasAsPistas.length} pistas</span>
+          <span className="bp-contagem"><strong>{pistasFiltradas.length}</strong> de {todasAsPistas.length} pistas</span>
           {filtrosAtivos && (
-            <button type="button" className="bp-btn-limpar" onClick={limparFiltros}>Limpar filtros</button>
+            <button type="button" className="bp-btn-limpar" onClick={limparFiltros}><i className="fa-solid fa-xmark"></i> Limpar filtros</button>
           )}
         </div>
       </div>
 
       {pistasFiltradas.length === 0 ? (
         <div className="bp-vazio">
+          <i className="fa-solid fa-flag-checkered"></i>
           <p>Nenhuma pista encontrada com esses filtros.</p>
         </div>
       ) : (
         <div className="bp-grid">
           {pistasFiltradas.map((p) => {
             const infoGrade = GRADE_INFO[p.grade] || GRADE_INFO.G3;
-            const corCategoria = CATEGORIA_DISTANCIA_INFO[p.distanciaCategoria]?.cor || "#a4b3c6";
+            const corCategoria = CATEGORIA_DISTANCIA_INFO[p.distanciaCategoria]?.cor || "#8193a8";
+            const naRodada = nomesNaRodada.has(p.nome);
+            const courseId = courseIdDaPista(p);
             return (
-              <div key={p.nome} className="bp-card">
+              <div key={p.nome} className={`bp-card${p.grade === "G1" ? " g1" : ""}${naRodada ? " na-rodada" : ""}`}>
                 <div className="bp-card-img-wrap">
                   <img
                     src={`/assets/img/hipodromos/${slugHipodromo(p.hipodromo)}.png`}
                     alt={p.hipodromo}
                     className="bp-card-img"
+                    loading="lazy"
                     onError={(e) => { e.target.style.display = "none"; }}
                   />
-                  <span className="bp-card-grade-badge" style={{ color: infoGrade.cor, background: infoGrade.bg }}>
-                    {p.grade}
-                  </span>
+                  {FITA_GRADE[p.grade]
+                    ? <img src={`/assets/img/${FITA_GRADE[p.grade]}`} alt={p.grade} className="bp-card-fita" />
+                    : <span className="bp-card-grade-badge" style={{ color: infoGrade.cor, background: infoGrade.bg }}>{p.grade}</span>}
+                  {naRodada && <span className="bp-selo-rodada"><i className="fa-solid fa-calendar-check"></i> Na rodada</span>}
+                  <h3 className="bp-card-nome">{p.nome}</h3>
                 </div>
                 <div className="bp-card-body">
-                  <h3 className="bp-card-nome">{p.nome}</h3>
+                  <div className="bp-card-info">
                   <div className="bp-card-chips">
-                    <span className="bp-chip">📍 {p.hipodromo}</span>
-                    <span className="bp-chip" style={{ color: corCategoria }}>
-                      📏 {p.distanciaNumero}m ({p.distanciaCategoria})
-                    </span>
-                    <span className="bp-chip">🌿 {p.terrenoCurto}</span>
-                    <span className="bp-chip">🧭 {traduzirDirecao(p.direcao)}</span>
+                    <span className="bp-chip"><i className="fa-solid fa-location-dot"></i> {p.hipodromo}</span>
+                    <span className="bp-chip"><i className="fa-solid fa-ruler-horizontal"></i> {p.distanciaNumero}m <em style={{ color: corCategoria }}>{p.distanciaCategoria}</em></span>
+                    <span className="bp-chip"><i className="fa-solid fa-seedling"></i> {p.terrenoCurto}</span>
+                    <span className="bp-chip"><i className="fa-solid fa-rotate"></i> {traduzirDirecao(p.direcao)}</span>
                   </div>
-                  <button type="button" className="bp-btn-diagrama" onClick={() => { setSkillsDestacadas([]); setPistaDiagramaAberta(p); }}>
-                    📊 Ver Diagrama da Pista
+                  {courseId && <MinimapaQuandoVisivel courseId={courseId} />}
+                  </div>
+                  <button type="button" className="bp-btn-diagrama" onClick={() => setPistaDiagramaAberta(p)}>
+                    <i className="fa-solid fa-chart-area"></i> Diagrama da Pista
                   </button>
                 </div>
               </div>
@@ -1174,67 +1282,7 @@ function BuscadorPistas() {
           a partir dos dados extraídos. Se a combinação hipódromo+distância+
           terreno+direção não existir no dataset (ex: Urawa, que não é
           coberto), mostra um aviso em vez de tentar desenhar algo errado. */}
-      {pistaDiagramaAberta && (() => {
-        const dadosCorrida = encontrarCourseData(pistaDiagramaAberta);
-        return (
-          <div className="bp-modal-overlay">
-            <div className="bp-modal-box bp-modal-box-split" onClick={(e) => e.stopPropagation()}>
-              <div className="bp-modal-header">
-                <div style={{ minWidth: 0 }}>
-                  <div className="bpx-sobretitulo"><i className="fa-solid fa-chart-area"></i> Diagrama e teste de skills</div>
-                  <h3>{pistaDiagramaAberta.nome}</h3>
-                  <div className="bpx-chips">
-                    <span><i className="fa-solid fa-location-dot"></i> {pistaDiagramaAberta.hipodromo}</span>
-                    <span><i className="fa-solid fa-ruler-horizontal"></i> {pistaDiagramaAberta.distanciaNumero}m <em>{pistaDiagramaAberta.distanciaCategoria}</em></span>
-                    <span><i className="fa-solid fa-seedling"></i> {pistaDiagramaAberta.terrenoCurto}</span>
-                    <span><i className="fa-solid fa-rotate"></i> {traduzirDirecao(pistaDiagramaAberta.direcao)}</span>
-                  </div>
-                </div>
-                {dadosCorrida && (
-                  <div className="bpx-minimapa-cabecalho">
-                    <MinimapaPista courseId={Object.keys(courseData).find((id) => courseData[id] === dadosCorrida)} marcadores={[]} />
-                  </div>
-                )}
-                <button type="button" className="bp-modal-fechar" onClick={() => setPistaDiagramaAberta(null)}>&times;</button>
-              </div>
-
-              {dadosCorrida ? (
-                <div className="bp-modal-split">
-                  <div className="bp-modal-coluna-esquerda">
-                    <SeletorDeSkills
-                      dadosCorrida={dadosCorrida}
-                      skillsDestacadas={skillsDestacadas}
-                      setSkillsDestacadas={setSkillsDestacadas}
-                      skillHerdadaParaAdicionar={skillHerdadaParaAdicionar}
-                      aoConsumirSkillHerdadaParaAdicionar={() => setSkillHerdadaParaAdicionar(null)}
-                    />
-                  </div>
-                  <div className="bp-modal-coluna-direita">
-                    <div className="bpx-cartao">
-                      <div className="bpx-secao-titulo"><i className="fa-solid fa-chart-area"></i> Diagrama da pista <span className="bpx-dica">passe o mouse para ver trecho, fase e inclinação</span></div>
-                      <DiagramaPistaGuia dadosCorrida={dadosCorrida} skills={skillsDestacadas} numerar={false} />
-                    </div>
-                    <div className="bpx-linha-cartoes">
-                      <SeletorAmbiente />
-                      <RecomendacoesUniques pistaDiagramaAberta={pistaDiagramaAberta} skillsDestacadas={skillsDestacadas} aoClicarSkillHerdada={setSkillHerdadaParaAdicionar} />
-                    </div>
-                    <p className="bpx-creditos">
-                      Simulação feita com o <a href="https://github.com/alpha123/uma-skill-tools" target="_blank" rel="noopener noreferrer">uma-skill-tools</a>, de alpha123 · <a href="/creditos">créditos</a>
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="bp-modal-sem-diagrama">
-                  <p>📊 Ainda não temos o traçado dessa pista no nosso dataset.</p>
-                  <p className="bp-modal-sem-diagrama-hint">
-                    O hipódromo "{pistaDiagramaAberta.hipodromo}" não está coberto pelos dados que temos disponíveis.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {pistaDiagramaAberta && <ModalDiagramaPista pista={pistaDiagramaAberta} aoFechar={() => setPistaDiagramaAberta(null)} />}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import RotaRestrita from "./components/RotaRestrita";
@@ -23,6 +23,7 @@ import BuscadorPistas from "./pages/BuscadorPistas";
 const ReplayArquivo = lazy(() => import("./pages/ReplayArquivo"));
 const TreinadorPerfil = lazy(() => import("./pages/TreinadorPerfil"));
 const GuiaMeta = lazy(() => import("./pages/GuiaMeta"));
+const Comparador = lazy(() => import("./pages/Comparador"));
 const AdminGuiaMeta = lazy(() => import("./pages/AdminGuiaMeta"));
 
 // 🎯 Página provisória, só de "segurar a bandeira" enquanto a gente não
@@ -38,7 +39,11 @@ function PaginaEmConstrucao({ titulo }) {
   );
 }
 
+// Telas em tela cheia (ferramentas) não mostram o rodapé.
+const SEM_RODAPE = ["/comparador"];
+
 function App() {
+  const { pathname } = useLocation();
   return (
     <>
       <Navbar />
@@ -65,13 +70,14 @@ function App() {
           <Route path="/pistas" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><BuscadorPistas /></RotaRestrita>} />
           <Route path="/admin-guia-meta" element={<RotaRestrita niveis={["admin"]}><Suspense fallback={null}><AdminGuiaMeta /></Suspense></RotaRestrita>} />
           <Route path="/guia-meta" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><GuiaMeta /></Suspense></RotaRestrita>} />
+          <Route path="/comparador" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><Comparador /></Suspense></RotaRestrita>} />
           <Route path="/replay" element={<RotaRestrita niveis={NIVEIS_FERRAMENTAS}><Suspense fallback={null}><ReplayArquivo /></Suspense></RotaRestrita>} />
           <Route path="/treinador/:nome" element={<Suspense fallback={null}><TreinadorPerfil /></Suspense>} />
           <Route path="*" element={<PaginaEmConstrucao titulo="Página não encontrada" />} />
         </Routes>
       </div>
 
-      <Footer />
+      {!SEM_RODAPE.includes(pathname) && <Footer />}
     </>
   );
 }

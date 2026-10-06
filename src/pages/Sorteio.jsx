@@ -153,6 +153,40 @@ const catalogoCompletoPistas = [...bancoCorridas, ...bancoG1]
 //    vez até o 6º pull, se nenhuma delas tiver saído até então.
 //  - Sem Grand Live: garante que Speed apareça pelo menos uma vez até o 6º pull.
 // Também tem desfazer-última-carta, reset com confirmação, e shuffle.
+// Fita oficial da grade (a mesma da Agenda/Buscador).
+const FITA_GRADE = { G1: "utx_txt_grade_ribbon_05.png", G2: "utx_txt_grade_ribbon_04.png", G3: "utx_txt_grade_ribbon_03.png" };
+
+// Topo + chips do cartão de pista do sorteio. Sem pista: "selado" (ou o
+// nome piscando enquanto a roleta gira).
+function VisualPistaSorteio({ pista, rodando, textoRolando, textoVazio }) {
+  if (rodando || !pista) {
+    return (
+      <div className={`sorteio-pista-topo vazio${rodando ? " rodando" : ""}`}>
+        <i className={`fa-solid ${rodando ? "fa-dice fa-spin" : "fa-lock"}`}></i>
+        <span>{rodando ? textoRolando : textoVazio}</span>
+      </div>
+    );
+  }
+  const sentido = pista.direcao === "Left" ? "Esquerda" : pista.direcao === "Right" ? "Direita" : "Reta";
+  const imgHipodromo = (pista.hipodromo || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const grade = pista.grade || "G3";
+  return (
+    <div className="sorteio-pista-revelada">
+      <div className="sorteio-pista-topo">
+        <img src={`/assets/img/hipodromos/${imgHipodromo}.png`} alt={pista.hipodromo} className="sorteio-pista-img" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        {FITA_GRADE[grade] ? <img src={`/assets/img/${FITA_GRADE[grade]}`} alt={grade} className="sorteio-pista-fita" /> : <span className="sorteio-pista-grade">{grade}</span>}
+        <h4 className="sorteio-pista-nome">{pista.nome}</h4>
+      </div>
+      <div className="sorteio-pista-chips">
+        <span><i className="fa-solid fa-location-dot"></i> {pista.hipodromo}</span>
+        <span><i className="fa-solid fa-ruler-horizontal"></i> {pista.distancia}</span>
+        <span><i className="fa-solid fa-seedling"></i> {pista.terreno}</span>
+        <span><i className="fa-solid fa-rotate"></i> {sentido}</span>
+      </div>
+    </div>
+  );
+}
+
 function Sorteio() {
   const navigate = useNavigate();
 
@@ -206,27 +240,6 @@ function Sorteio() {
     setPistasG1Sorteadas((p) => ({ ...p, [indice]: pista }));
   }
 
-  function CardResultadoG1({ pista }) {
-    if (!pista) {
-      return <span className="result-placeholder" style={{ color: "#a4b3c6", fontSize: "9.5pt" }}>Selecione uma copa oficial de elite...</span>;
-    }
-    const nomeImagem = pista.nome.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const sentido = pista.direcao === "Left" ? "Esquerda" : pista.direcao === "Right" ? "Direita" : "Reta";
-    return (
-      <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
-        <img
-          src={`/assets/img/copas/${nomeImagem}.png`}
-          alt={pista.nome}
-          style={{ maxWidth: "140px", width: "100%", borderRadius: "6px", display: "block", margin: "0 auto 10px auto", border: "1px solid #c5a059", boxShadow: "0 4px 10px #000000" }}
-        />
-        <h4 style={{ color: "#c5a059", fontSize: "10.5pt", fontWeight: 700, margin: "0 0 4px 0", fontFamily: "'Montserrat', sans-serif" }}>{pista.nome}</h4>
-        <span style={{ fontSize: "8pt", fontWeight: "bold", background: "rgba(197, 160, 89, 0.15)", color: "#c5a059", padding: "1px 8px", borderRadius: "4px", display: "inline-block", marginBottom: "4px" }}>{pista.grade}</span>
-        <p style={{ margin: "2px 0", fontSize: "9pt", color: "#f1ead4", fontWeight: 500 }}>📍 {pista.hipodromo} ({sentido})</p>
-        <p style={{ margin: 0, fontSize: "8.5pt", color: "#a4b3c6" }}>📏 {pista.distancia} | 🌿 {pista.terreno}</p>
-      </div>
-    );
-  }
-
   // ==========================================================================
   // PISTAS G2/G3 (4 slots, roleta de "nomes piscando")
   // ==========================================================================
@@ -273,36 +286,6 @@ function Sorteio() {
     const resultadoOficial = opcoesValidas[Math.floor(Math.random() * opcoesValidas.length)];
     setPistasSorteadas((p) => ({ ...p, [numeroPista]: resultadoOficial }));
     setRodandoPista((r) => ({ ...r, [numeroPista]: false }));
-  }
-
-  function CardResultadoPista({ numeroPista }) {
-    const pista = pistasSorteadas[numeroPista];
-    const rodando = rodandoPista[numeroPista];
-
-    if (rodando) {
-      return <span style={{ fontFamily: "'Montserrat'", fontSize: "10pt", color: "#a4b3c6", opacity: 0.8, fontWeight: 600, display: "inline-block" }}>{textoRolando[numeroPista]}</span>;
-    }
-
-    if (!pista) {
-      return <span className="result-placeholder mysterious-text">Selado...</span>;
-    }
-
-    const sentido = pista.direcao === "Left" ? "Esquerda" : pista.direcao === "Right" ? "Direita" : "Reta";
-    const nomeImagemHipodromo = pista.hipodromo ? pista.hipodromo.toLowerCase().replace(/[^a-z0-9]/g, "") : "default";
-
-    return (
-      <div className="result-pista-info" style={{ animation: "fadeIn 0.3s ease-out", textAlign: "center", width: "100%" }}>
-        <img
-          src={`/assets/img/hipodromos/${nomeImagemHipodromo}.png`}
-          alt={pista.hipodromo}
-          style={{ maxWidth: "120px", width: "100%", borderRadius: "6px", display: "block", margin: "0 auto 10px auto", border: "1px solid #c5a059", boxShadow: "0 4px 10px #000000" }}
-        />
-        <h4 style={{ color: "#c5a059", fontSize: "10.5pt", fontWeight: 700, margin: "0 0 4px 0", fontFamily: "'Montserrat', sans-serif" }}>{pista.nome}</h4>
-        <span style={{ fontSize: "8pt", fontWeight: "bold", background: "rgba(197, 160, 89, 0.15)", color: "#c5a059", padding: "1px 8px", borderRadius: "4px", display: "inline-block", marginBottom: "4px" }}>{pista.grade || "G3"}</span>
-        <p style={{ margin: "2px 0", fontSize: "9pt", color: "#f1ead4", fontWeight: 500 }}>📍 {pista.hipodromo} ({sentido})</p>
-        <p style={{ margin: 0, fontSize: "8.5pt", color: "#a4b3c6" }}>📏 {pista.distancia} | 🌿 {pista.terreno}</p>
-      </div>
-    );
   }
 
   const contagemPistasPreenchidas = Object.values(pistasSorteadas).filter((p) => p !== null).length;
@@ -871,9 +854,9 @@ function Sorteio() {
     setAuraSSR("");
     setResultadoSSR(null);
 
-    // 🎯 Diferente das outras roletas: o SSR nunca reordena as fatias
-    // (fica sempre 0-6 em sequência) — o "shuffle" aqui é só cosmético,
-    // igual no site antigo.
+    // Embaralha a ordem das fatias (a cor segue o valor, e o giro acha a
+    // fatia vencedora pelo índice, então o sorteio continua igual).
+    setFatiasSSR((f) => embaralharArray(f));
     setMostrarCardMixedSSR(true);
     setTimeout(() => setMostrarCardMixedSSR(false), 1200);
   }
@@ -905,17 +888,7 @@ function Sorteio() {
   // 🎯 Diferente do site antigo (que precisava ler o texto de dentro do
   // DOM pra montar essa tabela), aqui já temos tudo guardado limpo em
   // estado — então é só montar a lista de linhas direto a partir dele.
-  const ESTACAO_LABELS = { spring: "🌸 Spring (Primavera)", summer: "☀️ Summer (Verão)", fall: "🍁 Fall (Outono)", winter: "❄️ Winter (Inverno)" };
-
   const dataHojeFormatada = new Date().toLocaleDateString("pt-BR");
-  const calTexto = `ED. ${edicao} - ${mes.toUpperCase()} / ${semana.toUpperCase()} (${ESTACAO_LABELS[estacao] || estacao})`;
-
-  const climaTextoQuadro = climaResultado
-    ? `${climaResultado.emoji} ${climaResultado.clima} (${climaResultado.terreno})`
-    : "Aguardando...";
-  const humorTextoQuadro = humorResultado ? humorResultado.humor : "Aguardando...";
-  const cenarioTextoQuadro = cenarioResultado ? `${cenarioResultado.emoji} ${cenarioResultado.cenario}` : "Aguardando...";
-  const maximoSSRQuadro = resultadoSSR !== null ? resultadoSSR : "Aguardando...";
 
   const tiposDoDeckPreenchidos = [1, 2, 3, 4, 5, 6].filter((n) => deckResultados[n]).map((n) => deckResultados[n].tipo);
 
@@ -927,7 +900,6 @@ function Sorteio() {
   if (pistasSorteadas[3] && revelado3) linhasQuadro.push({ pista: pistasSorteadas[3], grade: pistasSorteadas[3].grade || "G3" });
   if (pistasSorteadas[4] && revelado4) linhasQuadro.push({ pista: pistasSorteadas[4], grade: pistasSorteadas[4].grade || "G3" });
 
-  const tdCentroStyle = { textAlign: "center" };
 
   // ==========================================================================
   // PARTE 7/7 (FINAL): EXPORTAR / PUBLICAR
@@ -1622,18 +1594,16 @@ function Sorteio() {
     <>
       <main className="main-layout-wrapper">
         <div className="hero-content lottery-page-content">
-          <div className="lottery-header">
-            <h2 className="lottery-main-title">Gerador de Cenários</h2>
-            <div className="lottery-title-divider"></div>
-            <p className="lottery-subtitle">
-              Configure os filtros temporais abaixo e acione os sorteadores individuais para revelar as pistas oficiais da rodada ao vivo!
-            </p>
+          <div className="sorteio-cabecalho">
+            <div className="sorteio-sobretitulo"><i className="fa-solid fa-dice"></i> Admin · Edição {edicao || "--"}</div>
+            <h2 className="sorteio-titulo">Gerador de Cenários</h2>
+            <p className="sorteio-descricao">Defina o calendário e acione os sorteadores para revelar as pistas da rodada ao vivo.</p>
           </div>
 
           {/* Painel de Configuração Manual do Calendário */}
           <div className="calendar-config-panel">
             <div className="config-group" style={{ maxWidth: "120px" }}>
-              <label htmlFor="inputEdicao">Edição</label>
+              <label htmlFor="inputEdicao"><i className="fa-solid fa-hashtag"></i> Edição</label>
               <input
                 type="number"
                 id="inputEdicao"
@@ -1641,12 +1611,12 @@ function Sorteio() {
                 min="1"
                 value={edicao}
                 onChange={(e) => setEdicao(e.target.value)}
-                style={{ backgroundColor: "#0b1320", textAlign: "center", padding: "12px 10px" }}
+                style={{ textAlign: "center", backgroundImage: "none" }}
               />
             </div>
 
             <div className="config-group">
-              <label htmlFor="selectMes">Mês</label>
+              <label htmlFor="selectMes"><i className="fa-solid fa-calendar-days"></i> Mês</label>
               <select id="selectMes" className="custom-select" value={mes} onChange={(e) => setMes(e.target.value)}>
                 <option value="janeiro">Janeiro</option>
                 <option value="fevereiro">Fevereiro</option>
@@ -1664,7 +1634,7 @@ function Sorteio() {
             </div>
 
             <div className="config-group">
-              <label htmlFor="selectSemana">Semana</label>
+              <label htmlFor="selectSemana"><i className="fa-solid fa-calendar-week"></i> Semana</label>
               <select id="selectSemana" className="custom-select" value={semana} onChange={(e) => setSemana(e.target.value)}>
                 <option value="early">Early (Início)</option>
                 <option value="late">Late (Final)</option>
@@ -1672,12 +1642,12 @@ function Sorteio() {
             </div>
 
             <div className="config-group">
-              <label htmlFor="selectEstacao">Estação do Ano</label>
+              <label htmlFor="selectEstacao"><i className="fa-solid fa-leaf"></i> Estação</label>
               <select id="selectEstacao" className="custom-select" value={estacao} onChange={(e) => setEstacao(e.target.value)}>
-                <option value="spring">🌸 Spring (Primavera)</option>
-                <option value="summer">☀️ Summer (Verão)</option>
-                <option value="fall">🍁 Fall (Outono)</option>
-                <option value="winter">❄️ Winter (Inverno)</option>
+                <option value="spring">Spring (Primavera)</option>
+                <option value="summer">Summer (Verão)</option>
+                <option value="fall">Fall (Outono)</option>
+                <option value="winter">Winter (Inverno)</option>
               </select>
             </div>
           </div>
@@ -1687,26 +1657,19 @@ function Sorteio() {
             {/* FILEIRA TOP: G1 (2 slots) */}
             <div className="pyramid-row row-top" style={{ display: "flex", flexWrap: "wrap", gap: "25px", justifyContent: "center" }}>
               {[1, 2].map((indice) => (
-                <div key={indice} className="lottery-card dynamic-card manual-g1-card" style={{ maxWidth: "450px", width: "100%", flex: "1 1 380px" }}>
-                  <div className="lottery-card-badge badge-gold">👑 Elite G1 #{indice}</div>
-                  <div className="lottery-icon-wrapper">🏆</div>
-                  <h3>Circuito de Elite</h3>
-                  <div className="lottery-result-box" style={{ minHeight: "100px" }}>
-                    <CardResultadoG1 pista={pistasG1Sorteadas[indice]} />
-                  </div>
-                  <div className="config-group" style={{ marginTop: "15px", width: "100%" }}>
-                    <select
-                      className="custom-select"
-                      style={{ backgroundColor: "#0b1320", fontSize: "9.5pt", padding: "10px" }}
-                      value={selectG1[indice]}
-                      onChange={(e) => handleSelecionarG1(indice, e.target.value)}
-                    >
-                      <option value="">-- Escolher G1 --</option>
-                      {opcoesG1Disponiveis(indice).map((p) => (
-                        <option key={p.nome} value={p.nome}>🏆 {p.nome}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div key={indice} className={`lottery-card dynamic-card manual-g1-card sorteio-pista${pistasG1Sorteadas[indice] ? " g1" : ""}`}>
+                  <div className="sorteio-pista-rotulo"><i className="fa-solid fa-crown"></i> G1 #{indice}</div>
+                  <VisualPistaSorteio pista={pistasG1Sorteadas[indice]} textoVazio="Escolha a G1 abaixo" />
+                  <select
+                    className="custom-select sorteio-pista-select"
+                    value={selectG1[indice]}
+                    onChange={(e) => handleSelecionarG1(indice, e.target.value)}
+                  >
+                    <option value="">Escolher G1...</option>
+                    {opcoesG1Disponiveis(indice).map((p) => (
+                      <option key={p.nome} value={p.nome}>{p.nome}</option>
+                    ))}
+                  </select>
                 </div>
               ))}
             </div>
@@ -1717,19 +1680,15 @@ function Sorteio() {
                 { numero: 1, badge: "Circuito Alpha" },
                 { numero: 2, badge: "Circuito Beta" },
               ].map(({ numero, badge }) => (
-                <div key={numero} className="lottery-card dynamic-card">
-                  <div className="lottery-card-badge">{badge}</div>
-                  <div className="lottery-icon-wrapper reveal-icon">❓</div>
-                  <h3>Pista G2/G3 #{numero}</h3>
-                  <div className="lottery-result-box">
-                    <CardResultadoPista numeroPista={numero} />
-                  </div>
+                <div key={numero} className={`lottery-card dynamic-card sorteio-pista`}>
+                  <div className="sorteio-pista-rotulo"><i className="fa-solid fa-flag-checkered"></i> {badge} · G2/G3 #{numero}</div>
+                  <VisualPistaSorteio pista={pistasSorteadas[numero]} rodando={rodandoPista[numero]} textoRolando={textoRolando[numero]} textoVazio="Selado" />
                   <button
-                    className="btn-trigger-lottery individual-trigger"
+                    className="sorteio-pista-sortear"
                     onClick={() => iniciarRoletaPista(numero)}
                     disabled={rodandoPista[numero]}
                   >
-                    <i className="fa-solid fa-dice"></i> SORTEAR
+                    <i className="fa-solid fa-dice"></i> {pistasSorteadas[numero] ? "Sortear de novo" : "Sortear"}
                   </button>
                 </div>
               ))}
@@ -1765,19 +1724,15 @@ function Sorteio() {
                 { numero: 3, badge: "Circuito Gamma", revelado: revelado3 },
                 { numero: 4, badge: "Circuito Delta", revelado: revelado4 },
               ].map(({ numero, badge, revelado }) => (
-                <div key={numero} className={`lottery-card dynamic-card ${revelado ? "card-revealed" : "card-hidden"}`}>
-                  <div className="lottery-card-badge">{badge}</div>
-                  <div className="lottery-icon-wrapper reveal-icon">❓</div>
-                  <h3>Pista G2/G3 #{numero}</h3>
-                  <div className="lottery-result-box">
-                    <CardResultadoPista numeroPista={numero} />
-                  </div>
+                <div key={numero} className={`lottery-card dynamic-card sorteio-pista ${revelado ? "card-revealed" : "card-hidden"}`}>
+                  <div className="sorteio-pista-rotulo"><i className="fa-solid fa-flag-checkered"></i> {badge} · G2/G3 #{numero}</div>
+                  <VisualPistaSorteio pista={pistasSorteadas[numero]} rodando={rodandoPista[numero]} textoRolando={textoRolando[numero]} textoVazio="Selado" />
                   <button
-                    className="btn-trigger-lottery individual-trigger"
+                    className="sorteio-pista-sortear"
                     onClick={() => iniciarRoletaPista(numero)}
                     disabled={rodandoPista[numero]}
                   >
-                    <i className="fa-solid fa-dice"></i> SORTEAR
+                    <i className="fa-solid fa-dice"></i> {pistasSorteadas[numero] ? "Sortear de novo" : "Sortear"}
                   </button>
                 </div>
               ))}
@@ -1785,20 +1740,20 @@ function Sorteio() {
           </div>
 
           {contagemPistasPreenchidas > 0 && (
-            <p style={{ textAlign: "center", color: "#a4b3c6", fontSize: "9pt", marginTop: "15px" }}>
-              Sorteio em progresso. {contagemPistasPreenchidas} de 4 circuitos de suporte já foram oficializados para os confrontos.
+            <p style={{ textAlign: "center", color: "#8193a8", fontSize: "8.5pt", marginTop: "15px", fontFamily: "'Montserrat', sans-serif" }}>
+              <i className="fa-solid fa-circle-check" style={{ color: "#7fd08a" }}></i> {contagemPistasPreenchidas} de 4 pistas G2/G3 sorteadas
             </p>
           )}
 
           {/* CLIMA + HUMOR + CENÁRIO */}
-          <div className="weather-section-container" style={{ marginTop: "20px", borderTop: "1px dashed rgba(197, 160, 89, 0.2)", paddingTop: "25px", paddingBottom: "40px", width: "100%" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "40px", width: "100%" }}>
+          <div className="weather-section-container sorteio-roletas">
+            <div className="sorteio-roletas-grid">
 
               {/* CLIMA */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "500px", width: "100%" }}>
-                <div className="lottery-header" style={{ textAlign: "center", marginBottom: "15px" }}>
-                  <h3 className="lottery-main-title" style={{ fontSize: "16pt", fontFamily: "'Cinzel', serif", color: "#c5a059", marginBottom: "5px" }}>Condições da Rodada</h3>
-                  <p className="lottery-subtitle" style={{ fontSize: "9pt", color: "#a4b3c6" }}>Acione a engrenagem para definir o ecossistema e clima.</p>
+              <div className="sorteio-roleta-cartao">
+                <div className="sorteio-secao-cabecalho">
+                  <div className="sorteio-secao-titulo"><i className="fa-solid fa-cloud-sun-rain"></i> Condições da Rodada</div>
+                  <p>Acione a engrenagem para definir o ecossistema e clima.</p>
                 </div>
                 <div className="roulette-wrapper" style={{ position: "relative", width: "450px", height: "450px", margin: "0 auto" }}>
                   <div className="wheel-pointer" style={{ position: "absolute", top: "-18px", left: "50%", transform: "translateX(-50%)", fontSize: "30pt", color: "#c5a059", textShadow: "0 3px 12px rgba(0,0,0,0.9)", zIndex: 10, pointerEvents: "none" }}>▼</div>
@@ -1812,13 +1767,13 @@ function Sorteio() {
                     style={{ borderRadius: "50%", border: "3px solid rgba(197, 160, 89, 0.3)", boxShadow: "0 0 35px rgba(0,0,0,0.8)", display: "block" }}
                   ></canvas>
                 </div>
-                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${climaAura}`} style={{ maxWidth: "380px", width: "100%", padding: "25px", marginTop: "25px" }}>
-                  <div className="lottery-card-badge badge-gold">🌤️ Condição da Pista</div>
+                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${climaAura}`}>
+                  <div className="lottery-card-badge badge-gold">Condição da pista</div>
                   <div className="lottery-result-box" style={{ minHeight: "80px", width: "100%" }}>
                     {climaRodando ? (
                       <span style={{ fontFamily: "'Montserrat'", fontSize: "10pt", color: "#a4b3c6", fontWeight: 600, letterSpacing: "1px" }}>ROLETA EM MOVIMENTO...</span>
                     ) : climaResultado ? (
-                      <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
+                      <div className="result-pista-info" style={{ animation: "sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2)", textAlign: "center", width: "100%" }}>
                         <h4 style={{ color: "#c5a059", fontFamily: "'Montserrat', sans-serif" }}>{climaResultado.emoji} {climaResultado.clima}</h4>
                         <span style={{ fontSize: "8.5pt", fontWeight: "bold", background: "rgba(197, 160, 89, 0.15)", color: "#c5a059", padding: "4px 14px", borderRadius: "50px", display: "inline-block", marginTop: "5px", border: "1px solid rgba(197, 160, 89, 0.3)" }}>
                           TERRENO: {climaResultado.terreno}
@@ -1829,10 +1784,10 @@ function Sorteio() {
                     )}
                   </div>
                   <div style={{ display: "flex", gap: "12px", marginTop: "5px", width: "100%" }}>
-                    <button className="btn-minimal-reveal" style={{ flex: 1, padding: "14px", fontSize: "9pt", borderRadius: "50px" }} onClick={embaralharClima} disabled={climaRodando}>
+                    <button className="btn-minimal-reveal" style={{ flex: 1 }} onClick={embaralharClima} disabled={climaRodando}>
                       <i className="fa-solid fa-shuffle"></i> SHUFFLE
                     </button>
-                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2, marginTop: 0, padding: "14px 25px", borderRadius: "50px" }} onClick={girarClima} disabled={climaRodando}>
+                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2 }} onClick={girarClima} disabled={climaRodando}>
                       <i className="fa-solid fa-play"></i> SORTEAR
                     </button>
                   </div>
@@ -1840,10 +1795,10 @@ function Sorteio() {
               </div>
 
               {/* HUMOR */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "500px", width: "100%" }}>
-                <div className="lottery-header" style={{ textAlign: "center", marginBottom: "15px" }}>
-                  <h3 className="lottery-main-title" style={{ fontSize: "16pt", fontFamily: "'Cinzel', serif", color: "#c5a059", marginBottom: "5px" }}>Humor da Uma Musume</h3>
-                  <p className="lottery-subtitle" style={{ fontSize: "9pt", color: "#a4b3c6" }}>Defina o estado mental e o bônus de status das corredoras.</p>
+              <div className="sorteio-roleta-cartao">
+                <div className="sorteio-secao-cabecalho">
+                  <div className="sorteio-secao-titulo"><i className="fa-solid fa-face-smile"></i> Humor da Uma Musume</div>
+                  <p>Defina o estado mental e o bônus de status das corredoras.</p>
                 </div>
                 <div className="roulette-wrapper" style={{ position: "relative", width: "450px", height: "450px", margin: "0 auto" }}>
                   <div className="wheel-pointer" style={{ position: "absolute", top: "-18px", left: "50%", transform: "translateX(-50%)", fontSize: "30pt", color: "#c5a059", textShadow: "0 3px 12px rgba(0,0,0,0.9)", zIndex: 10, pointerEvents: "none" }}>▼</div>
@@ -1857,13 +1812,13 @@ function Sorteio() {
                     style={{ borderRadius: "50%", border: "3px solid rgba(197, 160, 89, 0.3)", boxShadow: "0 0 35px rgba(0,0,0,0.8)", display: "block" }}
                   ></canvas>
                 </div>
-                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${humorAura}`} style={{ maxWidth: "380px", width: "100%", padding: "25px", marginTop: "25px" }}>
-                  <div className="lottery-card-badge badge-gold">🔥 Estado de Espírito</div>
+                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${humorAura}`}>
+                  <div className="lottery-card-badge badge-gold">Estado de espírito</div>
                   <div className="lottery-result-box" style={{ minHeight: "80px", width: "100%" }}>
                     {humorRodando ? (
                       <span style={{ fontFamily: "'Montserrat'", fontSize: "10pt", color: "#a4b3c6", fontWeight: 600, letterSpacing: "1px" }}>SORTEANDO HUMOR...</span>
                     ) : humorResultado ? (
-                      <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
+                      <div className="result-pista-info" style={{ animation: "sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2)", textAlign: "center", width: "100%" }}>
                         <img src={`/assets/img/${humorResultado.humor.toLowerCase()}.png`} alt={humorResultado.humor} style={{ maxWidth: "80px", display: "block", margin: "0 auto 10px auto" }} />
                         <h4 style={{ color: "#c5a059", fontFamily: "'Montserrat', sans-serif", fontSize: "14pt", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", margin: 0 }}>{humorResultado.humor}</h4>
                       </div>
@@ -1872,10 +1827,10 @@ function Sorteio() {
                     )}
                   </div>
                   <div style={{ display: "flex", gap: "12px", marginTop: "5px", width: "100%" }}>
-                    <button className="btn-minimal-reveal" style={{ flex: 1, padding: "14px", fontSize: "9pt", borderRadius: "50px" }} onClick={embaralharHumor} disabled={humorRodando}>
+                    <button className="btn-minimal-reveal" style={{ flex: 1 }} onClick={embaralharHumor} disabled={humorRodando}>
                       <i className="fa-solid fa-shuffle"></i> SHUFFLE
                     </button>
-                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2, marginTop: 0, padding: "14px 25px", borderRadius: "50px" }} onClick={girarHumor} disabled={humorRodando}>
+                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2 }} onClick={girarHumor} disabled={humorRodando}>
                       <i className="fa-solid fa-play"></i> SORTEAR
                     </button>
                   </div>
@@ -1883,10 +1838,10 @@ function Sorteio() {
               </div>
 
               {/* CENÁRIO */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "500px", width: "100%" }}>
-                <div className="lottery-header" style={{ textAlign: "center", marginBottom: "15px" }}>
-                  <h3 className="lottery-main-title" style={{ fontSize: "16pt", fontFamily: "'Cinzel', serif", color: "#c5a059", marginBottom: "5px" }}>Cenário de Carreira</h3>
-                  <p className="lottery-subtitle" style={{ fontSize: "9pt", color: "#a4b3c6" }}>Sorteie o cenário de treino que definirá a rodada.</p>
+              <div className="sorteio-roleta-cartao">
+                <div className="sorteio-secao-cabecalho">
+                  <div className="sorteio-secao-titulo"><i className="fa-solid fa-map"></i> Cenário de Carreira</div>
+                  <p>Sorteie o cenário de treino que definirá a rodada.</p>
                 </div>
                 <div className="roulette-wrapper" style={{ position: "relative", width: "450px", height: "450px", margin: "0 auto" }}>
                   <div className="wheel-pointer" style={{ position: "absolute", top: "-18px", left: "50%", transform: "translateX(-50%)", fontSize: "30pt", color: "#c5a059", textShadow: "0 3px 12px rgba(0,0,0,0.9)", zIndex: 10, pointerEvents: "none" }}>▼</div>
@@ -1900,13 +1855,13 @@ function Sorteio() {
                     style={{ borderRadius: "50%", border: "3px solid rgba(197, 160, 89, 0.3)", boxShadow: "0 0 35px rgba(0,0,0,0.8)", display: "block" }}
                   ></canvas>
                 </div>
-                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${cenarioGlow}`} style={{ maxWidth: "380px", width: "100%", padding: "25px", marginTop: "25px" }}>
-                  <div className="lottery-card-badge badge-gold">🗺️ Cenário Sorteado</div>
+                <div className={`lottery-card dynamic-card highlight-dark-card weather-card ${cenarioGlow}`}>
+                  <div className="lottery-card-badge badge-gold">Cenário sorteado</div>
                   <div className="lottery-result-box" style={{ minHeight: "80px", width: "100%" }}>
                     {cenarioRodando ? (
                       <span style={{ fontFamily: "'Montserrat'", fontSize: "10pt", color: "#a4b3c6", fontWeight: 600, letterSpacing: "1px" }}>SORTEANDO CENÁRIO...</span>
                     ) : cenarioResultado ? (
-                      <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
+                      <div className="result-pista-info" style={{ animation: "sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2)", textAlign: "center", width: "100%" }}>
                         {obterUrlCenarioCloudinary(cenarioResultado.cenario) && (
                           <img
                             src={obterUrlCenarioCloudinary(cenarioResultado.cenario)}
@@ -1927,10 +1882,10 @@ function Sorteio() {
                     )}
                   </div>
                   <div style={{ display: "flex", gap: "12px", marginTop: "5px", width: "100%" }}>
-                    <button className="btn-minimal-reveal" style={{ flex: 1, padding: "14px", fontSize: "9pt", borderRadius: "50px" }} onClick={embaralharCenario} disabled={cenarioRodando}>
+                    <button className="btn-minimal-reveal" style={{ flex: 1 }} onClick={embaralharCenario} disabled={cenarioRodando}>
                       <i className="fa-solid fa-shuffle"></i> SHUFFLE
                     </button>
-                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2, marginTop: 0, padding: "14px 25px", borderRadius: "50px" }} onClick={girarCenario} disabled={cenarioRodando}>
+                    <button className="btn-trigger-lottery individual-trigger" style={{ flex: 2 }} onClick={girarCenario} disabled={cenarioRodando}>
                       <i className="fa-solid fa-play"></i> SORTEAR
                     </button>
                   </div>
@@ -1941,10 +1896,12 @@ function Sorteio() {
           </div>
 
           {/* MECÂNICA DE SUPPORT CARDS */}
-          <section className="advanced-calendar-section" style={{ borderTop: "1px solid rgba(197, 160, 89, 0.15)", width: "100%", backgroundColor: "transparent" }}>
+          <section className="advanced-calendar-section sorteio-secao">
             <div className="calendar-section-inner">
-              <h2 className="advanced-section-title">Mecânica de Support Cards</h2>
-              <p className="advanced-section-subtitle">Defina a distribuição de atributos do deck estratégico realizando os 6 pulls da rodada.</p>
+              <div className="sorteio-secao-cabecalho">
+                <div className="sorteio-secao-titulo"><i className="fa-solid fa-layer-group"></i> Mecânica de Support Cards</div>
+                <p>Defina a distribuição de atributos do deck estratégico realizando os 6 pulls da rodada.</p>
+              </div>
 
               <div className="deck-cards-center-zone">
                 {/* COLUNA ESQUERDA: roleta + botões */}
@@ -1966,7 +1923,7 @@ function Sorteio() {
                       onClick={girarCarta}
                       disabled={rodandoCartas || cliqueAtual > 6}
                     >
-                      {cliqueAtual > 6 ? "RODADA FINALIZADA" : <>👑 REALIZAR PULL ({cliqueAtual}/6)</>}
+                      {cliqueAtual > 6 ? "RODADA FINALIZADA" : <><i className="fa-solid fa-dice"></i> REALIZAR PULL ({cliqueAtual}/6)</>}
                     </button>
 
                     <button
@@ -2001,10 +1958,10 @@ function Sorteio() {
 
                     return (
                       <div key={num} className={`deck-slot-wrapper ${classeGlow}`}>
-                        <div className="deck-slot-badge">🃏 Card 0{num}</div>
+                        <div className="deck-slot-badge">Carta {num}</div>
                         <div className="deck-slot-inner-box">
                           {resultado ? (
-                            <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
+                            <div className="result-pista-info" style={{ animation: "sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2)", textAlign: "center", width: "100%" }}>
                               <img src={`/assets/img/${nomeImagem}.png`} alt={resultado.tipo} style={{ maxHeight: "45px", display: "block", margin: "0 auto 5px auto", filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.5))" }} />
                               <h4 style={{ color: "#c5a059", fontFamily: "'Montserrat', sans-serif", fontSize: "11pt", fontWeight: 700, textTransform: "uppercase", margin: 0, letterSpacing: "0.5px" }}>
                                 {resultado.tipo}
@@ -2024,7 +1981,7 @@ function Sorteio() {
 
               {/* PAINEL DE CENÁRIOS (toggle de regra do Grand Live) */}
               <div className="scenarios-horizontal-footer-column">
-                <div className="scenarios-panel-badge">🗺️ Cenários de Temporada</div>
+                <div className="scenarios-panel-badge">Cenários de temporada</div>
                 <div className="scenarios-grid-horizontal">
                   <button type="button" className={`btn-scenario-item${grandLiveAtivo ? " active-reveal" : ""}`} onClick={alternarGrandLive} disabled={rodandoCartas}>
                     <span className="scenario-name">Grand Live</span>
@@ -2066,10 +2023,12 @@ function Sorteio() {
           )}
 
           {/* LIMITAÇÃO DE CARTAS SSR */}
-          <section className="advanced-calendar-section" style={{ borderTop: "1px dashed rgba(197, 160, 89, 0.2)", paddingTop: "40px", width: "100%", backgroundColor: "transparent" }}>
+          <section className="advanced-calendar-section sorteio-secao">
             <div className="calendar-section-inner">
-              <h2 className="advanced-section-title">Limitação de Cartas SSR</h2>
-              <p className="advanced-section-subtitle">Defina o máximo de cartas de raridade SSR permitidas na composição do deck estratégico.</p>
+              <div className="sorteio-secao-cabecalho">
+                <div className="sorteio-secao-titulo"><i className="fa-solid fa-gem"></i> Limitação de Cartas SSR</div>
+                <p>Defina o máximo de cartas de raridade SSR permitidas na composição do deck estratégico.</p>
+              </div>
 
               <div className="deck-cards-center-zone" style={{ justifyContent: "center", alignItems: "center", width: "100%" }}>
                 <div className="roulette-side-column">
@@ -2089,16 +2048,16 @@ function Sorteio() {
                 </div>
 
                 <div className={`scenarios-side-column ${auraSSR}`} style={{ minHeight: "auto", padding: "25px 20px 20px 20px" }}>
-                  <div className="scenarios-panel-badge">✨ Veredito da Raridade</div>
+                  <div className="scenarios-panel-badge">Veredito da raridade</div>
                   <div className="deck-slot-inner-box" style={{ minHeight: "90px", background: "rgba(0, 0, 0, 0.25)", border: "1px dashed rgba(197, 160, 89, 0.25)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     {rodandoSSR ? (
                       <div className="deck-slot-placeholder-text">DEFININDO RESTRIÇÃO...</div>
                     ) : mostrarCardMixedSSR ? (
                       <div className="deck-slot-placeholder-text" style={{ color: "#c5a059" }}>🎲 CARD MIXED</div>
                     ) : resultadoSSR !== null ? (
-                      <div className="result-pista-info" style={{ animation: "popReveal 0.4s ease-out", textAlign: "center", width: "100%" }}>
+                      <div className="result-pista-info" style={{ animation: "sorteioRevelar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2)", textAlign: "center", width: "100%" }}>
                         <h4 style={{ color: "#c5a059", fontFamily: "'Montserrat', sans-serif", fontSize: "16pt", fontWeight: 800, textTransform: "uppercase", margin: 0, letterSpacing: "0.5px" }}>
-                          ⭐ MÁXIMO SSR: {resultadoSSR}
+                          Máximo SSR: {resultadoSSR}
                         </h4>
                       </div>
                     ) : (
@@ -2111,68 +2070,97 @@ function Sorteio() {
           </section>
 
           {/* QUADRO OFICIAL DA RODADA */}
-          <section className="advanced-calendar-section" style={{ borderTop: "1px dashed rgba(197, 160, 89, 0.2)", paddingTop: "40px", width: "100%", backgroundColor: "transparent" }}>
-            <div style={{ width: "100%", maxWidth: "95%", margin: "0 auto" }}>
-              <h2 className="advanced-section-title" style={{ textAlign: "center", width: "100%" }}>Quadro Oficial da Rodada</h2>
-              <p className="advanced-section-subtitle" style={{ textAlign: "center", width: "100%", maxWidth: "100%", margin: "0 auto 30px auto" }}>
-                Abaixo são consolidados os dados de todas as pistas ativas, climas e decks estratégicos em tempo real.
-              </p>
+          <section className="advanced-calendar-section sorteio-secao">
+            <div className="calendar-section-inner">
+              <div className="sorteio-secao-cabecalho">
+                <div className="sorteio-secao-titulo"><i className="fa-solid fa-table-list"></i> Quadro Oficial da Rodada</div>
+                <p>Tudo o que foi sorteado até agora: pistas, clima, humor, cenário, deck e limite de SSR.</p>
+              </div>
 
-              <div className="quadro-table-scroll" style={{ width: "100%", background: "#0d1624", border: "1px solid rgba(197, 160, 89, 0.2)", borderRadius: "8px", boxShadow: "0 8px 25px rgba(0,0,0,0.5)", boxSizing: "border-box", overflowX: "auto" }}>
-                <table className="report-table-premium" style={{ width: "100%", minWidth: "1100px" }}>
+              {/* O que é igual pra rodada inteira fica num resumo só; a tabela lista as pistas */}
+              {/* Resumo em blocos coloridos, no mesmo estilo da Agenda e do Guia do Meta */}
+              {(() => {
+                const est = { spring: "Spring", summer: "Summer", fall: "Fall", winter: "Winter" }[estacao] || estacao;
+                const clima = climaResultado?.clima;
+                const condicao = climaResultado?.terreno;
+                const humor = humorResultado?.humor;
+                const cenario = cenarioResultado?.cenario;
+                const blocos = [
+                  ["fa-calendar-day", "Data", dataHojeFormatada, "#c5a059"],
+                  ["fa-calendar-week", "Calendário", `Ed. ${edicao} · ${mes.charAt(0).toUpperCase() + mes.slice(1)} · ${semana === "early" ? "Early" : "Late"}`, "#c5a059"],
+                  [{ Spring: "fa-spa", Summer: "fa-sun", Fall: "fa-leaf", Winter: "fa-snowflake" }[est] ?? "fa-calendar", "Estação", est, { Spring: "#f59ac0", Summer: "#f0a040", Fall: "#e07a3a", Winter: "#8fd3f4" }[est] ?? "#a4b3c6"],
+                  [{ Sunny: "fa-sun", Cloudy: "fa-cloud", Rainy: "fa-cloud-rain", Snowy: "fa-snowflake" }[clima] ?? "fa-cloud-sun", "Clima", clima, { Sunny: "#f3d27a", Cloudy: "#b8c4d4", Rainy: "#5fa8e8", Snowy: "#d9eefc" }[clima] ?? "#a4b3c6"],
+                  ["fa-droplet", "Condição", condicao, { Firm: "#4fc76a", Good: "#a5d65a", Soft: "#f0a040", Heavy: "#e85d5d" }[condicao] ?? "#a4b3c6"],
+                  ["fa-face-smile", "Humor", humor, { Great: "#f2457d", Good: "#f0a040", Normal: "#e3c43a", Bad: "#5fa8e8", Awful: "#a98be0" }[humor] ?? "#a4b3c6"],
+                  ["fa-map", "Cenário", cenario, (cenario && coresCenario[cenario] && cenario !== "Livre") ? coresCenario[cenario] : "#8193a8"],
+                  ["fa-gem", "Máx. SSR", resultadoSSR !== null ? String(resultadoSSR) : null, "#c39bff"],
+                ];
+                return (
+                  <div className="sorteio-quadro-blocos">
+                    {blocos.map(([icone, rotulo, valor, cor]) => (
+                      <div key={rotulo} className="sorteio-quadro-bloco" style={{ background: `linear-gradient(135deg, ${cor}14, #0b1320 75%)`, borderColor: `${cor}33` }}>
+                        <span className="sorteio-quadro-bloco-icone" style={{ background: `${cor}22`, borderColor: `${cor}55` }}>
+                          <i className={`fa-solid ${icone}`} style={{ color: cor }}></i>
+                        </span>
+                        <div style={{ minWidth: 0 }}>
+                          <div className="sorteio-quadro-bloco-rotulo">{rotulo}</div>
+                          <div className={`sorteio-quadro-bloco-valor${valor ? "" : " pendente"}`}>{valor || "Aguardando"}</div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="sorteio-quadro-bloco deck" style={{ background: "linear-gradient(135deg, #1bd39e14, #0b1320 75%)", borderColor: "#1bd39e33" }}>
+                      <span className="sorteio-quadro-bloco-icone" style={{ background: "#1bd39e22", borderColor: "#1bd39e55" }}>
+                        <i className="fa-solid fa-layer-group" style={{ color: "#1bd39e" }}></i>
+                      </span>
+                      <div style={{ minWidth: 0 }}>
+                        <div className="sorteio-quadro-bloco-rotulo">Deck</div>
+                        {tiposDoDeckPreenchidos.length === 0 ? (
+                          <div className="sorteio-quadro-bloco-valor pendente">Aguardando</div>
+                        ) : (
+                          <div style={{ display: "flex", gap: "3px", marginTop: "2px" }}>
+                            {tiposDoDeckPreenchidos.map((tipo, i) => (
+                              <img key={i} src={`/assets/img/${tipo.toLowerCase().replace("/", "")}.png`} title={tipo} alt={tipo} style={{ height: "18px" }} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div className="sorteio-quadro">
+                <table className="report-table-premium">
                   <thead>
                     <tr>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Data Sorteio</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Calendário (Mês/Sem/Est)</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Nome da Pista</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Grade</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Hipódromo / Direção</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Distância / Terreno</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Clima / Pista</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Humor</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Cenário</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Deck de Atributos</th>
-                      <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>Máximo SSR</th>
+                      <th>Grade</th>
+                      <th style={{ textAlign: "left" }}>Pista</th>
+                      <th>Hipódromo</th>
+                      <th>Distância</th>
+                      <th>Terreno</th>
+                      <th>Direção</th>
                     </tr>
                   </thead>
                   <tbody>
                     {linhasQuadro.length === 0 ? (
                       <tr>
-                        <td colSpan={11} style={{ textAlign: "center", color: "#5f758e", padding: "40px", fontStyle: "italic", fontFamily: "'Montserrat', sans-serif" }}>
-                          Aguardando a definição das pistas para gerar o quadro consolidado...
+                        <td colSpan={6} style={{ color: "#5f758e", padding: "30px", fontStyle: "italic" }}>
+                          Nenhuma pista definida ainda.
                         </td>
                       </tr>
                     ) : (
-                      linhasQuadro.map(({ pista, grade }, index) => {
-                        const sentido = pista.direcao === "Left" ? "Esquerda" : pista.direcao === "Right" ? "Direita" : "Reta";
-                        return (
-                          <tr key={index}>
-                            <td style={{ ...tdCentroStyle, fontWeight: 600, color: "#c5a059" }}>{dataHojeFormatada}</td>
-                            <td style={{ ...tdCentroStyle, fontSize: "8.5pt" }}>{calTexto}</td>
-                            <td style={{ fontWeight: 700, color: "#ffffff" }}>{pista.nome}</td>
-                            <td style={tdCentroStyle}>
-                              <span className={`lottery-card-badge ${grade === "G1" ? "badge-gold" : ""}`}>{grade}</span>
-                            </td>
-                            <td style={tdCentroStyle}>{pista.hipodromo} ({sentido})</td>
-                            <td style={{ ...tdCentroStyle, fontSize: "8.5pt" }}>{pista.distancia} / {pista.terreno}</td>
-                            <td style={{ ...tdCentroStyle, fontSize: "8.5pt", color: "#1bd39e", fontWeight: 600 }}>{climaTextoQuadro}</td>
-                            <td style={{ ...tdCentroStyle, fontSize: "8.5pt", color: "#f2457d", fontWeight: 600 }}>{humorTextoQuadro}</td>
-                            <td style={{ ...tdCentroStyle, fontSize: "8.5pt", color: "#9b59b6", fontWeight: 600 }}>{cenarioTextoQuadro}</td>
-                            <td style={tdCentroStyle}>
-                              {tiposDoDeckPreenchidos.length === 0 ? (
-                                <span style={{ color: "#5f758e" }}>❓ Vazio</span>
-                              ) : (
-                                <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
-                                  {tiposDoDeckPreenchidos.map((tipo, i) => (
-                                    <img key={i} src={`/assets/img/${tipo.toLowerCase().replace("/", "")}.png`} title={tipo} alt={tipo} style={{ maxHeight: "22px" }} />
-                                  ))}
-                                </div>
-                              )}
-                            </td>
-                            <td style={{ ...tdCentroStyle, fontWeight: 700, color: "#c5a059" }}>{maximoSSRQuadro}</td>
-                          </tr>
-                        );
-                      })
+                      linhasQuadro.map(({ pista, grade }, index) => (
+                        <tr key={index}>
+                          <td style={{ width: "70px" }}>
+                            {FITA_GRADE[grade] ? <img src={`/assets/img/${FITA_GRADE[grade]}`} alt={grade} style={{ height: "16px", display: "block", margin: "0 auto" }} /> : grade}
+                          </td>
+                          <td style={{ textAlign: "left", fontWeight: 700, color: "#f1ead4" }}>{pista.nome}</td>
+                          <td>{pista.hipodromo}</td>
+                          <td>{pista.distancia}</td>
+                          <td>{pista.terreno}</td>
+                          <td>{pista.direcao === "Left" ? "Esquerda" : pista.direcao === "Right" ? "Direita" : "Reta"}</td>
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
@@ -2181,9 +2169,13 @@ function Sorteio() {
           </section>
 
           {/* ZONA DE CONTROLE: PUBLICAR */}
-          <div style={{ width: "100%", maxWidth: "650px", margin: "40px auto 30px auto", background: "rgba(11, 19, 32, 0.7)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(197, 160, 89, 0.25)", boxShadow: "0 8px 30px rgba(0,0,0,0.5)" }}>
+          <div className="sorteio-passos">
+            <div className="sorteio-secao-cabecalho">
+              <div className="sorteio-secao-titulo"><i className="fa-solid fa-paper-plane"></i> Publicar na Agenda</div>
+              <p>Siga os passos na ordem: publicar a rodada, dividir grupos (se precisar), enviar os IDs das salas e ajustar pistas.</p>
+            </div>
             <div style={{ textAlign: "center", marginBottom: "25px", borderBottom: "1px dashed rgba(197, 160, 89, 0.15)", paddingBottom: "20px" }}>
-              <h4 style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontSize: "13pt", marginTop: 0, marginBottom: "8px" }}>PASSO 1: ESTRUTURA DO CARDÁPIO</h4>
+              <div className="sorteio-passo-titulo"><span>1</span> Publicar a rodada</div>
               <p style={{ color: "#a4b3c6", fontSize: "9pt", marginBottom: "15px" }}>Envie os cenários e decks sorteados para fixar o mural público na Agenda.</p>
               <button
                 type="button"
@@ -2202,9 +2194,7 @@ function Sorteio() {
                 {/* PASSO 2: DIVIDIR EM GRUPOS A/B (opcional, torneio público)    */}
                 {/* ============================================================ */}
                 <div style={{ borderBottom: "1px dashed rgba(197, 160, 89, 0.15)", paddingBottom: "20px", marginBottom: "5px" }}>
-                  <h4 style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontSize: "13pt", marginTop: 0, marginBottom: "5px", textAlign: "center" }}>
-                    PASSO 2: DIVIDIR EM GRUPOS (OPCIONAL)
-                  </h4>
+                  <div className="sorteio-passo-titulo"><span>2</span> Dividir em grupos <em>opcional</em></div>
                   <p style={{ color: "#a4b3c6", fontSize: "9pt", marginBottom: "15px", textAlign: "center" }}>
                     Se passar de 14 confirmados, divide aleatoriamente em Grupo A e Grupo B — cada corrida ganha
                     uma sala (e um código) por grupo no Passo 3. Confirmados na edição atual: <strong style={{ color: "#f1ead4" }}>{confirmadosEdicaoAtiva.length}</strong>.
@@ -2213,7 +2203,7 @@ function Sorteio() {
                   {gruposJaDivididos && (
                     <>
                       <p style={{ color: "#1bd39e", fontSize: "9pt", textAlign: "center", marginBottom: "15px" }}>
-                        ✅ Já dividido: Grupo A com {totalGrupoA}, Grupo B com {totalGrupoB}.
+                        <i className="fa-solid fa-circle-check"></i> Já dividido: Grupo A com {totalGrupoA}, Grupo B com {totalGrupoB}.
                       </p>
 
                       {/* 🎯 Preview dos nomes de cada grupo, pra conferir sem precisar abrir a Agenda em outra aba */}
@@ -2318,7 +2308,7 @@ function Sorteio() {
                   </div>
                 </div>
 
-                <h4 style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontSize: "13pt", marginTop: 0, marginBottom: "5px", textAlign: "center" }}>PASSO 3: IDS DOS LOBBIES (NO DIA DA CORRIDA)</h4>
+                <div className="sorteio-passo-titulo"><span>3</span> IDs das salas <em>no dia da corrida</em></div>
                 <p style={{ color: "#a4b3c6", fontSize: "9pt", marginBottom: "15px", textAlign: "center" }}>
                   Insira o código numérico gerado em cada sala individual aberta no jogo.
                   {gruposJaDivididos && " Com grupos ativos, cada corrida pede 2 códigos — um por grupo."}
@@ -2328,7 +2318,7 @@ function Sorteio() {
                   {listaChavesSalasParaInputs.map(({ idChave, nomeCorrida, grupo }) => (
                     <div key={idChave} style={{ display: "flex", flexDirection: "column", gap: "5px", textAlign: "left", width: "100%" }}>
                       <label style={{ color: "#ffffff", fontSize: "9pt", fontWeight: 600 }}>
-                        🆔 ID PARA: {nomeCorrida}{grupo ? ` — Grupo ${grupo}` : ""}
+                        <i className="fa-solid fa-key" style={{ color: "#c5a059" }}></i> {nomeCorrida}{grupo ? ` — Grupo ${grupo}` : ""}
                       </label>
                       <input
                         type="text"
@@ -2356,9 +2346,7 @@ function Sorteio() {
                 {/* PASSO 4: GERENCIAR PISTAS DA EDIÇÃO (adicionar/remover)       */}
                 {/* ============================================================ */}
                 <div style={{ borderTop: "1px dashed rgba(197, 160, 89, 0.15)", marginTop: "15px", paddingTop: "20px" }}>
-                  <h4 style={{ color: "#c5a059", fontFamily: "'Cinzel', serif", fontSize: "13pt", marginTop: 0, marginBottom: "5px", textAlign: "center" }}>
-                    PASSO 4: GERENCIAR PISTAS DA EDIÇÃO
-                  </h4>
+                  <div className="sorteio-passo-titulo"><span>4</span> Gerenciar pistas da edição</div>
                   <p style={{ color: "#a4b3c6", fontSize: "9pt", marginBottom: "15px", textAlign: "center" }}>
                     Adicione ou remova uma corrida da edição já publicada, sem sortear tudo de novo. O clima, cenário e deck da rodada continuam os mesmos.
                   </p>
@@ -2375,12 +2363,9 @@ function Sorteio() {
                           }}
                         >
                           <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                            <span
-                              className={`lottery-card-badge${p.grade === "G1" ? " badge-gold" : ""}`}
-                              style={{ flexShrink: 0 }}
-                            >
-                              {p.grade}
-                            </span>
+                            {FITA_GRADE[p.grade]
+                              ? <img src={`/assets/img/${FITA_GRADE[p.grade]}`} alt={p.grade} style={{ height: "16px", flexShrink: 0 }} />
+                              : <span style={{ flexShrink: 0, color: "#8193a8", fontSize: "8pt", fontWeight: 800 }}>{p.grade}</span>}
                             <span style={{ color: "#f1ead4", fontSize: "9.5pt", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {p.nome}
                             </span>
