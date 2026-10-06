@@ -37,7 +37,7 @@ export function preRequisito(id) {
 export function custoUnitario(id, nivelDica = 0, kiremono = false) {
   const base = skillMeta[id]?.baseCost ?? 0;
   const desconto = (DESCONTO_DICA[nivelDica] ?? 0) + (kiremono ? 0.1 : 0);
-  return Math.floor(base * (1 - desconto));
+  return Math.floor(base * (1 - desconto) + 1e-9); // 170 × 0,7 = 118,99999 no float
 }
 
 // { total, itens: [{ id, custo, inclui: [{ id, nome, custo }] }] }
@@ -59,4 +59,39 @@ export function custoBuild({ skills = [], dicas = {}, kiremono = false }) {
     return { id, custo, inclui };
   });
   return { total: itens.reduce((s, i) => s + i.custo, 0), itens };
+}
+
+// Grupo da skill (branca ○/◎ e dourada da mesma família têm o mesmo grupo).
+export const grupoDaSkill = (id) => skillMeta[id]?.groupId ?? String(id);
+
+// Planejador: melhor combinação dentro do orçamento de SP (mochila por grupo —
+// no máximo uma opção de cada família, já que a dourada inclui a branca).
+// opcoes: [{ id, grupo, custo, ganho }] → { escolhidas: [id], custo, ganho }
+export function planejarSkills(opcoes, orcamento) {
+  const B = Math.max(0, Math.floor(orcamento));
+  const porGrupo = new Map();
+  opcoes.filter((o) => o.ganho > 0 && o.custo > 0 && o.custo <= B).forEach((o) => {
+    porGrupo.set(o.grupo, [...(porGrupo.get(o.grupo) ?? []), o]);
+  });
+  const grupos = [...porGrupo.values()];
+  let dp = new Float64Array(B + 1);
+  const escolha = grupos.map(() => new Int16Array(B + 1).fill(-1));
+  grupos.forEach((ops, g) => {
+    const novo = Float64Array.from(dp);
+    ops.forEach((o, k) => {
+      for (let b = B; b >= o.custo; b -= 1) {
+        const v = dp[b - o.custo] + o.ganho;
+        if (v > novo[b]) { novo[b] = v; escolha[g][b] = k; }
+      }
+    });
+    dp = novo;
+  });
+  // reconstrói de trás pra frente
+  const escolhidas = [];
+  let b = B;
+  for (let g = grupos.length - 1; g >= 0; g -= 1) {
+    const k = escolha[g][b];
+    if (k >= 0) { escolhidas.push(grupos[g][k]); b -= grupos[g][k].custo; }
+  }
+  return { escolhidas: escolhidas.map((o) => o.id), custo: escolhidas.reduce((s, o) => s + o.custo, 0), ganho: escolhidas.reduce((s, o) => s + o.ganho, 0) };
 }

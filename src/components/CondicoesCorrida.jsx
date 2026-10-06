@@ -9,7 +9,7 @@ const CLIMAS = {
   rainy: { nome: "Rainy", icone: "/assets/img/utx_ico_weather_02.png" },
   snowy: { nome: "Snowy", icone: "/assets/img/utx_ico_weather_03.png" },
 };
-const CONDICOES_TERRENO = { firm: "Firm", good: "Good", soft: "Yielding", heavy: "Heavy" };
+const CONDICOES_TERRENO = { firm: "Firm", good: "Good", soft: "Soft", heavy: "Heavy" };
 const ESTACOES = {
   spring: { nome: "Spring", icone: "/assets/img/global/utx_txt_season_00.png" },
   summer: { nome: "Summer", icone: "/assets/img/global/utx_txt_season_01.png" },

@@ -6,6 +6,7 @@
 
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFecharNoEsc } from "../utils/useFecharNoEsc";
 import { replayParaSimulacao } from "../utils/simulador/replayParaSimulacao";
 import { fotoCorredora } from "../utils/simulador/corredoras";
 
@@ -14,6 +15,7 @@ const COR = { a: "#5fa8e8", b: "#e8806f" };
 function ImportarReplayComparador({ aoImportar, alvo = "a" }) {
   const inputRef = useRef(null);
   const [entrada, setEntrada] = useState(null); // { nomeArquivo, courseId, condicoes, corredoras }
+  useFecharNoEsc(() => setEntrada(null), !!entrada);
   const [escolha, setEscolha] = useState([]); // [numeroA, numeroB]
   const [levarPista, setLevarPista] = useState(true);
   const [lendo, setLendo] = useState(false);
@@ -59,7 +61,7 @@ function ImportarReplayComparador({ aoImportar, alvo = "a" }) {
       {erro && <p className="cmp-aviso" style={{ margin: 0 }}><i className="fa-solid fa-circle-exclamation"></i> {erro}</p>}
 
       {entrada && createPortal(
-        <div className="cmp-modal-fundo" onClick={() => setEntrada(null)}>
+        <div className="cmp-modal-fundo">
           <div className="cmp-modal" onClick={(e) => e.stopPropagation()}>
             <div className="cmp-modal-topo">
               <div>

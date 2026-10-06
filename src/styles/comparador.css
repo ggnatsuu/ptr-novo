@@ -520,3 +520,195 @@
 .cmp-custo-dica button:hover { border-color: rgba(197, 160, 89, 0.6); color: #c5a059; }
 .cmp-custo-dica > span { min-width: 44px; text-align: center; color: #f1ead4; font-family: ui-monospace, Consolas, monospace; }
 .cmp-custo-dica em { display: block; font-style: normal; color: #7fd08a; font-size: 7pt; font-weight: 800; }
+
+/* Preset do CM atual + aviso flutuante (link copiado etc.) */
+.cmp-preset { grid-column: 1 / -1; }
+.cmp-aviso-flutuante { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 1200; background: #0d1624; border: 1px solid rgba(127, 208, 138, 0.6); border-radius: 10px; padding: 10px 16px; color: #f1ead4; font-family: 'Montserrat', sans-serif; font-size: 9.5pt; font-weight: 700; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55); animation: cmpConfirmar 0.2s ease-out; max-width: calc(100vw - 40px); }
+.cmp-aviso-flutuante i { color: #7fd08a; margin-right: 4px; }
+
+/* Planejador de skills (dentro de "Quais skills comprar") */
+.rel-planejador { background: #0b1320; border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.rel-planejador-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rel-planejador-titulo { color: #f3d27a; font-size: 10pt; font-weight: 800; }
+.rel-planejador-linha .cmp-sp { margin-left: auto; }
+.rel-planejador-plano { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.rel-planejador-plano .cmp-skill img { width: 20px; height: 20px; }
+.cmp-relatorio-tabela tr.rel-no-plano td { background: rgba(127, 208, 138, 0.07); }
+.cmp-relatorio-tabela tr.rel-no-plano td:first-child { box-shadow: inset 3px 0 0 #7fd08a; }
+
+/* Custo de cada skill mais legível: SP grande em dourado, dica em etiqueta */
+.cmp-dica { min-width: 38px; padding: 2px 5px 3px; gap: 2px; background: #0b1320; border-color: rgba(197, 160, 89, 0.35); color: #8193a8; font-size: 7pt; letter-spacing: 0.3px; }
+.cmp-dica span { color: #f3d27a; font-size: 9.5pt; font-weight: 800; }
+.cmp-dica.ativa { border-color: rgba(127, 208, 138, 0.7); background: rgba(127, 208, 138, 0.08); color: #7fd08a; }
+.cmp-dica.ativa span { color: #b9f0c2; }
+.cmp-dica:hover { border-color: rgba(243, 210, 122, 0.8); }
+
+/* Prints da loja (OCR) dentro de "Quais skills comprar" */
+.rel-loja { background: #0b1320; border: 1px solid rgba(127, 176, 208, 0.4); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.rel-loja .rel-planejador-titulo { color: #9fd0ef; }
+.rel-loja-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 6px; max-height: 230px; overflow-y: auto; }
+.rel-loja-item { display: flex; align-items: center; gap: 8px; background: #111c2c; border: 1px solid rgba(164, 179, 198, 0.12); border-radius: 8px; padding: 4px 8px; font-size: 9pt; }
+.rel-loja-item.comprada { opacity: 0.5; }
+.rel-loja-item { flex-wrap: wrap; row-gap: 4px; }
+.rel-loja-item .cmp-skill-nome { flex: 1 1 150px; min-width: 0; }
+.rel-loja-item .cmp-skill-nome span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rel-loja-custo { display: inline-flex; align-items: center; gap: 3px; color: #8193a8; font-size: 8pt; font-weight: 700; }
+.rel-loja-custo input { width: 46px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 6px; color: #f3d27a; font-family: ui-monospace, Consolas, monospace; font-size: 9.5pt; font-weight: 700; text-align: right; padding: 3px 5px; outline: none; }
+.rel-loja-custo input:focus { border-color: #c5a059; }
+.rel-loja-custo em { font-style: normal; color: #f0a24a; margin-left: 2px; }
+.rel-loja-status { color: #8193a8; font-size: 7.5pt; font-weight: 700; white-space: nowrap; }
+.rel-loja-status.ok { color: #7fd08a; }
+.rel-loja-status.aviso { color: #f0a24a; }
+.rel-loja-check { display: inline-flex; align-items: center; gap: 4px; color: #a9b8c9; font-size: 8pt; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.rel-loja-tirar { background: none; border: none; color: #5f758e; cursor: pointer; padding: 2px 4px; }
+.rel-loja-tirar:hover { color: #e06b6b; }
+.rel-da-loja { color: #9fd0ef; font-size: 7pt; margin-left: 4px; }
+
+/* "Quais skills comprar": etapas e caminhos */
+.rel-ajuda { color: #8193a8; font-size: 10pt; cursor: help; vertical-align: middle; }
+.rel-etapas { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.rel-etapas li { flex: 1 1 160px; display: flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 9px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); color: #5f758e; font-size: 9pt; font-weight: 800; }
+.rel-etapas li > i { font-size: 8.5pt; }
+.rel-etapa-num { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #18243a; font-size: 8pt; }
+.rel-etapas li.atual { color: #f3d27a; border-color: rgba(197, 160, 89, 0.55); }
+.rel-etapas li.atual .rel-etapa-num { background: #c5a059; color: #0b1320; }
+.rel-etapas li.feita { color: #7fd08a; }
+.rel-etapas li.feita .rel-etapa-num { background: rgba(127, 208, 138, 0.2); }
+.rel-caminhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rel-caminho { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px; border-radius: 12px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); }
+.rel-caminho.destaque { border-color: rgba(197, 160, 89, 0.55); background: linear-gradient(160deg, rgba(197, 160, 89, 0.1), #0b1320 60%); }
+.rel-caminho strong { color: #f1ead4; font-size: 11.5pt; }
+.rel-caminho p { margin: 0; color: #a9b8c9; font-size: 9pt; line-height: 1.5; }
+.rel-caminho small { color: #6f8399; font-size: 8pt; }
+.rel-caminho-icone { font-size: 18pt; color: #c5a059; }
+.rel-caminho:not(.destaque) .rel-caminho-icone { color: #8193a8; }
+.rel-cartao-status { display: flex; align-items: center; gap: 10px; padding: 16px; border-radius: 10px; background: #0b1320; border: 1px solid rgba(127, 176, 208, 0.4); color: #9fd0ef; font-weight: 700; font-size: 9.5pt; }
+.rel-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rel-acao .cmp-progresso { flex: 1; }
+.rel-precisao { display: inline-flex; align-items: center; gap: 6px; color: #8193a8; font-size: 8pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.rel-precisao select { background: #0b1320; color: #f1ead4; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 7px; padding: 6px 8px; font-family: inherit; font-size: 8.5pt; text-transform: none; letter-spacing: 0; }
+.rel-link { background: none; border: none; color: #9fd0ef; font-size: 8.5pt; font-weight: 700; cursor: pointer; padding: 0; margin-left: auto; }
+.rel-link:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------------
+   Controles no padrão do site (página do Comparador + modais dela)
+   ------------------------------------------------------------------ */
+/* barras de rolagem finas e douradas */
+.cmp-pagina *, .cmp-modal-fundo * { scrollbar-width: thin; scrollbar-color: rgba(197, 160, 89, 0.45) transparent; }
+.cmp-pagina *::-webkit-scrollbar, .cmp-modal-fundo *::-webkit-scrollbar { width: 8px; height: 8px; }
+.cmp-pagina *::-webkit-scrollbar-track, .cmp-modal-fundo *::-webkit-scrollbar-track { background: transparent; }
+.cmp-pagina *::-webkit-scrollbar-thumb, .cmp-modal-fundo *::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.4); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+.cmp-pagina *::-webkit-scrollbar-thumb:hover, .cmp-modal-fundo *::-webkit-scrollbar-thumb:hover { background-color: rgba(197, 160, 89, 0.7); }
+.cmp-pagina *::-webkit-scrollbar-corner, .cmp-modal-fundo *::-webkit-scrollbar-corner { background: transparent; }
+
+/* campos numéricos sem as setinhas do navegador (digita, ou usa ↑/↓ do teclado) */
+.cmp-pagina input[type="number"], .cmp-modal-fundo input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.cmp-pagina input[type="number"]::-webkit-inner-spin-button, .cmp-pagina input[type="number"]::-webkit-outer-spin-button,
+.cmp-modal-fundo input[type="number"]::-webkit-inner-spin-button, .cmp-modal-fundo input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* checkbox próprio (a cor de cada corredora vem por --cor) */
+.cmp-pagina input[type="checkbox"], .cmp-modal-fundo input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none; flex: none; width: 16px; height: 16px; margin: 0; border-radius: 5px;
+  border: 1.5px solid rgba(164, 179, 198, 0.4); background: #0b1320; display: inline-grid; place-items: center;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s; vertical-align: middle;
+}
+.cmp-pagina input[type="checkbox"]::after, .cmp-modal-fundo input[type="checkbox"]::after {
+  content: ""; width: 4px; height: 8px; border: solid #0b1320; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px) scale(0); transition: transform 0.12s;
+}
+.cmp-pagina input[type="checkbox"]:hover, .cmp-modal-fundo input[type="checkbox"]:hover { border-color: var(--cor, #c5a059); }
+.cmp-pagina input[type="checkbox"]:checked, .cmp-modal-fundo input[type="checkbox"]:checked { background: var(--cor, #c5a059); border-color: var(--cor, #c5a059); }
+.cmp-pagina input[type="checkbox"]:checked::after, .cmp-modal-fundo input[type="checkbox"]:checked::after { transform: rotate(45deg) translate(-1px, -1px) scale(1); }
+.cmp-pagina input[type="checkbox"]:disabled, .cmp-modal-fundo input[type="checkbox"]:disabled { opacity: 0.35; cursor: not-allowed; }
+.cmp-pagina input[type="checkbox"]:focus-visible, .cmp-modal-fundo input[type="checkbox"]:focus-visible { outline: 2px solid rgba(197, 160, 89, 0.6); outline-offset: 2px; }
+
+/* Lista da loja repaginada (cartões) */
+.rel-loja-lista { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; max-height: 300px; padding-right: 4px; }
+.rel-loja-item { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; padding: 8px 10px; border-radius: 10px; background: linear-gradient(135deg, #132036, #0e1828); border: 1px solid rgba(164, 179, 198, 0.12); transition: border-color 0.15s, opacity 0.15s; }
+.rel-loja-item:hover { border-color: rgba(197, 160, 89, 0.35); }
+.rel-loja-item.fora { opacity: 0.6; }
+.rel-loja-item.comprada { opacity: 0.45; }
+.rel-loja-icone { width: 34px; height: 34px; flex: none; }
+.rel-loja-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.rel-loja-nome { font-size: 9pt; font-weight: 800; line-height: 1.2; }
+.rel-loja-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.rel-loja-custo { display: inline-flex; align-items: center; gap: 3px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.18); border-radius: 999px; padding: 1px 8px 1px 2px; color: #8193a8; font-size: 7.5pt; font-weight: 800; }
+.rel-loja-custo.aviso { border-color: rgba(240, 162, 74, 0.6); }
+.rel-loja-custo input { width: 38px; background: none; border: none; padding: 2px 2px; color: #f3d27a; font-family: ui-monospace, Consolas, monospace; font-size: 9pt; font-weight: 800; text-align: right; outline: none; }
+.rel-loja-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(164, 179, 198, 0.1); color: #a9b8c9; font-size: 7pt; font-weight: 800; white-space: nowrap; cursor: default; }
+.rel-loja-chip.dica { background: rgba(240, 162, 74, 0.16); color: #f0a24a; }
+.rel-loja-chip.aviso { background: rgba(240, 162, 74, 0.16); color: #f0a24a; }
+.rel-loja-comprada { flex: none; display: inline-flex; align-items: center; gap: 5px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.2); border-radius: 999px; color: #8193a8; font-family: inherit; font-size: 7.5pt; font-weight: 800; padding: 5px 10px; cursor: pointer; transition: all 0.15s; }
+.rel-loja-comprada:hover { border-color: rgba(127, 208, 138, 0.6); color: #7fd08a; }
+.rel-loja-comprada.ativa { background: rgba(127, 208, 138, 0.15); border-color: rgba(127, 208, 138, 0.6); color: #7fd08a; }
+.rel-loja-tirar { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; }
+.rel-loja-tirar:hover { background: rgba(224, 107, 107, 0.12); }
+
+/* Caixa de dúvida (qual skill é?) */
+.rel-duvidas { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 10px; background: rgba(240, 162, 74, 0.06); border: 1px solid rgba(240, 162, 74, 0.45); }
+.rel-duvidas-titulo { color: #f0a24a; font-size: 9.5pt; font-weight: 800; }
+.rel-duvida { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 12px; align-items: start; padding: 8px; border-radius: 9px; background: #0b1320; }
+.rel-duvida-print { width: 100%; border-radius: 7px; border: 1px solid rgba(164, 179, 198, 0.2); display: block; }
+.rel-duvida-print.vazio { padding: 14px; color: #a9b8c9; font-size: 8.5pt; font-style: italic; }
+.rel-duvida-opcoes { display: flex; flex-direction: column; gap: 5px; }
+.rel-duvida-opcao { display: flex; align-items: center; gap: 8px; text-align: left; background: #111c2c; border: 1px solid rgba(164, 179, 198, 0.15); border-radius: 8px; padding: 5px 9px; font-family: inherit; font-size: 8.5pt; font-weight: 800; cursor: pointer; transition: border-color 0.15s; }
+.rel-duvida-opcao img { width: 22px; height: 22px; }
+.rel-duvida-opcao span { flex: 1; }
+.rel-duvida-opcao small { color: #6f8399; font-size: 7.5pt; }
+.rel-duvida-opcao small.bate { color: #7fd08a; }
+.rel-duvida-opcao:hover { border-color: rgba(197, 160, 89, 0.5); }
+.rel-duvida-opcao.ativa { border-color: #c5a059; box-shadow: inset 3px 0 0 #c5a059; background: rgba(197, 160, 89, 0.08); }
+.rel-duvida-acoes { display: flex; gap: 6px; margin-top: 2px; }
+.rel-duvida-acoes .cmp-btn-principal { padding: 7px 16px; font-size: 8.5pt; }
+@media (max-width: 640px) { .rel-duvida { grid-template-columns: 1fr; } }
+
+/* Tabela com espaço: o corpo do modal rola inteiro (cabeçalho fixo no topo) */
+.cmp-comprar .cmp-relatorio-tabela { flex: none; min-height: 0; overflow: visible; }
+.cmp-comprar .cmp-relatorio-corpo { overflow-y: auto; }
+.cmp-comprar thead th { top: -14px; }
+/* Loja recolhida: uma linha com os ícones */
+.rel-loja.fechada { padding: 8px 12px; }
+.rel-loja-mini { display: inline-flex; flex-wrap: wrap; gap: 3px; min-width: 0; }
+.rel-loja-mini img { width: 22px; height: 22px; }
+/* custo vindo da loja: número + Lv na mesma linha */
+.rel-custo-loja { display: inline-flex !important; align-items: baseline; gap: 5px; justify-content: center; }
+.rel-custo-loja em { display: inline !important; color: #f0a24a !important; }
+.cmp-comprar .cmp-tabela td { vertical-align: middle; }
+
+/* Loja + outras skills do jogo na mesma tabela */
+.rel-selo-loja, .rel-selo-fora { margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 6.5pt; font-weight: 800; white-space: nowrap; }
+.rel-selo-loja { background: rgba(127, 176, 208, 0.15); color: #9fd0ef; }
+.rel-selo-fora { background: rgba(164, 179, 198, 0.1); color: #8193a8; }
+.cmp-comprar tr.rel-fora-loja td { opacity: 0.55; }
+.cmp-comprar tr.rel-fora-loja:hover td { opacity: 0.9; }
+
+/* Etapa 3: montar a compra */
+.rel-compra { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 12px; background: linear-gradient(160deg, rgba(197, 160, 89, 0.1), #0b1320 55%); border: 1px solid rgba(197, 160, 89, 0.45); }
+.rel-compra-entrada { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 14px; align-items: stretch; }
+.rel-compra-sp { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #0b1320; border: 1.5px solid rgba(197, 160, 89, 0.6); box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.06); }
+.rel-compra-sp:focus-within { border-color: #f3d27a; box-shadow: 0 0 0 4px rgba(243, 210, 122, 0.15); }
+.rel-compra-rotulo { color: #f3d27a; font-size: 8pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.rel-compra-sp input { width: 100%; background: none; border: none; outline: none; color: #fff3d0; font-family: ui-monospace, Consolas, monospace; font-size: 22pt; font-weight: 800; padding: 0; }
+.rel-compra-sp input::placeholder { color: #3d4d63; }
+.rel-compra-sp small { color: #8193a8; font-size: 7.5pt; }
+.rel-compra-chamada { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; }
+.rel-compra-chamada strong { color: #f1ead4; font-size: 11pt; }
+.rel-compra-chamada p { margin: 0; color: #a9b8c9; font-size: 8.5pt; line-height: 1.5; }
+.rel-compra-resultado { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(197, 160, 89, 0.2); }
+.rel-compra-numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rel-compra-numeros > div { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 9px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.12); }
+.rel-compra-numeros span { color: #8193a8; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.rel-compra-numeros strong { color: #f1ead4; font-size: 13pt; font-family: ui-monospace, Consolas, monospace; }
+.rel-compra-numeros .destaque { border-color: rgba(127, 208, 138, 0.45); }
+.rel-compra-numeros .destaque strong { color: #7fd08a; }
+.rel-compra-barra { height: 8px; border-radius: 999px; background: #0b1320; border: 1px solid rgba(164, 179, 198, 0.14); overflow: hidden; }
+.rel-compra-barra > div { height: 100%; background: linear-gradient(90deg, #c5a059, #f3d27a); border-radius: 999px; }
+.rel-compra-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px; }
+.rel-compra-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 9px; background: #111c2c; border: 1px solid rgba(164, 179, 198, 0.1); font-size: 9pt; }
+.rel-compra-item img { width: 24px; height: 24px; }
+.rel-compra-ordem { width: 18px; color: #5f758e; font-size: 8pt; font-weight: 800; text-align: center; }
+.rel-compra-nome { flex: 1; min-width: 0; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rel-compra-ganho { color: #7fd08a; font-family: ui-monospace, Consolas, monospace; font-size: 8.5pt; font-weight: 700; }
+.rel-compra-custo { min-width: 54px; text-align: right; color: #f3d27a; font-family: ui-monospace, Consolas, monospace; font-size: 8.5pt; font-weight: 700; }
+.rel-compra-rodape { display: flex; align-items: center; gap: 14px; }
+.rel-compra-rodape p { flex: 1; }
+@media (max-width: 640px) { .rel-compra-entrada, .rel-compra-numeros { grid-template-columns: 1fr; } .rel-compra-rodape { flex-direction: column; align-items: stretch; } }

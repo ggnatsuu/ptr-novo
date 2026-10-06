@@ -6,6 +6,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFecharNoEsc } from "../utils/useFecharNoEsc";
 import { catalogoSkillsPorId, caminhoIconeSkill, COR_RARIDADE_SKILL } from "../utils/skillsPista";
 import { custoBuild, DESCONTO_DICA } from "../utils/simulador/custoSkills";
 import { fotoCorredora } from "../utils/simulador/corredoras";
@@ -22,6 +23,7 @@ function RelatorioSkills({ corredora, unique, contexto, aoFechar }) {
   const [ordem, setOrdem] = useState("mais"); // "mais" | "menos"
   const worker = useRef(null);
   useEffect(() => () => worker.current?.terminate(), []);
+  useFecharNoEsc(aoFechar);
 
   const compraveis = corredora.skills.filter((id) => catalogoSkillsPorId.has(id));
 
@@ -250,7 +252,7 @@ function RelatorioSkills({ corredora, unique, contexto, aoFechar }) {
   }
 
   return createPortal(
-    <div className="cmp-modal-fundo" onClick={aoFechar}>
+    <div className="cmp-modal-fundo">
       <div className="cmp-modal cmp-relatorio" onClick={(e) => e.stopPropagation()}>
         <div className="cmp-modal-topo">
           <div>

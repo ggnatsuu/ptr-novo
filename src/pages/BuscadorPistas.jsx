@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFecharNoEsc } from "../utils/useFecharNoEsc";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { bancoCorridas, bancoG1 } from "../data/bancos-corridas";
@@ -386,6 +387,7 @@ const ESTRATEGIAS_TESTE = [
 export function CatalogoSkills({ idsAdicionados = [], aoAdicionar, aoFechar }) {
   const [busca, setBusca] = useState("");
   const [ordenacao, setOrdenacao] = useState("raridade");
+  useFecharNoEsc(aoFechar);
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     raridade: new Set(), estrategia: new Set(), distancia: new Set(), terreno: new Set(), fase: new Set(), tipoEfeito: new Set(),
   });
@@ -422,7 +424,7 @@ export function CatalogoSkills({ idsAdicionados = [], aoAdicionar, aoFechar }) {
   // Portal: abre direto no <body>, por cima de tudo (inclusive do menu do
   // topo), mesmo quando quem chama está dentro de um painel fixo/sticky.
   return createPortal(
-      <div className="bp-catalogo-overlay" onClick={() => aoFechar()}>
+      <div className="bp-catalogo-overlay">
         <div className="bpx-catalogo" onClick={(e) => e.stopPropagation()}>
           {/* Busca + ordenação + fechar */}
           <div className="bpx-catalogo-topo">
@@ -826,7 +828,7 @@ const OPCOES_CLIMA = [
 const OPCOES_TERRENO_CONDICAO = [
   { valor: "firme", label: "Firm" },
   { valor: "bom", label: "Good" },
-  { valor: "leve", label: "Yielding" },
+  { valor: "leve", label: "Soft" },
   { valor: "pesado", label: "Heavy" },
 ];
 const OPCOES_ESTACAO = [

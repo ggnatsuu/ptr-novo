@@ -11,6 +11,8 @@ import { CatalogoSkills } from "./BuscadorPistas";
 import ImportarReplayComparador from "../components/ImportarReplayComparador";
 import RelatorioSkills from "../components/RelatorioSkills";
 import TabelaComprarSkills from "../components/TabelaComprarSkills";
+import { criarLinkComparacao, lerLinkComparacao } from "../utils/simulador/compartilhar";
+import { presetEventoAtual } from "../utils/simulador/presetEvento";
 import SkillComDetalhe from "../components/SkillComDetalhe";
 import { custoBuild, DESCONTO_DICA } from "../utils/simulador/custoSkills";
 import courseData from "../uma-skill-tools/data/course_data.json";
@@ -297,6 +299,11 @@ function PainelCorredora({ lado, corredora, mudar, aoCopiarOutro, percurso, aba 
               contexto={contexto}
               aoFechar={() => setComprarAberto(false)}
               aoAdicionar={(id, nivel) => mudar({ ...corredora, skills: corredora.skills.includes(id) ? corredora.skills : [...corredora.skills, id], dicas: { ...(corredora.dicas ?? {}), [id]: nivel } })}
+              aoAdicionarVarios={(itens) => mudar({
+                ...corredora,
+                skills: [...new Set([...corredora.skills, ...itens.map((i) => i.id)])],
+                dicas: { ...(corredora.dicas ?? {}), ...Object.fromEntries(itens.map((i) => [i.id, i.nivel])) },
+              })}
             />
           )}
           {relatorioAberto && <RelatorioSkills corredora={corredora} unique={unique} contexto={contexto} aoFechar={() => setRelatorioAberto(false)} />}
@@ -383,7 +390,7 @@ function PainelAjustes({ ajustes, setAjustes, vezes, setVezes, modo, nomeA, nome
     <div className={`cmp-ajuste-ab${desligada ? " desligada" : ""}`} title={dica}>
       <span>{rotulo}</span>
       {["a", "b"].map((l) => (
-        <input key={l} type="checkbox" disabled={desligada} checked={ajustes[chave][l]} onChange={(e) => set(chave, { ...ajustes[chave], [l]: e.target.checked })} style={{ accentColor: COR[l] }} />
+        <input key={l} type="checkbox" disabled={desligada} checked={ajustes[chave][l]} onChange={(e) => set(chave, { ...ajustes[chave], [l]: e.target.checked })} style={{ "--cor": COR[l] }} />
       ))}
     </div>
   );
@@ -962,6 +969,64 @@ function Comparador() {
   const [configAberta, setConfigAberta] = useState(false);
   const [sementeTexto, setSementeTexto] = useState(""); // vazio = aleatória
   const [ultimaSemente, setUltimaSemente] = useState(null);
+  const [aviso, setAviso] = useState(null); // mensagem curta que some sozinha
+  const avisoTimer = useRef(null);
+  function mostrarAviso(texto) {
+    setAviso(texto);
+    clearTimeout(avisoTimer.current);
+    avisoTimer.current = setTimeout(() => setAviso(null), 2800);
+  }
+
+  // Link de compartilhamento: ao abrir /comparador#c=..., carrega a comparação.
+  useEffect(() => {
+    let ativo = true;
+    lerLinkComparacao().then((dados) => {
+      if (!ativo || !dados) return;
+      setA(dados.a);
+      setB(dados.b);
+      if (dados.courseId && infoPercurso(dados.courseId)) setCourseId(String(dados.courseId));
+      setGrade(dados.grade);
+      if (dados.condicoes) setCondicoes(dados.condicoes);
+      setModo(dados.modo);
+      setCampo(dados.campo);
+      setForcaCampo(dados.forcaCampo);
+      if (dados.ajustes) setAjustes(dados.ajustes);
+      setVezes(dados.vezes);
+      if (dados.semente != null) setSementeTexto(String(dados.semente));
+      mostrarAviso("Comparação carregada do link. É só clicar em Rodar.");
+    });
+    return () => { ativo = false; };
+  }, []);
+
+  async function compartilhar() {
+    try {
+      const digitada = Number.parseInt(sementeTexto, 10);
+      const link = await criarLinkComparacao({
+        a, b, courseId, grade, condicoes, modo, campo, forcaCampo, ajustes, vezes,
+        semente: Number.isFinite(digitada) ? digitada : ultimaSemente,
+      });
+      await navigator.clipboard.writeText(link);
+      mostrarAviso("Link copiado! Quem abrir vê a mesma comparação (e o mesmo resultado, com a semente).");
+    } catch (erro) {
+      console.error(erro);
+      mostrarAviso("Não consegui copiar o link.");
+    }
+  }
+
+  async function usarEventoAtual() {
+    try {
+      const preset = await presetEventoAtual();
+      if (!preset?.courseId) { mostrarAviso("Não achei a pista do evento atual no Guia do Meta."); return; }
+      mudarPercurso(preset.courseId);
+      setGrade("G1");
+      setCondicoes((c) => ({ ...c, ...preset.condicoes }));
+      setResultado(null);
+      mostrarAviso(`Pista e condições do ${preset.nome} aplicadas.`);
+    } catch (erro) {
+      console.error(erro);
+      mostrarAviso("Não consegui ler o Guia do Meta.");
+    }
+  }
   const [progresso, setProgresso] = useState(null);
   const [resultado, setResultado] = useState(null);
   const [erro, setErro] = useState(null);
@@ -1077,6 +1142,9 @@ function Comparador() {
                   <i className="fa-solid fa-eraser"></i> Limpar
                 </button>
               )}
+              <button type="button" className="cmp-btn-discreto" onClick={compartilhar} title="Copia um link com as duas builds, a pista, as condições e a semente">
+                <i className="fa-solid fa-link"></i> Compartilhar
+              </button>
             </>
           )}
         </div>
@@ -1137,6 +1205,11 @@ function Comparador() {
         </button>
         {configAberta && (
         <div className="cmp-corrida-grade">
+          <div className="cmp-preset">
+            <button type="button" className="cmp-btn-discreto" onClick={usarEventoAtual} title="Pista, condição, clima e estação do evento atual do Guia do Meta">
+              <i className="fa-solid fa-trophy"></i> Usar o CM atual (Guia do Meta)
+            </button>
+          </div>
           <div className="cmp-percurso">
             <label>
               <span className="cmp-rotulo">Hipódromo</span>
@@ -1213,6 +1286,7 @@ function Comparador() {
       </p>
       </section>
       </div>
+      {aviso && <div className="cmp-aviso-flutuante"><i className="fa-solid fa-circle-check"></i> {aviso}</div>}
     </main>
   );
 }
